@@ -1,0 +1,2 @@
+# This file ensures the sources directory is tracked in git
+# Scraped data files will be generated here but ignored by git

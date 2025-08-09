@@ -1,0 +1,123 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production builds
+dist/
+build/
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# PWA files
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+
+# MacOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+
+# Log files
+*.log
+logs/
+
+# Data files (these will be generated)
+data/sources/*.json
+data/catalog.json
+data/run-logs/*.log
+data/run-logs/*.jsonl
+
+# PID files for daemon processes
+services/ingestor/.pid
+services/ingestor/ingestor.pid
+*.pid
+
+# Playwright browsers
+.playwright/
+
+# Performance metrics
+services/ingestor/performance-*.jsonl
+
+# Keep data directory structure but ignore contents
+!data/sources/.gitkeep
+!data/run-logs/.gitkeep
+
+# Scraper cache files
+services/ingestor/cache/
+packages/scraper/cache/
+
+# PWA cache and service worker files
+apps/web/public/sw*
+apps/web/public/workbox*
+
+# Turbo cache
+.turbo/
+
+# Generated TypeScript declaration maps
+*.d.ts.map

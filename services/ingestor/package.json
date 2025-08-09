@@ -1,0 +1,42 @@
+{
+  "name": "ingestor",
+  "version": "1.0.0",
+  "description": "Gig data ingestion service with plugin architecture",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "ingest:all": "tsx src/cli.ts ingest:all",
+    "ingest:source": "tsx src/cli.ts ingest:source",
+    "validate": "tsx src/cli.ts validate",
+    "merge": "tsx src/cli.ts merge",
+    "daemon": "tsx src/cli.ts daemon",
+    "stats": "tsx src/cli.ts stats",
+    "scheduler:status": "tsx src/cli.ts scheduler:status",
+    "scheduler:stop": "tsx src/cli.ts scheduler:stop",
+    "scheduler:list": "tsx src/cli.ts scheduler:list",
+    "scheduler:trigger": "tsx src/cli.ts scheduler:trigger",
+    "scheduler:health": "tsx src/cli.ts scheduler:health",
+    "scheduler:performance": "tsx src/cli.ts scheduler:performance",
+    "config:show": "tsx src/cli.ts config:show",
+    "config:validate": "tsx src/cli.ts config:validate",
+    "config:init": "tsx src/cli.ts config:init"
+  },
+  "dependencies": {
+    "@gigateer/contracts": "workspace:*",
+    "pino": "^8.19.0",
+    "pino-pretty": "^10.3.0",
+    "zod": "^3.22.0",
+    "commander": "^12.0.0",
+    "node-cron": "^3.0.3",
+    "bottleneck": "^2.19.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

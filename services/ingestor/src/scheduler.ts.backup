@@ -1,0 +1,148 @@
+import * as cron from "node-cron";
+import { writeFileSync, readFileSync, unlinkSync, existsSync } from "fs";
+import { join } from "path";
+import type { IngestorConfig, ScraperRunStats } from "@gigateer/contracts";
+import { Ingestor } from "./ingestor.js";
+import { logger, type Logger } from "./logger.js";
+
+export interface ScheduleConfig {
+  /** Whether to enable scheduled runs */
+  enabled: boolean;
+  /** Global default schedule (overridden by plugin-specific schedules) */
+  defaultSchedule: string;
+  /** Whether to stagger plugin runs to avoid spikes */
+  staggerMinutes?: number;
+}
+
+export class Scheduler {
+  private tasks: cron.ScheduledTask[] = [];
+  private ingestor: Ingestor;
+  
+  constructor(
+    private readonly ingestorConfig: IngestorConfig,
+    private readonly scheduleConfig: ScheduleConfig,
+    private readonly logger: Logger = logger
+  ) {
+    this.ingestor = new Ingestor(ingestorConfig, this.logger);
+  }
+
+  /**
+   * Starts the scheduler and sets up cron jobs
+   */
+  async start(): Promise<void> {
+    if (!this.scheduleConfig.enabled) {
+      this.logger.info("Scheduler disabled");
+      return;
+    }
+
+    await this.ingestor.initialize();
+    const plugins = this.ingestor["pluginLoader"].getAllPlugins();
+    
+    let staggerOffset = 0;
+    const staggerMinutes = this.scheduleConfig.staggerMinutes || 0;
+
+    for (const [source, plugin] of plugins) {
+      const schedule = plugin.upstreamMeta.defaultSchedule || this.scheduleConfig.defaultSchedule;
+      let adjustedSchedule = schedule;
+
+      // Apply stagger offset if configured
+      if (staggerMinutes > 0 && staggerOffset > 0) {
+        adjustedSchedule = this.adjustSchedule(schedule, staggerOffset);
+      }
+
+      const task = cron.schedule(adjustedSchedule, async () => {
+        this.logger.info({ source }, "Running scheduled ingestion");
+        
+        try {
+          const result = await this.ingestor.ingestSource(source);
+          this.logger.info(
+            {
+              source,
+              success: result.success,
+              new: result.newCount,
+              updated: result.updatedCount,
+              errors: result.errorCount,
+            },
+            "Scheduled ingestion completed"
+          );
+        } catch (error) {
+          this.logger.error(
+            { source, error: (error as Error).message },
+            "Scheduled ingestion failed"
+          );
+        }
+      }, {
+        scheduled: false,
+      });
+
+      this.tasks.push(task);
+      staggerOffset += staggerMinutes;
+
+      this.logger.info(
+        { source, schedule: adjustedSchedule, name: plugin.upstreamMeta.name },
+        "Scheduled plugin"
+      );
+    }
+
+    // Start all tasks
+    this.tasks.forEach(task => task.start());
+    
+    this.logger.info(
+      { taskCount: this.tasks.length },
+      "Scheduler started with cron jobs"
+    );
+  }
+
+  /**
+   * Stops the scheduler and all cron jobs
+   */
+  async stop(): Promise<void> {
+    this.tasks.forEach(task => task.destroy());
+    this.tasks = [];
+    await this.ingestor.cleanup();
+    
+    this.logger.info("Scheduler stopped");
+  }
+
+  /**
+   * Gets status of all scheduled tasks
+   */
+  getStatus(): { source: string; running: boolean; schedule: string }[] {
+    const plugins = this.ingestor["pluginLoader"].getAllPlugins();
+    return Array.from(plugins.entries()).map(([source, plugin], index) => ({
+      source,
+      running: index < this.tasks.length ? this.tasks[index].getStatus() === "scheduled" : false,
+      schedule: plugin.upstreamMeta.defaultSchedule || this.scheduleConfig.defaultSchedule,
+    }));
+  }
+
+  /**
+   * Adjusts a cron schedule by adding minutes offset
+   */
+  private adjustSchedule(schedule: string, offsetMinutes: number): string {
+    const parts = schedule.split(" ");
+    if (parts.length !== 5) {
+      this.logger.warn({ schedule }, "Invalid cron schedule, using as-is");
+      return schedule;
+    }
+
+    // Parse minutes part
+    let minutes = parseInt(parts[1]);
+    if (isNaN(minutes) || parts[1] === "*") {
+      // If minutes is *, randomly distribute
+      minutes = Math.floor(Math.random() * 60);
+    } else {
+      minutes = (minutes + offsetMinutes) % 60;
+    }
+
+    parts[1] = minutes.toString();
+    const adjustedSchedule = parts.join(" ");
+    
+    this.logger.debug(
+      { original: schedule, adjusted: adjustedSchedule, offsetMinutes },
+      "Adjusted schedule for staggering"
+    );
+    
+    return adjustedSchedule;
+  }
+}

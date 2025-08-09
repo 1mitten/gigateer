@@ -1,0 +1,32 @@
+{
+  "name": "gigateer",
+  "version": "1.0.0",
+  "description": "A web app that aggregates live music/event gigs from multiple sources",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "ingest:all": "pnpm --filter ingestor run ingest:all",
+    "ingest:source": "pnpm --filter ingestor run ingest:source",
+    "validate": "pnpm --filter ingestor run validate",
+    "merge": "pnpm --filter ingestor run merge",
+    "daemon": "pnpm --filter ingestor run daemon"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "turbo": "^1.13.0",
+    "typescript": "^5.4.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

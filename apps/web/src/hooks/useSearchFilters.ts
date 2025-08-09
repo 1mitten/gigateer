@@ -1,0 +1,164 @@
+'use client';
+
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+interface FilterValues {
+  city: string;
+  genre: string;
+  venue: string;
+  dateFrom: string;
+  dateTo: string;
+  q: string;
+  page: number;
+  limit: number;
+}
+
+const DEFAULT_FILTERS: FilterValues = {
+  city: '',
+  genre: '',
+  venue: '',
+  dateFrom: '',
+  dateTo: '',
+  q: '',
+  page: 1,
+  limit: 20,
+};
+
+export function useSearchFilters() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Initialize filters from URL params
+  const [filters, setFilters] = useState<FilterValues>(() => {
+    const initialFilters = { ...DEFAULT_FILTERS };
+    
+    // Parse URL params
+    initialFilters.city = searchParams.get('city') || '';
+    initialFilters.genre = searchParams.get('genre') || '';
+    initialFilters.venue = searchParams.get('venue') || '';
+    initialFilters.dateFrom = searchParams.get('dateFrom') || '';
+    initialFilters.dateTo = searchParams.get('dateTo') || '';
+    initialFilters.q = searchParams.get('q') || '';
+    initialFilters.page = parseInt(searchParams.get('page') || '1', 10);
+    initialFilters.limit = parseInt(searchParams.get('limit') || '20', 10);
+    
+    return initialFilters;
+  });
+
+  // Update URL when filters change
+  const updateURL = useCallback((newFilters: FilterValues) => {
+    const params = new URLSearchParams();
+    
+    // Add non-empty filter values to URL
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (key === 'page') {
+        // Only add page if it's not 1
+        if (value > 1) {
+          params.set(key, value.toString());
+        }
+      } else if (key === 'limit') {
+        // Only add limit if it's not the default
+        if (value !== DEFAULT_FILTERS.limit) {
+          params.set(key, value.toString());
+        }
+      } else if (value) {
+        params.set(key, value.toString());
+      }
+    });
+    
+    const queryString = params.toString();
+    const newPath = queryString ? `/?${queryString}` : '/';
+    
+    // Use replace to avoid cluttering browser history
+    router.replace(newPath, { scroll: false });
+  }, [router]);
+
+  // Update filters and URL
+  const updateFilters = useCallback((updates: Partial<FilterValues>) => {
+    const newFilters = { ...filters, ...updates };
+    
+    // Reset page when changing search/filters (except when explicitly updating page)
+    if (!updates.hasOwnProperty('page')) {
+      newFilters.page = 1;
+    }
+    
+    setFilters(newFilters);
+    updateURL(newFilters);
+  }, [filters, updateURL]);
+
+  // Update only page (for pagination)
+  const updatePage = useCallback((page: number) => {
+    updateFilters({ page });
+  }, [updateFilters]);
+
+  // Reset all filters
+  const resetFilters = useCallback(() => {
+    const resetFilters = { ...DEFAULT_FILTERS };
+    setFilters(resetFilters);
+    updateURL(resetFilters);
+  }, [updateURL]);
+
+  // Get active filters for display
+  const activeFilters = useMemo(() => {
+    const active = [];
+    
+    if (filters.city) {
+      active.push({ key: 'city', label: 'City', value: filters.city });
+    }
+    if (filters.genre) {
+      active.push({ key: 'genre', label: 'Genre', value: filters.genre });
+    }
+    if (filters.venue) {
+      active.push({ key: 'venue', label: 'Venue', value: filters.venue });
+    }
+    if (filters.dateFrom) {
+      active.push({ key: 'dateFrom', label: 'From', value: filters.dateFrom });
+    }
+    if (filters.dateTo) {
+      active.push({ key: 'dateTo', label: 'Until', value: filters.dateTo });
+    }
+    if (filters.q) {
+      active.push({ key: 'q', label: 'Search', value: filters.q });
+    }
+    
+    return active;
+  }, [filters]);
+
+  // Remove specific filter
+  const removeFilter = useCallback((key: string) => {
+    updateFilters({ [key]: '' });
+  }, [updateFilters]);
+
+  // Check if any filters are active
+  const hasActiveFilters = useMemo(() => {
+    return Object.entries(filters).some(([key, value]) => {
+      if (key === 'page' || key === 'limit') return false;
+      return Boolean(value);
+    });
+  }, [filters]);
+
+  // Get API query params
+  const apiParams = useMemo(() => {
+    const params: Record<string, string> = {};
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        params[key] = value.toString();
+      }
+    });
+    
+    return params;
+  }, [filters]);
+
+  return {
+    filters,
+    updateFilters,
+    updatePage,
+    resetFilters,
+    removeFilter,
+    activeFilters,
+    hasActiveFilters,
+    apiParams,
+  };
+}

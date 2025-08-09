@@ -1,0 +1,15 @@
+{
+  "gigs": [],
+  "sourceStats": {
+    "lastUpdate": "2024-01-01T00:00:00.000Z",
+    "totalGigs": 0,
+    "newGigs": 0,
+    "updatedGigs": 0,
+    "sources": {}
+  },
+  "metadata": {
+    "version": "1.0",
+    "generatedAt": "2024-01-01T00:00:00.000Z",
+    "schema": "@gigateer/contracts/GigSchema"
+  }
+}
