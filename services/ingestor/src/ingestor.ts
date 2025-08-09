@@ -1,7 +1,7 @@
 import { join } from "path";
 import type { Gig, ScraperRunStats, IngestorConfig } from "@gigateer/contracts";
 import { GigSchema } from "@gigateer/contracts";
-import { logger, type Logger } from "./logger.js";
+import { logger as defaultLogger, type Logger } from "./logger.js";
 import { FileManager, type DetailedRunLog, type PerformanceMetrics } from "./file-manager.js";
 import { ChangeDetector } from "./change-detector.js";
 import { RateLimiter } from "./rate-limiter.js";
@@ -15,7 +15,7 @@ export class Ingestor {
   
   constructor(
     private readonly config: IngestorConfig,
-    private readonly logger: Logger = logger
+    private readonly logger: Logger = defaultLogger
   ) {
     this.fileManager = new FileManager(
       config.rawDataDir,

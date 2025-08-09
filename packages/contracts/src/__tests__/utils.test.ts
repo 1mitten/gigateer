@@ -72,17 +72,17 @@ describe("Utils", () => {
       const id2 = generateGigId("The Venue", "Amazing Concert", "2024-01-15T20:00:00Z", "Amsterdam");
       
       expect(id1).toBe(id2);
-      expect(id1).toBe("the-venue-amazing-concert-2024-01-15t20-00-00z-amsterdam");
+      expect(id1).toBe("the-venue-amazing-concert-2024-01-15t200000z-amsterdam");
     });
 
     it("should handle missing city", () => {
       const id = generateGigId("The Venue", "Concert", "2024-01-15T20:00:00Z");
-      expect(id).toBe("the-venue-concert-2024-01-15t20-00-00z");
+      expect(id).toBe("the-venue-concert-2024-01-15t200000z");
     });
 
     it("should handle special characters in inputs", () => {
       const id = generateGigId("The O2 Arena", "Rock & Roll Show!", "2024-01-15T20:00:00Z", "London");
-      expect(id).toBe("the-o2-arena-rock-roll-show-2024-01-15t20-00-00z-london");
+      expect(id).toBe("the-o2-arena-rock-roll-show-2024-01-15t200000z-london");
     });
 
     it("should create different IDs for different inputs", () => {

@@ -1,0 +1,173 @@
+{
+  "site": {
+    "name": "Exchange Bristol",
+    "baseUrl": "https://exchangebristol.com",
+    "source": "exchange-bristol",
+    "description": "Independent music venue in Bristol, UK",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2024-01-09"
+  },
+  
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 60000
+  },
+  
+  "rateLimit": {
+    "delayBetweenRequests": 2000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+  
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://exchangebristol.com/whats-on/"
+    },
+    {
+      "type": "wait",
+      "selector": ".hf__event-listing",
+      "condition": "visible",
+      "timeout": 45000
+    },
+    {
+      "type": "wait",
+      "timeout": 3000
+    },
+    {
+      "type": "extract", 
+      "containerSelector": ".hf__event-listing",
+      "fields": {
+        "title": {
+          "selector": ".hf__event-listing--name",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "Event at Exchange Bristol"
+        },
+        "artist": {
+          "selector": ".hf__event-listing--name",
+          "attribute": "text", 
+          "required": false,
+          "transform": "trim"
+        },
+        "timeRange": {
+          "selector": ".hf__event-listing--time",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "startTime": {
+          "selector": ".hf__event-listing--time",
+          "attribute": "text",
+          "required": false,
+          "transform": "time-range-start",
+          "fallback": "TBA"
+        },
+        "endTime": {
+          "selector": ".hf__event-listing--time",
+          "attribute": "text",
+          "required": false,
+          "transform": "time-range-end"
+        },
+        "venue": {
+          "selector": ".hf__event-listing--stage-inner",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "Exchange Bristol"
+        },
+        "price": {
+          "selector": ".hf__ticket-button, .button--tickets",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "eventUrl": {
+          "selector": ".hf__event-listing--name",
+          "attribute": "href",
+          "required": false,
+          "transform": "url"
+        },
+        "ticketsUrl": {
+          "selector": ".hf__ticket-button",
+          "attribute": "href",
+          "required": false
+        },
+        "infoUrl": {
+          "selector": "a[href*='#e']",
+          "attribute": "href",
+          "required": false
+        },
+        "image": {
+          "selector": ".hf__event-listing--image",
+          "attribute": "src",
+          "required": false
+        },
+        "description": {
+          "selector": ".hf__event-listing--description-short",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "genres": {
+          "selector": ".hf__event-listing-genre",
+          "attribute": "text",
+          "required": false,
+          "multiple": true,
+          "transform": "trim"
+        }
+      }
+    }
+  ],
+  
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "venue", "date"]
+    },
+    "title": "title",
+    "artist": "artist",
+    "venue": {
+      "name": "venue",
+      "address": "address",
+      "city": "city",
+      "country": "country"
+    },
+    "date": {
+      "start": "startTime",
+      "end": "endTime",
+      "timezone": "timezone"
+    },
+    "price": {
+      "text": "price",
+      "currency": "currency"
+    },
+    "urls": {
+      "event": "eventUrl",
+      "tickets": "ticketsUrl",
+      "info": "infoUrl"
+    },
+    "images": "image",
+    "genres": "genres",
+    "description": "description",
+    "ageRestriction": "ageRestriction"
+  },
+  
+  "validation": {
+    "required": [],
+    "minEventsExpected": 0,
+    "maxEventsExpected": 500
+  },
+  
+  "debug": {
+    "screenshots": true,
+    "saveHtml": false,
+    "logLevel": "debug"
+  }
+}

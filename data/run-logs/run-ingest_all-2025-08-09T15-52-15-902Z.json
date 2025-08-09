@@ -1,0 +1,29 @@
+{
+  "type": "ingest_all",
+  "timestamp": "2025-08-09T15:52:15.902Z",
+  "results": [
+    {
+      "source": "example-venue",
+      "startTime": "2025-08-09T15:52:14.888Z",
+      "endTime": "2025-08-09T15:52:15.902Z",
+      "duration": 1014,
+      "rawCount": 3,
+      "normalizedCount": 3,
+      "newCount": 3,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    }
+  ],
+  "summary": {
+    "totalSources": 1,
+    "successfulSources": 1,
+    "failedSources": 0,
+    "totalGigs": 3,
+    "totalNew": 3,
+    "totalUpdated": 0,
+    "totalErrors": 0,
+    "totalDuration": 1014
+  }
+}

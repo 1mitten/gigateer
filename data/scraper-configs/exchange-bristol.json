@@ -1,0 +1,175 @@
+{
+  "site": {
+    "name": "Exchange Bristol",
+    "baseUrl": "https://exchangebristol.com",
+    "source": "exchange-bristol",
+    "description": "Independent music venue in Bristol, UK",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2024-01-09"
+  },
+  
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 45000
+  },
+  
+  "rateLimit": {
+    "delayBetweenRequests": 2000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+  
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://exchangebristol.com/whats-on/"
+    },
+    {
+      "type": "wait",
+      "condition": "networkidle",
+      "timeout": 10000
+    },
+    {
+      "type": "wait",
+      "selector": ".js_hdfst_listings_injection_target",
+      "condition": "visible",
+      "timeout": 30000
+    },
+    {
+      "type": "wait",
+      "timeout": 5000
+    },
+    {
+      "type": "wait",
+      "selector": "[data-hf-event]",
+      "condition": "visible",
+      "timeout": 30000
+    },
+    {
+      "type": "extract",
+      "containerSelector": "[data-hf-event]",
+      "fields": {
+        "title": {
+          "selector": ".hf-event-title, .event-title, h3, h2",
+          "attribute": "text",
+          "required": true,
+          "transform": "trim"
+        },
+        "artist": {
+          "selector": ".hf-event-artist, .event-artist, .artist-name",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "date": {
+          "selector": ".hf-event-date, .event-date, .date, time",
+          "attribute": "text",
+          "required": true,
+          "transform": "trim"
+        },
+        "time": {
+          "selector": ".hf-event-time, .event-time, .time",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "venue": {
+          "selector": ".hf-venue, .venue, .location",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "Exchange Bristol"
+        },
+        "price": {
+          "selector": ".hf-price, .price, .cost",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "eventUrl": {
+          "selector": "a, .hf-event-link",
+          "attribute": "href",
+          "required": false
+        },
+        "ticketsUrl": {
+          "selector": ".hf-tickets-link, .tickets-link, a[href*='ticket']",
+          "attribute": "href",
+          "required": false
+        },
+        "infoUrl": {
+          "selector": ".hf-info-link, .info-link, a[href*='info']",
+          "attribute": "href",
+          "required": false
+        },
+        "image": {
+          "selector": "img, .hf-event-image img",
+          "attribute": "src",
+          "required": false
+        },
+        "description": {
+          "selector": ".hf-event-description, .event-description, .description, p",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "genres": {
+          "selector": ".hf-genre, .genre, .category",
+          "attribute": "text",
+          "required": false,
+          "multiple": true,
+          "transform": "trim"
+        }
+      }
+    }
+  ],
+  
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "venue", "date"]
+    },
+    "title": "title",
+    "artist": "artist",
+    "venue": {
+      "name": "venue",
+      "address": "address",
+      "city": "city",
+      "country": "country"
+    },
+    "date": {
+      "start": "date",
+      "end": "endDate",
+      "timezone": "timezone"
+    },
+    "price": {
+      "text": "price",
+      "currency": "currency"
+    },
+    "urls": {
+      "event": "eventUrl",
+      "tickets": "ticketsUrl",
+      "info": "infoUrl"
+    },
+    "images": "image",
+    "genres": "genres",
+    "description": "description",
+    "ageRestriction": "ageRestriction"
+  },
+  
+  "validation": {
+    "required": ["title", "venue.name"],
+    "minEventsExpected": 1,
+    "maxEventsExpected": 100
+  },
+  
+  "debug": {
+    "screenshots": true,
+    "saveHtml": true,
+    "logLevel": "debug"
+  }
+}

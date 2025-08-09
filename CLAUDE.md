@@ -427,6 +427,248 @@ When encountering build errors:
    - Update package.json scripts if needed
    - Note any environment-specific requirements
 
+## 🧪 COMPREHENSIVE TESTING STRATEGY
+
+### Testing Philosophy
+- **Test-Driven Development**: Write tests as you develop features
+- **Comprehensive Coverage**: Aim for 80%+ test coverage across all packages
+- **Real-World Testing**: Tests should simulate actual usage patterns
+- **Fast Feedback**: Tests should run quickly during development
+
+### Testing Framework: Jest
+
+All packages use Jest with TypeScript support:
+- **Contracts Package**: Pure TypeScript unit tests for schema validation
+- **Ingestor Service**: Node.js tests with ESM support for business logic
+- **Web Application**: React Testing Library for component and integration tests
+
+### Test Structure & Organization
+
+```
+package-name/
+├── src/
+│   ├── __tests__/           # Test files alongside source
+│   │   ├── component.test.ts
+│   │   └── integration.test.ts
+│   └── components/
+│       └── Component.tsx
+├── jest.config.js           # Jest configuration
+└── jest.setup.js            # Test setup (web app only)
+```
+
+### Testing Commands (MANDATORY - Use These!)
+
+```bash
+# Run all tests across the entire monorepo
+pnpm test
+
+# Run tests for specific package
+pnpm --filter contracts test     # Schema validation tests
+pnpm --filter ingestor test      # Business logic tests  
+pnpm --filter web test           # React component tests
+
+# Watch mode for active development
+pnpm --filter package-name test:watch
+
+# Run tests with coverage reports
+pnpm --filter package-name test --coverage
+```
+
+### Test Categories & Requirements
+
+#### 1. Unit Tests (Required for ALL new code)
+- **What to test**: Pure functions, utilities, business logic
+- **Coverage target**: 90%+ for utility functions
+- **Examples**:
+  - Schema validation in contracts package
+  - File operations in ingestor service
+  - Component rendering in web app
+
+```typescript
+// Example unit test pattern
+describe('FileManager', () => {
+  describe('readSourceFile', () => {
+    it('should return parsed JSON data for existing file', async () => {
+      // Test implementation
+    });
+    
+    it('should return empty array for non-existent file', async () => {
+      // Test implementation  
+    });
+  });
+});
+```
+
+#### 2. Component Tests (Required for ALL React components)
+- **What to test**: Component rendering, user interactions, props handling
+- **Coverage target**: 80%+ for components
+- **Tools**: React Testing Library, Jest DOM matchers
+
+```typescript
+// Example component test pattern
+describe('GigCard', () => {
+  it('renders gig information correctly', () => {
+    render(<GigCard gig={mockGig} />);
+    expect(screen.getByText('Artist Name')).toBeInTheDocument();
+  });
+  
+  it('handles user interactions', () => {
+    const onAction = jest.fn();
+    render(<GigCard gig={mockGig} onAction={onAction} />);
+    fireEvent.click(screen.getByText('Get Tickets'));
+    expect(onAction).toHaveBeenCalled();
+  });
+});
+```
+
+#### 3. Integration Tests (Required for complex workflows)
+- **What to test**: API endpoints, multi-component interactions, data flow
+- **Coverage target**: All critical user journeys
+- **Examples**:
+  - API route handlers in web app
+  - Scraper plugin workflow in ingestor
+  - Search and filtering in web app
+
+#### 4. Schema Validation Tests (Required for ALL schemas)
+- **What to test**: Zod schema validation, data transformation
+- **Coverage target**: 100% for all schema edge cases
+
+```typescript
+// Example schema test
+describe('GigSchema', () => {
+  it('validates complete gig object', () => {
+    expect(() => GigSchema.parse(validGigData)).not.toThrow();
+  });
+  
+  it('rejects invalid gig data', () => {
+    expect(() => GigSchema.parse(invalidData)).toThrow();
+  });
+});
+```
+
+### Testing Best Practices (MANDATORY)
+
+#### 1. Test File Naming & Location
+- Place tests in `__tests__` folders alongside source code
+- Name pattern: `component-name.test.ts` or `feature-name.test.ts`
+- Integration tests: `feature-name.integration.test.ts`
+
+#### 2. Mock Strategy
+- **External APIs**: Always mock with realistic response data
+- **File System**: Use temporary directories for file operations
+- **Next.js Router**: Mock navigation and routing
+- **Date/Time**: Mock for consistent test results
+
+#### 3. Test Data Management
+```typescript
+// Create reusable test fixtures
+const mockGig: Gig = {
+  id: 'test-gig-1',
+  title: 'Test Concert',
+  artist: 'Test Artist',
+  // ... complete mock data
+};
+
+// Use factories for variations
+const createMockGig = (overrides: Partial<Gig> = {}) => ({
+  ...mockGig,
+  ...overrides
+});
+```
+
+#### 4. Coverage Requirements
+- **Minimum coverage**: 70% overall, 80% for new code
+- **Critical paths**: 95%+ coverage (payment, user auth, data ingestion)
+- **Test all error paths**: Exception handling, API failures, invalid data
+
+### Testing Checklist (MANDATORY before completing tasks)
+
+```bash
+# 1. Run full test suite
+pnpm test
+
+# 2. Check coverage for new code
+pnpm --filter package-name test --coverage
+
+# 3. Verify no tests are skipped (.skip) or focused (.only)
+grep -r "describe.skip\|it.skip\|describe.only\|it.only" src/
+
+# 4. Run linting on test files
+pnpm lint
+
+# 5. Verify all async tests handle promises properly
+# Look for missing async/await in test files
+```
+
+### When to Write Tests (MANDATORY Guidelines)
+
+#### ✅ ALWAYS write tests for:
+- New components, functions, or modules
+- Bug fixes (write test that reproduces the bug first)
+- API endpoints and data processing logic
+- Schema validation and data transformation
+- Complex business logic (scraping, filtering, merging)
+
+#### ⚠️ PRIORITIZE tests for:
+- User-facing features (search, filtering, gig display)
+- Data integrity operations (scraping, validation, deduplication)
+- Error handling and edge cases
+- Performance-critical code paths
+
+#### 📝 DOCUMENT when skipping tests:
+If you must skip tests temporarily, document why:
+```typescript
+// TODO: Add integration tests after API stabilizes
+describe.skip('GigAPI integration', () => {
+  // Test implementation pending
+});
+```
+
+### Test Debugging & Troubleshooting
+
+#### Common Issues & Solutions
+
+1. **ESM Import Errors in Ingestor Tests**
+   ```bash
+   # Solution: Use .js extensions in imports within test files
+   import { FileManager } from '../file-manager.js';
+   ```
+
+2. **React Testing Async Issues**
+   ```typescript
+   // Always use waitFor for async operations
+   await waitFor(() => {
+     expect(screen.getByText('Loading')).not.toBeInTheDocument();
+   });
+   ```
+
+3. **Mock Setup Issues**
+   ```typescript
+   // Clear mocks between tests
+   beforeEach(() => {
+     jest.clearAllMocks();
+   });
+   ```
+
+### Integration with Documentation
+
+**Link to related documentation:**
+- [API Documentation](/docs/api/ENDPOINTS.md) - For API endpoint tests
+- [Development Guide](/docs/user-guides/DEVELOPMENT.md) - For testing environment setup
+- [Architecture Documentation](/docs/architecture/SYSTEM_DESIGN.md) - For integration test design
+
+**Update these docs when:**
+- Adding new test categories or patterns
+- Changing testing infrastructure
+- Discovering new testing best practices
+- Adding test utilities or helpers
+
+### Future Testing Enhancements
+- **E2E Testing**: Add Playwright for full user journey tests
+- **Visual Regression**: Component screenshot comparisons  
+- **Performance Testing**: Load testing for API endpoints
+- **Accessibility Testing**: Automated a11y checks in component tests
+
 ### Common Build Issues and Solutions
 
 #### TypeScript Configuration
@@ -549,3 +791,349 @@ External Sources → Scraper Plugins → Raw JSON → Validation → Merge → c
 - **Monitor data quality** - Regular validation of schemas and data integrity
 - **Keep dependencies minimal** - Only add dependencies when truly necessary
 - **Cache everything reasonably** - API responses, file reads, but with appropriate TTLs
+
+## Configuration-Driven Web Scraper Guide
+
+### Overview
+The Gigateer project includes a flexible configuration-driven scraper system that allows creating new scrapers entirely through JSON configuration files, without writing code. This system uses Playwright for browser automation and supports dynamic content loading.
+
+### Creating a New Scraper Configuration
+
+#### Step 1: Analyze the Target Website
+Before creating a configuration, understand the website structure:
+
+1. **Visit the target website** manually in a browser
+2. **Use browser developer tools** (F12) to inspect the HTML structure
+3. **Identify event containers** - look for repeating elements that represent individual events
+4. **Note dynamic content** - check if events load via JavaScript (HeadFirst, AJAX, etc.)
+5. **Document the selectors** for title, date, venue, artist, and other relevant fields
+
+#### Step 2: Create the Configuration File
+Create a new JSON file in `/services/ingestor/data/scraper-configs/[venue-name].json`:
+
+```json
+{
+  "site": {
+    "name": "Venue Name",
+    "baseUrl": "https://example.com",
+    "source": "venue-slug",
+    "description": "Brief description of the venue",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2025-01-09"
+  },
+  
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 45000
+  },
+  
+  "rateLimit": {
+    "delayBetweenRequests": 2000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+  
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://example.com/events"
+    },
+    {
+      "type": "wait",
+      "condition": "networkidle",
+      "timeout": 10000
+    },
+    {
+      "type": "wait",
+      "timeout": 3000
+    },
+    {
+      "type": "extract", 
+      "containerSelector": ".event-item, .hf__event-listing",
+      "fields": {
+        "title": {
+          "selector": "h1, h2, h3, .title",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "Event at Venue"
+        },
+        "artist": {
+          "selector": ".artist, .performer",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "date": {
+          "selector": ".date, time",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "TBA"
+        },
+        "eventUrl": {
+          "selector": "a",
+          "attribute": "href",
+          "required": false
+        },
+        "image": {
+          "selector": "img",
+          "attribute": "src",
+          "required": false
+        }
+      }
+    }
+  ],
+  
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "venue", "date"]
+    },
+    "title": "title",
+    "artist": "artist",
+    "venue": {
+      "name": "venue",
+      "address": "address",
+      "city": "city",
+      "country": "country"
+    },
+    "date": {
+      "start": "date",
+      "end": "endDate",
+      "timezone": "timezone"
+    },
+    "urls": {
+      "event": "eventUrl"
+    },
+    "images": "image"
+  },
+  
+  "validation": {
+    "required": [],
+    "minEventsExpected": 0,
+    "maxEventsExpected": 500
+  },
+  
+  "debug": {
+    "screenshots": true,
+    "saveHtml": true,
+    "logLevel": "debug"
+  }
+}
+```
+
+#### Step 3: Create the Plugin File
+Create a plugin file in `/services/ingestor/src/plugins/[venue-name].ts`:
+
+```typescript
+import { ScraperPlugin } from "@gigateer/contracts";
+import { chromium } from "playwright";
+import { logger as baseLogger } from '../logger.js';
+import { ConfigDrivenScraper } from '../scrapers/config-driven-scraper.js';
+import path from 'path';
+
+const logger = baseLogger.child({ component: '[venue-name]-plugin' });
+
+const venuePlugin: ScraperPlugin = {
+  upstreamMeta: {
+    name: "Venue Name",
+    rateLimitPerMin: 10,
+    defaultSchedule: "0 */3 * * *", // Every 3 hours  
+    description: "Description of the venue",
+    website: "https://venue.com",
+    trustScore: 85
+  },
+
+  async fetchRaw(): Promise<unknown[]> {
+    const configPath = path.join(process.cwd(), 'data', 'scraper-configs', '[venue-name].json');
+    
+    logger.info('Starting venue scrape with config-driven scraper');
+    
+    let browser;
+    try {
+      const scraper = await ConfigDrivenScraper.fromFile(configPath);
+      browser = await chromium.launch({ headless: true });
+      const gigs = await scraper.scrape(browser);
+      
+      logger.info(`Successfully scraped ${gigs.length} events from venue`);
+      return gigs;
+      
+    } catch (error) {
+      logger.error('Venue scrape failed:', error);
+      throw error;
+    } finally {
+      if (browser) {
+        await browser.close();
+      }
+    }
+  },
+
+  async normalize(rawData: unknown[]): Promise<any[]> {
+    return (rawData as any[]).map(gig => ({
+      ...gig,
+      source: '[venue-slug]',
+      venue: gig.venue || { name: 'Venue Name', city: 'City', country: 'Country' },
+      metadata: {
+        scrapedAt: new Date().toISOString(),
+        scrapeMethod: 'config-driven',
+        originalData: gig
+      }
+    }));
+  },
+
+  async cleanup(): Promise<void> {
+    logger.debug('Venue scraper cleanup completed');
+  }
+};
+
+export default venuePlugin;
+```
+
+### Testing a Scraper Configuration
+
+#### Phase 1: Initial Testing
+1. **Test individual source**:
+   ```bash
+   cd services/ingestor
+   npx tsx src/cli.ts ingest:source [venue-name]
+   ```
+
+2. **Check for errors**: Look for timeout errors, selector mismatches, or validation failures
+
+3. **Review debug output**: Screenshots and HTML files are saved when `debug.screenshots: true`
+
+#### Phase 2: Debug and Refine
+1. **Enable debug mode** in the JSON config:
+   ```json
+   "debug": {
+     "screenshots": true,
+     "saveHtml": true,
+     "logLevel": "debug"
+   }
+   ```
+
+2. **Check debug screenshots**: Look at generated PNG files to see what the scraper actually sees
+
+3. **Examine raw data**:
+   ```bash
+   cat /code/gigateer/data/sources/[venue-name].raw.json
+   ```
+
+4. **Analyze containers found**: Debug output shows how many containers match your selectors
+
+#### Phase 3: Selector Refinement
+Common selector patterns:
+
+- **HeadFirst systems**: `.hf__event-listing`, `.hf__event-title`
+- **Generic events**: `.event`, `.event-item`, `.listing`
+- **Fallback selectors**: Use multiple selectors separated by commas: `"h1, h2, h3, .title"`
+- **Dynamic content**: Add appropriate wait conditions and longer timeouts
+
+#### Phase 4: Production Testing
+1. **Disable debug mode**:
+   ```json
+   "debug": {
+     "screenshots": false,
+     "saveHtml": false,
+     "logLevel": "info"
+   }
+   ```
+
+2. **Test full ingestion**:
+   ```bash
+   npx tsx src/cli.ts ingest:all
+   ```
+
+3. **Verify data quality**:
+   ```bash
+   npx tsx src/cli.ts validate
+   npx tsx src/cli.ts stats
+   ```
+
+### Configuration Schema Reference
+
+#### Workflow Actions
+- **navigate**: Navigate to a URL
+- **wait**: Wait for conditions (networkidle, selector visibility, time)
+- **click**: Click elements (with optional wait)
+- **scroll**: Scroll page (up, down, bottom)
+- **extract**: Extract data from containers
+
+#### Field Extraction Options
+- **selector**: CSS selector for the element
+- **attribute**: `text`, `href`, `src`, or custom attribute
+- **required**: Whether field is mandatory
+- **transform**: `trim`, `lowercase`, `uppercase`, `date`, `price`, `slug`
+- **fallback**: Default value if extraction fails
+- **multiple**: Extract array of values
+
+#### Troubleshooting Common Issues
+
+1. **Timeout Errors**: 
+   - Increase `browser.timeout` and action-specific timeouts
+   - Check if dynamic content needs more time to load
+
+2. **No Events Found**:
+   - Verify containerSelector matches actual HTML structure
+   - Check if content loads dynamically after initial page load
+
+3. **Empty Field Extraction**:
+   - Use browser developer tools to verify field selectors
+   - Try broader selectors: `"h1, h2, h3, h4, .title, strong"`
+
+4. **Validation Failures**:
+   - Set `validation.required: []` during development
+   - Add fallback values to required fields
+
+### Exchange Bristol Implementation Example
+
+The Exchange Bristol scraper (`exchange-bristol.json`) demonstrates a real-world configuration:
+- Uses HeadFirst dynamic content system
+- Handles 195+ event containers
+- Includes debug capabilities for troubleshooting
+- Successfully extracts images and event URLs
+
+Key learnings:
+- HeadFirst systems use `.hf__event-listing` containers
+- Network idle wait is crucial for dynamic content
+- Screenshots are invaluable for debugging selector issues
+- Flexible validation allows development iteration
+
+### Commands for Creating New Scrapers
+
+```bash
+# 1. Create configuration file
+cp services/ingestor/data/scraper-configs/exchange-bristol.json services/ingestor/data/scraper-configs/[venue-name].json
+
+# 2. Create plugin file
+cp services/ingestor/src/plugins/exchange-bristol.ts services/ingestor/src/plugins/[venue-name].ts
+
+# 3. Test the scraper
+cd services/ingestor
+npx tsx src/cli.ts ingest:source [venue-name]
+
+# 4. Debug with screenshots
+# (Enable debug mode in JSON config first)
+npx tsx src/cli.ts ingest:source [venue-name]
+
+# 5. Check extracted data
+cat data/sources/[venue-name].raw.json | jq '.'
+
+# 6. Validate data quality
+npx tsx src/cli.ts validate
+
+# 7. View statistics
+npx tsx src/cli.ts stats
+```
+
+### Future Enhancements
+- **Smart selectors**: Auto-detect common patterns
+- **Schema validation**: Validate configurations before execution
+- **Performance monitoring**: Track scraping success rates
+- **Selector testing**: Tools to test selectors against live sites

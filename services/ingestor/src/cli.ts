@@ -579,6 +579,14 @@ program
     }
   });
 
+// Import and add new scraper configuration commands
+import { addTestScraperConfigCommand } from './commands/test-scraper-config.js';
+import { addConfigManagerCommands } from './commands/config-manager.js';
+
+// Add the new commands to the program
+addTestScraperConfigCommand(program);
+addConfigManagerCommands(program);
+
 /**
  * Load configuration from file or use defaults
  */
