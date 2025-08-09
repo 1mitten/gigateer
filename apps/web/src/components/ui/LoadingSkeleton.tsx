@@ -42,34 +42,36 @@ export function GigCardSkeleton() {
 
 export function GigListItemSkeleton() {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
-      <div className="flex items-start justify-between">
-        <div className="flex-1 space-y-3">
-          {/* Title and status */}
-          <div className="flex items-start justify-between">
-            <LoadingSkeleton className="h-5 w-3/4" />
-            <LoadingSkeleton className="h-6 w-20" />
-          </div>
-          
-          {/* Date, time, venue line */}
-          <div className="flex items-center space-x-4">
-            <LoadingSkeleton className="h-4 w-20" />
-            <LoadingSkeleton className="h-4 w-16" />
-            <LoadingSkeleton className="h-4 w-32" />
-          </div>
-          
-          {/* Tags */}
-          <div className="flex items-center space-x-2">
-            <LoadingSkeleton className="h-6 w-16" />
-            <LoadingSkeleton className="h-6 w-20" />
-            <LoadingSkeleton className="h-6 w-18" />
-          </div>
+    <div className="bg-white border border-gray-200 rounded-lg px-4 py-3">
+      <div className="grid grid-cols-12 gap-4 items-center">
+        {/* Title */}
+        <div className="col-span-4">
+          <LoadingSkeleton className="h-4 w-3/4" />
+        </div>
+        
+        {/* Date */}
+        <div className="col-span-2">
+          <LoadingSkeleton className="h-4 w-20" />
+        </div>
+        
+        {/* Time */}
+        <div className="col-span-1">
+          <LoadingSkeleton className="h-4 w-16" />
+        </div>
+        
+        {/* Venue */}
+        <div className="col-span-3">
+          <LoadingSkeleton className="h-4 w-24" />
+        </div>
+        
+        {/* Status badge */}
+        <div className="col-span-1 flex justify-center">
+          <LoadingSkeleton className="h-5 w-16" />
         </div>
         
         {/* Action buttons */}
-        <div className="ml-4 flex items-center space-x-2 flex-shrink-0">
-          <LoadingSkeleton className="h-8 w-16" />
-          <LoadingSkeleton className="h-8 w-20" />
+        <div className="col-span-1 flex justify-end">
+          <LoadingSkeleton className="h-6 w-16" />
         </div>
       </div>
     </div>

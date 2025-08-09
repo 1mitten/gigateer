@@ -8,7 +8,7 @@ import {
   TicketIcon,
   LinkIcon,
 } from '@heroicons/react/24/outline';
-import { format } from 'date-fns';
+import { format } from 'date-fns/format';
 
 interface GigListItemProps {
   gig: Gig;
@@ -83,86 +83,56 @@ export function GigListItem({ gig, className = "", priority = false }: GigListIt
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200 ${className}`}>
-      <div className="flex items-start justify-between">
-        {/* Left side: Event details */}
-        <div className="flex-1 min-w-0">
-          {/* Title and status */}
-          <div className="flex items-start justify-between mb-2">
-            <Link 
-              href={`/gig/${gig.id}`}
-              className="group flex-1"
-            >
-              <h3 className="text-base font-semibold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-1">
-                {gig.title}
-              </h3>
-            </Link>
-            
-            {getStatusBadge() && (
-              <div className="ml-2 flex-shrink-0">
-                {getStatusBadge()}
-              </div>
-            )}
-          </div>
-
-          {/* Date, time, and venue in one line */}
-          <div className="flex items-center text-sm text-gray-600 mb-2 flex-wrap gap-x-4 gap-y-1">
-            <div className="flex items-center">
-              <CalendarIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span>{formattedDate}</span>
-            </div>
-            
-            <div className="flex items-center">
-              <ClockIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span>{formattedTime}</span>
-            </div>
-            
-            <div className="flex items-center min-w-0">
-              <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span className="truncate">
-                {gig.venue.name}
-                {gig.venue.city && `, ${gig.venue.city}`}
-              </span>
-            </div>
-          </div>
-
-          {/* Tags */}
-          {((gig.tags && gig.tags.length > 0) || ((gig as any).genre && (gig as any).genre.length > 0)) && (
-            <div className="flex flex-wrap gap-1 mb-2">
-              {(gig.tags || (gig as any).genre || []).slice(0, 4).map((tag: string, index: number) => {
-                const backgroundColor = getTagColor(index);
-                const textColor = getTextColor(backgroundColor);
-                return (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                    style={{ backgroundColor, color: textColor }}
-                  >
-                    {tag}
-                  </span>
-                );
-              })}
-              {(gig.tags || (gig as any).genre || []).length > 4 && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                  +{(gig.tags || (gig as any).genre || []).length - 4} more
-                </span>
-              )}
-            </div>
-          )}
+    <Link 
+      href={`/gig/${gig.id}`}
+      className={`block bg-white border border-gray-200 rounded-lg px-4 py-3 hover:shadow-md transition-shadow duration-200 hover:bg-gray-50 ${className}`}
+    >
+      <div className="grid grid-cols-12 gap-4 items-center min-w-0">
+        {/* Event title */}
+        <div className="col-span-4 min-w-0">
+          <h3 className="text-sm font-semibold text-gray-900 transition-colors truncate">
+            {gig.title}
+          </h3>
         </div>
 
-        {/* Right side: Action buttons */}
-        <div className="ml-4 flex items-center gap-2 flex-shrink-0">
+        {/* Date */}
+        <div className="col-span-2 flex items-center text-sm text-gray-600">
+          <CalendarIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+          <span className="whitespace-nowrap">{formattedDate}</span>
+        </div>
+
+        {/* Time */}
+        <div className="col-span-1 flex items-center text-sm text-gray-600">
+          <ClockIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+          <span className="whitespace-nowrap">{formattedTime}</span>
+        </div>
+
+        {/* Venue */}
+        <div className="col-span-3 flex items-center text-sm text-gray-600 min-w-0">
+          <MapPinIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+          <span className="truncate">
+            {gig.venue.name}
+            {gig.venue.city && `, ${gig.venue.city}`}
+          </span>
+        </div>
+
+        {/* Status badge */}
+        <div className="col-span-1 flex justify-center">
+          {getStatusBadge() || <span></span>}
+        </div>
+
+        {/* Action buttons */}
+        <div className="col-span-1 flex items-center justify-end gap-1">
           {gig.eventUrl && (
             <a
               href={gig.eventUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1"
+              className="text-xs font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1 z-10 relative"
               title="View original event page"
+              onClick={(e) => e.stopPropagation()}
             >
-              <LinkIcon className="h-4 w-4 inline mr-1" />
-              <span className="hidden sm:inline">Source</span>
+              <LinkIcon className="h-3 w-3" />
             </a>
           )}
           
@@ -171,14 +141,15 @@ export function GigListItem({ gig, className = "", priority = false }: GigListIt
               href={gig.ticketsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors whitespace-nowrap z-10 relative"
+              onClick={(e) => e.stopPropagation()}
             >
-              <TicketIcon className="h-4 w-4" />
-              Tickets
+              <TicketIcon className="h-3 w-3" />
+              <span className="hidden sm:inline">Tickets</span>
             </a>
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

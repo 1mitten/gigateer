@@ -8,7 +8,7 @@ import {
   TicketIcon,
   LinkIcon,
 } from '@heroicons/react/24/outline';
-import { format } from 'date-fns';
+import { format } from 'date-fns/format';
 
 interface GigCardProps {
   gig: Gig;
@@ -87,79 +87,81 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
   };
 
   return (
-    <article className={`card hover:shadow-md transition-shadow duration-200 overflow-hidden ${className}`}>
-      
-      <div className="p-6">
-        {/* Header with title and status */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1 min-w-0">
-            <Link 
-              href={`/gig/${gig.id}`}
-              className="group"
-            >
-              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">
-                {gig.title}
-              </h3>
-            </Link>
+    <article className={`card hover:shadow-md transition-shadow duration-200 overflow-hidden ${className} h-full`}>
+      <div className="p-6 h-full flex flex-col">
+        {/* Content area that can grow */}
+        <div className="flex-1">
+          {/* Header with title and status */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1 min-w-0">
+              <Link 
+                href={`/gig/${gig.id}`}
+                className="group"
+              >
+                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">
+                  {gig.title}
+                </h3>
+              </Link>
+            </div>
+            
+            <div className="ml-4 flex-shrink-0">
+              {getStatusBadge()}
+            </div>
           </div>
-          
-          <div className="ml-4 flex-shrink-0">
-            {getStatusBadge()}
+
+          {/* Date and time */}
+          <div className="flex items-center text-sm text-gray-600 mb-2">
+            <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+            <span>{formattedDate}</span>
+            <ClockIcon className="h-4 w-4 ml-4 mr-2 flex-shrink-0" />
+            <span>{formattedTime}</span>
           </div>
-        </div>
 
-        {/* Date and time */}
-        <div className="flex items-center text-sm text-gray-600 mb-2">
-          <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-          <span>{formattedDate}</span>
-          <ClockIcon className="h-4 w-4 ml-4 mr-2 flex-shrink-0" />
-          <span>{formattedTime}</span>
-        </div>
-
-        {/* Venue */}
-        <div className="flex items-center text-sm text-gray-600 mb-2">
-          <MapPinIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-          <span className="truncate">
-            {gig.venue.name}
-            {gig.venue.city && `, ${gig.venue.city}`}
-          </span>
-        </div>
-
-        {/* Tags */}
-        {((gig.tags && gig.tags.length > 0) || ((gig as any).genre && (gig as any).genre.length > 0)) && (
-          <div className="flex flex-wrap gap-1 mb-4">
-            {(gig.tags || (gig as any).genre || []).slice(0, 3).map((tag: string, index: number) => {
-              const backgroundColor = getTagColor(index);
-              const textColor = getTextColor(backgroundColor);
-              return (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
-                  style={{ backgroundColor, color: textColor }}
-                >
-                  {tag}
-                </span>
-              );
-            })}
-            {(gig.tags || (gig as any).genre || []).length > 3 && (
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
-                +{(gig.tags || (gig as any).genre || []).length - 3} more
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Age restriction */}
-        {gig.ageRestriction && (
-          <div className="flex justify-end text-sm mb-4">
-            <span className="text-gray-500 text-xs">
-              {gig.ageRestriction}
+          {/* Venue */}
+          <div className="flex items-center text-sm text-gray-600 mb-2">
+            <MapPinIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+            <span className="truncate">
+              {gig.venue.name}
+              {gig.venue.city && `, ${gig.venue.city}`}
             </span>
           </div>
-        )}
 
-        {/* Action buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+          {/* Tags */}
+          {((gig.tags && gig.tags.length > 0) || ((gig as any).genre && (gig as any).genre.length > 0)) && (
+            <div className="flex flex-wrap gap-1 mb-4">
+              {(gig.tags || (gig as any).genre || []).slice(0, 3).map((tag: string, index: number) => {
+                const backgroundColor = getTagColor(index);
+                const textColor = getTextColor(backgroundColor);
+                return (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
+                    style={{ backgroundColor, color: textColor }}
+                  >
+                    {tag}
+                  </span>
+                );
+              })}
+              {(gig.tags || (gig as any).genre || []).length > 3 && (
+                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                  +{(gig.tags || (gig as any).genre || []).length - 3} more
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Age restriction */}
+          {gig.ageRestriction && (
+            <div className="flex justify-end text-sm mb-4">
+              <span className="text-gray-500 text-xs">
+                {gig.ageRestriction}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Action buttons - always at bottom */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200 mt-auto">
           {gig.eventUrl && (
             <a
               href={gig.eventUrl}

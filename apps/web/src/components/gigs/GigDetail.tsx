@@ -12,7 +12,7 @@ import {
   UserGroupIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
-import { format } from 'date-fns';
+import { format } from 'date-fns/format';
 
 interface GigDetailProps {
   gig: Gig;

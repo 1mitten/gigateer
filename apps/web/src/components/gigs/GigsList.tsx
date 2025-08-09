@@ -4,7 +4,9 @@ import React, { useMemo } from 'react';
 import { Gig } from '@gigateer/contracts';
 import { GigCard, GigCardCompact } from './GigCard';
 import { GigListItem } from './GigListItem';
+import { GigListHeader } from './GigListHeader';
 import { GigCardSkeleton, GigListItemSkeleton } from '../ui/LoadingSkeleton';
+import { LoadingWrapper, AnimatedItem } from '../ui/LoadingWrapper';
 
 interface GigsListProps {
   gigs: Gig[];
@@ -26,53 +28,50 @@ export function GigsList({
   const GigComponent = variant === 'compact' ? GigCardCompact : 
                        variant === 'list' ? GigListItem : GigCard;
 
-  // Loading skeleton
-  if (loading) {
-    const SkeletonComponent = variant === 'list' ? GigListItemSkeleton : GigCardSkeleton;
-    const spacingClass = variant === 'compact' ? 'space-y-2' : variant === 'list' ? 'space-y-3' : 'space-y-4';
-    
-    return (
-      <div className={`${spacingClass} ${className}`}>
-        {Array.from({ length: 6 }).map((_, index) => (
-          <SkeletonComponent key={index} />
-        ))}
-      </div>
-    );
-  }
+  const SkeletonComponent = variant === 'list' ? GigListItemSkeleton : GigCardSkeleton;
+  const spacingClass = variant === 'compact' ? 'space-y-2' : variant === 'list' ? 'space-y-1' : 'space-y-4';
 
-  // Empty state
-  if (gigs.length === 0) {
-    return (
-      <div className={`text-center py-12 ${className}`}>
-        <div className="mx-auto h-24 w-24 text-gray-300 mb-4">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-full h-full">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-          </svg>
-        </div>
-        
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
-          No Gigs Found
-        </h3>
-        
-        <p className="text-gray-600 max-w-md mx-auto mb-6">
-          {emptyMessage}
-        </p>
-        
-        <div className="space-y-2 text-sm text-gray-500">
-          <p>Try adjusting your filters or search terms:</p>
-          <ul className="list-disc list-inside space-y-1">
-            <li>Check your date range</li>
-            <li>Try different cities or venues</li>
-            <li>Broaden your tags selection</li>
-            <li>Use more general search terms</li>
-          </ul>
-        </div>
-      </div>
-    );
-  }
+  // Loading content
+  const LoadingContent = (
+    <div className={spacingClass}>
+      {Array.from({ length: 6 }).map((_, index) => (
+        <SkeletonComponent key={index} />
+      ))}
+    </div>
+  );
 
-  return (
-    <div className={className}>
+  // Empty state content
+  const EmptyContent = (
+    <div className="text-center py-12">
+      <div className="mx-auto h-24 w-24 text-gray-300 mb-4">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-full h-full">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+        </svg>
+      </div>
+      
+      <h3 className="text-lg font-medium text-gray-900 mb-2">
+        No Gigs Found
+      </h3>
+      
+      <p className="text-gray-600 max-w-md mx-auto mb-6">
+        {emptyMessage}
+      </p>
+      
+      <div className="space-y-2 text-sm text-gray-500">
+        <p>Try adjusting your filters or search terms:</p>
+        <ul className="list-disc list-inside space-y-1">
+          <li>Check your date range</li>
+          <li>Try different cities or venues</li>
+          <li>Broaden your tags selection</li>
+          <li>Use more general search terms</li>
+        </ul>
+      </div>
+    </div>
+  );
+
+  // Content with results
+  const ContentWithResults = (
+    <div>
       {/* Results count */}
       {showCount && (
         <div className="mb-6">
@@ -83,17 +82,31 @@ export function GigsList({
         </div>
       )}
 
-      {/* Gigs list */}
-      <div className={variant === 'compact' ? 'space-y-2' : variant === 'list' ? 'space-y-3' : 'space-y-4'}>
+      {/* List header (only for list variant) */}
+      {variant === 'list' && <GigListHeader />}
+
+      {/* Gigs list with animations */}
+      <div className={spacingClass}>
         {gigs.map((gig, index) => (
-          <GigComponent
-            key={gig.id}
-            gig={gig}
-            priority={index < 3} // Prioritize first 3 items for loading
-          />
+          <AnimatedItem key={gig.id} index={index}>
+            <GigComponent
+              gig={gig}
+              priority={index < 3} // Prioritize first 3 items for loading
+            />
+          </AnimatedItem>
         ))}
       </div>
     </div>
+  );
+
+  return (
+    <LoadingWrapper 
+      isLoading={loading} 
+      loadingComponent={LoadingContent}
+      className={className}
+    >
+      {gigs.length === 0 ? EmptyContent : ContentWithResults}
+    </LoadingWrapper>
   );
 }
 
@@ -108,33 +121,45 @@ export function VirtualizedGigsList({ gigs, ...props }: GigsListProps) {
 
 // Grid version for different layout
 export function GigsGrid({ gigs, loading, className = "", ...props }: GigsListProps) {
-  if (loading) {
-    return (
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`}>
-        {Array.from({ length: 6 }).map((_, index) => (
-          <GigCardSkeleton key={index} />
-        ))}
-      </div>
-    );
-  }
+  const gridClassName = `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`;
 
-  if (gigs.length === 0) {
-    return (
-      <div className="col-span-full">
-        <GigsList gigs={[]} loading={false} {...props} />
-      </div>
-    );
-  }
-
-  return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`}>
-      {gigs.map((gig, index) => (
-        <GigCard
-          key={gig.id}
-          gig={gig}
-          priority={index < 6} // Prioritize first 6 items
-        />
+  // Loading content
+  const LoadingContent = (
+    <div className={gridClassName}>
+      {Array.from({ length: 6 }).map((_, index) => (
+        <GigCardSkeleton key={index} />
       ))}
     </div>
+  );
+
+  // Empty state
+  const EmptyContent = (
+    <div className="col-span-full">
+      <GigsList gigs={[]} loading={false} {...props} />
+    </div>
+  );
+
+  // Content with results
+  const ContentWithResults = (
+    <div className={gridClassName}>
+      {gigs.map((gig, index) => (
+        <AnimatedItem key={gig.id} index={index}>
+          <GigCard
+            gig={gig}
+            priority={index < 6} // Prioritize first 6 items
+          />
+        </AnimatedItem>
+      ))}
+    </div>
+  );
+
+  return (
+    <LoadingWrapper 
+      isLoading={loading} 
+      loadingComponent={LoadingContent}
+      className=""
+    >
+      {gigs.length === 0 ? EmptyContent : ContentWithResults}
+    </LoadingWrapper>
   );
 }

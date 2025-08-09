@@ -248,9 +248,15 @@ export class WebDatabaseService {
         filter.source = options.filters.source;
       }
       
-      // Text search (uses MongoDB text index)
+      // Text search (flexible regex-based search across multiple fields)
       if (options.filters.search) {
-        filter.$text = { $search: options.filters.search };
+        const searchRegex = { $regex: options.filters.search, $options: 'i' };
+        filter.$or = [
+          { title: searchRegex },
+          { artists: { $elemMatch: searchRegex } },
+          { 'venue.name': searchRegex },
+          { tags: { $elemMatch: searchRegex } }
+        ];
       }
     }
     
