@@ -5,13 +5,13 @@ import { logger as defaultLogger, type Logger } from "./logger.js";
 import { FileManager, type DetailedRunLog, type PerformanceMetrics } from "./file-manager.js";
 import { ChangeDetector } from "./change-detector.js";
 import { RateLimiter } from "./rate-limiter.js";
-import { PluginLoader } from "./plugin-loader.js";
+import { HybridPluginLoader } from "./hybrid-plugin-loader.js";
 
 export class Ingestor {
   private fileManager: FileManager;
   private changeDetector: ChangeDetector;
   private rateLimiter: RateLimiter;
-  private pluginLoader: PluginLoader;
+  private pluginLoader: HybridPluginLoader;
   
   constructor(
     private readonly config: IngestorConfig,
@@ -25,8 +25,9 @@ export class Ingestor {
     );
     this.changeDetector = new ChangeDetector(this.logger);
     this.rateLimiter = new RateLimiter(this.logger);
-    this.pluginLoader = new PluginLoader(
+    this.pluginLoader = new HybridPluginLoader(
       join(process.cwd(), "src/plugins"),
+      join(process.cwd(), "data/scraper-configs"),
       this.logger
     );
   }

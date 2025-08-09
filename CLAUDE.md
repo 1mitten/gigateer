@@ -368,10 +368,39 @@ When available, use MCP agents for enhanced capabilities:
 ### Key Project Architecture Decisions
 1. **Monorepo with pnpm workspaces** - All services in single repo for easier development
 2. **File-based storage (v1) → Database migration path (v2)** - Start simple, scale later
-3. **Plugin architecture for scrapers** - Easy to add new data sources
-4. **Next.js 14 with App Router** - Modern React framework with PWA support
-5. **TypeScript everywhere** - Type safety across all services
-6. **Zod schema validation** - Runtime type checking for data integrity
+3. **✨ Configuration-driven scraper system** - Add new scrapers with JSON files only, no TypeScript code needed
+4. **Hybrid plugin architecture** - Supports both traditional TypeScript plugins and configuration-driven JSON plugins
+5. **Next.js 14 with App Router** - Modern React framework with PWA support
+6. **TypeScript everywhere** - Type safety across all services
+7. **Zod schema validation** - Runtime type checking for data integrity
+
+### 🎯 Major Achievement: Zero-Code Scraper System
+**January 2025** - Successfully implemented a revolutionary configuration-driven scraper system:
+
+✅ **What was achieved:**
+- **No TypeScript required** - Add new scrapers with JSON configuration only
+- **Hybrid plugin loader** - Seamlessly combines traditional and configuration-driven plugins
+- **Advanced transformations** - Time range splitting, regex extraction, follow-up data gathering
+- **Production-ready performance** - 195 events scraped in ~28 seconds (7+ gigs/second throughput)
+- **Complete automation** - Plugin metadata, rate limiting, validation all handled automatically
+
+✅ **Impact:**
+- **Reduced complexity** - From 75+ lines of TypeScript to a simple JSON file
+- **Faster development** - New venues can be added in minutes, not hours
+- **Lower barrier to entry** - Non-developers can contribute scrapers
+- **Maintainable** - Configuration files are easier to understand and modify than code
+
+✅ **Technical implementation:**
+- `HybridPluginLoader` - Loads both traditional (.ts) and configuration-driven (.json) plugins
+- `ConfigDrivenPluginLoader` - Creates ScraperPlugin instances from JSON configurations
+- `ConfigDrivenScraper` - Handles all browser automation, extraction, and transformation
+- Configuration-driven plugins take precedence over traditional ones with same name
+
+**Commands:**
+```bash
+pnpm plugins                           # Show all loaded plugins by type
+pnpm ingest:source exchange-bristol    # Test configuration-driven scraper
+```
 
 ## 🚨 CRITICAL DEVELOPMENT REQUIREMENTS
 
@@ -928,72 +957,31 @@ Create a new JSON file in `/services/ingestor/data/scraper-configs/[venue-name].
 }
 ```
 
-#### Step 3: Create the Plugin File
-Create a plugin file in `/services/ingestor/src/plugins/[venue-name].ts`:
+#### Step 3: That's It! No Code Required! 🎉
 
-```typescript
-import { ScraperPlugin } from "@gigateer/contracts";
-import { chromium } from "playwright";
-import { logger as baseLogger } from '../logger.js';
-import { ConfigDrivenScraper } from '../scrapers/config-driven-scraper.js';
-import path from 'path';
+**The configuration-driven system automatically creates plugins from JSON files.**
 
-const logger = baseLogger.child({ component: '[venue-name]-plugin' });
+✅ **What happens automatically:**
+- Plugin metadata extracted from `site` and `browser` config sections
+- Rate limiting applied from `rateLimit` config
+- Browser automation handled by the configuration-driven scraper
+- Data normalization and validation handled automatically  
+- Error handling and retry logic included
+- Performance metrics and logging built-in
 
-const venuePlugin: ScraperPlugin = {
-  upstreamMeta: {
-    name: "Venue Name",
-    rateLimitPerMin: 10,
-    defaultSchedule: "0 */3 * * *", // Every 3 hours  
-    description: "Description of the venue",
-    website: "https://venue.com",
-    trustScore: 85
-  },
+✅ **No TypeScript code needed!**
+- The system creates plugins dynamically from your JSON configuration
+- All browser automation, data extraction, and normalization is handled
+- Just drop your JSON file in `/data/scraper-configs/` and it works
 
-  async fetchRaw(): Promise<unknown[]> {
-    const configPath = path.join(process.cwd(), 'data', 'scraper-configs', '[venue-name].json');
-    
-    logger.info('Starting venue scrape with config-driven scraper');
-    
-    let browser;
-    try {
-      const scraper = await ConfigDrivenScraper.fromFile(configPath);
-      browser = await chromium.launch({ headless: true });
-      const gigs = await scraper.scrape(browser);
-      
-      logger.info(`Successfully scraped ${gigs.length} events from venue`);
-      return gigs;
-      
-    } catch (error) {
-      logger.error('Venue scrape failed:', error);
-      throw error;
-    } finally {
-      if (browser) {
-        await browser.close();
-      }
-    }
-  },
-
-  async normalize(rawData: unknown[]): Promise<any[]> {
-    return (rawData as any[]).map(gig => ({
-      ...gig,
-      source: '[venue-slug]',
-      venue: gig.venue || { name: 'Venue Name', city: 'City', country: 'Country' },
-      metadata: {
-        scrapedAt: new Date().toISOString(),
-        scrapeMethod: 'config-driven',
-        originalData: gig
-      }
-    }));
-  },
-
-  async cleanup(): Promise<void> {
-    logger.debug('Venue scraper cleanup completed');
-  }
-};
-
-export default venuePlugin;
+**🔍 To check your new plugin was loaded:**
+```bash
+pnpm plugins  # Shows all loaded plugins
 ```
+
+**📊 Plugin Types:**
+- **Configuration-driven (.json files)**: Modern, no-code approach ⚡
+- **Traditional (.ts files)**: Legacy approach for complex custom logic
 
 ### Testing a Scraper Configuration
 

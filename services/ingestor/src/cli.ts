@@ -579,6 +579,49 @@ program
     }
   });
 
+program
+  .command("plugins")
+  .description("Show information about loaded plugins")
+  .option("-c, --config <path>", "Path to configuration file")
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const ingestor = new Ingestor(config);
+      
+      await ingestor.initialize();
+      
+      // Get the hybrid plugin loader from the ingestor (we need to add this method)
+      // For now, let's create a temporary ingestor to get plugin information
+      const pluginLoader = (ingestor as any).pluginLoader;
+      const breakdown = pluginLoader.getPluginBreakdown();
+      
+      console.log("\n🔌 Plugin Information");
+      console.log("===================");
+      console.log(`Total Plugins: ${breakdown.total}`);
+      console.log(`Traditional (.ts files): ${breakdown.traditional}`);
+      console.log(`Configuration-driven (.json files): ${breakdown.configDriven}`);
+      
+      if (breakdown.sources.traditional.length > 0) {
+        console.log("\n📁 Traditional Plugins:");
+        breakdown.sources.traditional.forEach((source: string) => console.log(`  - ${source}`));
+      }
+      
+      if (breakdown.sources.configDriven.length > 0) {
+        console.log("\n⚙️  Configuration-driven Plugins:");
+        breakdown.sources.configDriven.forEach((source: string) => console.log(`  - ${source}`));
+      }
+      
+      console.log("\n💡 To add a new scraper:");
+      console.log("   1. Create a JSON configuration file in data/scraper-configs/");
+      console.log("   2. No TypeScript code needed - it's fully configuration-driven!");
+      console.log("   3. Test with: pnpm ingest:source <source-name>");
+      
+    } catch (error) {
+      logger.error({ error: (error as Error).message }, "Failed to load plugin information");
+      process.exit(1);
+    }
+  });
+
 // Import and add new scraper configuration commands
 import { addTestScraperConfigCommand } from './commands/test-scraper-config.js';
 import { addConfigManagerCommands } from './commands/config-manager.js';
