@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { GigsResponse, GigDetailResponse, ErrorResponse } from '../types/api';
 import { Gig } from '@gigateer/contracts';
 
@@ -17,12 +17,40 @@ export function useGigsApi(params: Record<string, string>) {
     data: [],
     pagination: null,
     meta: null,
-    loading: true,
+    loading: false, // Start as false to prevent hydration mismatch
     error: null,
   });
+  
+  const [retryCount, setRetryCount] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const maxRetries = 2;
+  const loadingTimeoutMs = 60000; // 60 seconds max loading time
 
-  const fetchGigs = useCallback(async () => {
+  // Handle hydration issues
+  useEffect(() => {
+    setMounted(true);
+    // Start loading only after component is mounted
+    setState(prev => ({ ...prev, loading: true }));
+  }, []);
+
+  const fetchGigs = useCallback(async (isRetry: boolean = false) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
+
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    // Set loading timeout
+    timeoutRef.current = setTimeout(() => {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Request timed out. Please try refreshing the page.',
+      }));
+    }, loadingTimeoutMs);
 
     try {
       const queryParams = new URLSearchParams();
@@ -36,7 +64,22 @@ export function useGigsApi(params: Record<string, string>) {
 
       const url = `/api/gigs${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       
-      const response = await fetch(url);
+      console.log(`Fetching gigs from: ${url}${isRetry ? ' (retry)' : ''}`);
+      
+      // Create manual abort controller for timeout
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => {
+        abortController.abort();
+      }, 30000); // 30 second timeout
+
+      const response = await fetch(url, {
+        signal: abortController.signal,
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();
@@ -53,24 +96,72 @@ export function useGigsApi(params: Record<string, string>) {
         error: null,
       });
       
+      // Clear timeout on success
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      
+      // Reset retry count on success
+      setRetryCount(0);
+      
     } catch (error) {
       console.error('Error fetching gigs:', error);
+      
+      // Retry logic for connection issues
+      const shouldRetry = retryCount < maxRetries && (
+        error instanceof Error && (
+          error.name === 'TimeoutError' ||
+          error.name === 'AbortError' ||
+          error.message.includes('fetch') ||
+          error.message.includes('network') ||
+          error.message.includes('connection') ||
+          error.message.includes('aborted')
+        )
+      );
+      
+      if (shouldRetry && !isRetry) {
+        console.log(`Retrying request (attempt ${retryCount + 1}/${maxRetries})...`);
+        setRetryCount(prev => prev + 1);
+        // Exponential backoff: 1s, 2s, 4s
+        setTimeout(() => fetchGigs(true), Math.pow(2, retryCount) * 1000);
+        return;
+      }
+      
+      // Clear timeout on error
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      
       setState(prev => ({
         ...prev,
         loading: false,
         error: error instanceof Error ? error.message : 'An unexpected error occurred',
       }));
     }
-  }, [params]);
-
-  // Fetch data when params change
+  }, [params, retryCount, maxRetries, loadingTimeoutMs]);
+  
+  // Cleanup timeout on unmount
   useEffect(() => {
-    fetchGigs();
-  }, [fetchGigs]);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  // Fetch data when params change, but only after component is mounted
+  useEffect(() => {
+    if (mounted) {
+      fetchGigs();
+    }
+  }, [fetchGigs, mounted]);
 
   return {
     ...state,
-    refetch: fetchGigs,
+    refetch: () => fetchGigs(false),
   };
 }
 

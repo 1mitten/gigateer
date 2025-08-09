@@ -7,7 +7,6 @@ import {
   ClockIcon, 
   TicketIcon,
   LinkIcon,
-  CurrencyPoundIcon
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 
@@ -18,35 +17,46 @@ interface GigCardProps {
 }
 
 export function GigCard({ gig, className = "", priority = false }: GigCardProps) {
-  const gigDate = new Date(gig.dateStart);
-  const isUpcoming = gigDate >= new Date();
-  const formattedDate = format(gigDate, 'EEE, MMM d, yyyy');
-  const formattedTime = format(gigDate, 'h:mm a');
-
-  const getPriceDisplay = () => {
-    if (!gig.price || (!gig.price.min && !gig.price.max)) {
-      return 'Price TBA';
-    }
-
-    const currency = gig.price.currency === 'GBP' ? '£' : gig.price.currency === 'EUR' ? '€' : '$';
-    
-    if (gig.price.min && gig.price.max) {
-      if (gig.price.min === gig.price.max) {
-        return `${currency}${gig.price.min}`;
-      }
-      return `${currency}${gig.price.min} - ${currency}${gig.price.max}`;
-    }
-    
-    if (gig.price.min) {
-      return `From ${currency}${gig.price.min}`;
-    }
-    
-    if (gig.price.max) {
-      return `Up to ${currency}${gig.price.max}`;
-    }
-
-    return 'Price TBA';
+  // Color palette for tags
+  const tagColors = ['#A3DC9A', '#DEE791', '#FFF9BD', '#FFD6BA'];
+  
+  // Helper function to get color for tag
+  const getTagColor = (index: number) => {
+    const colorIndex = index % tagColors.length;
+    return tagColors[colorIndex];
   };
+  
+  // Helper function to get text color based on background
+  const getTextColor = (backgroundColor: string) => {
+    // Light colors, use dark text
+    return '#374151'; // gray-700
+  };
+
+  // Helper function to safely parse and validate dates
+  const parseGigDate = (dateString: string): Date | null => {
+    try {
+      const date = new Date(dateString);
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        return null;
+      }
+      return date;
+    } catch {
+      return null;
+    }
+  };
+
+  const gigDate = parseGigDate(gig.dateStart);
+  const isValidDate = gigDate !== null;
+  const isUpcoming = isValidDate ? gigDate >= new Date() : true; // Default to upcoming if no valid date
+  
+  // Format date and time with fallbacks for invalid dates
+  const formattedDate = isValidDate ? format(gigDate, 'EEE, MMM d, yyyy') : 'Date TBA';
+  const formattedTime = isValidDate ? format(gigDate, 'h:mm a') : (
+    // Try to extract time from the original string if it looks like a time range
+    gig.dateStart.includes(':') ? gig.dateStart.trim() : 'Time TBA'
+  );
+
 
   const getStatusBadge = () => {
     if (gig.status === 'cancelled') {
@@ -77,7 +87,8 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
   };
 
   return (
-    <article className={`card hover:shadow-md transition-shadow duration-200 ${className}`}>
+    <article className={`card hover:shadow-md transition-shadow duration-200 overflow-hidden ${className}`}>
+      
       <div className="p-6">
         {/* Header with title and status */}
         <div className="flex items-start justify-between mb-4">
@@ -90,12 +101,6 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
                 {gig.title}
               </h3>
             </Link>
-            
-            {gig.artists.length > 0 && (
-              <p className="text-sm text-gray-600 mt-1">
-                {gig.artists.join(', ')}
-              </p>
-            )}
           </div>
           
           <div className="ml-4 flex-shrink-0">
@@ -120,47 +125,53 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
           </span>
         </div>
 
-        {/* Genre tags */}
-        {gig.genre.length > 0 && (
+        {/* Tags */}
+        {((gig.tags && gig.tags.length > 0) || ((gig as any).genre && (gig as any).genre.length > 0)) && (
           <div className="flex flex-wrap gap-1 mb-4">
-            {gig.genre.slice(0, 3).map((genre, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800"
-              >
-                {genre}
-              </span>
-            ))}
-            {gig.genre.length > 3 && (
+            {(gig.tags || (gig as any).genre || []).slice(0, 3).map((tag: string, index: number) => {
+              const backgroundColor = getTagColor(index);
+              const textColor = getTextColor(backgroundColor);
+              return (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
+                  style={{ backgroundColor, color: textColor }}
+                >
+                  {tag}
+                </span>
+              );
+            })}
+            {(gig.tags || (gig as any).genre || []).length > 3 && (
               <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
-                +{gig.genre.length - 3} more
+                +{(gig.tags || (gig as any).genre || []).length - 3} more
               </span>
             )}
           </div>
         )}
 
-        {/* Price and age restriction */}
-        <div className="flex items-center justify-between text-sm mb-4">
-          <div className="flex items-center text-gray-600">
-            <CurrencyPoundIcon className="h-4 w-4 mr-1" />
-            <span>{getPriceDisplay()}</span>
-          </div>
-          
-          {gig.ageRestriction && (
+        {/* Age restriction */}
+        {gig.ageRestriction && (
+          <div className="flex justify-end text-sm mb-4">
             <span className="text-gray-500 text-xs">
               {gig.ageRestriction}
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Action buttons */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-          <Link
-            href={`/gig/${gig.id}`}
-            className="text-sm font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1"
-          >
-            View Details
-          </Link>
+          {gig.eventUrl && (
+            <a
+              href={gig.eventUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1"
+              title="View original event page"
+            >
+              <LinkIcon className="h-3 w-3 inline mr-1" />
+              Source
+            </a>
+          )}
           
           <div className="flex items-center gap-2">
             {gig.ticketsUrl && (
@@ -172,19 +183,6 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
               >
                 <TicketIcon className="h-3 w-3" />
                 Tickets
-              </a>
-            )}
-            
-            {gig.eventUrl && (
-              <a
-                href={gig.eventUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
-                title="View original event page"
-              >
-                <LinkIcon className="h-3 w-3" />
-                Source
               </a>
             )}
           </div>

@@ -14,12 +14,11 @@ import { Gig } from '@gigateer/contracts';
 const HASH_FIELDS: (keyof Gig)[] = [
   'title',
   'artists',
-  'genre',
+  'tags',
   'dateStart',
   'dateEnd',
   'timezone',
   'venue',
-  'price',
   'ageRestriction',
   'status',
   'ticketsUrl',

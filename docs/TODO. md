@@ -1,0 +1,11 @@
+Tasks to complete
+
+- Remove the price field from frontend as we don't need this, remove from gig listings and gig details page
+- Use this as a base colour palette and expand beyond it #A3DC9A, #DEE791, #FFF9BD, #FFD6BA and color the tags on the gigs on the listings page and the gig details page and make sure they use the same theme.
+- Source and link should be 
+= The exchange seems to have just it's room as the venue, it should be added to the config to have "Exchange" as the venue and if there is more information like "Main" or "Basement" - This would become "Exchange, Main"
+- The images on the gig listing page seemed like not all of the image can be seen, please correct
+- _meta object on the database should be refactored, createdAt and UpdatedAt should be at the root at document for querying and indexing etc.  
+- firstSeenAt and lastSeenAt in database should also be explicit date in Mongo
+- Gig Listings should only be shown if there are in the future
+- The filters on the left hand side of the app seem broken, soon as you type first letter, it prevents you from typing so must be losing focus and also it doesn't seem to fuzzy search as you'd expect

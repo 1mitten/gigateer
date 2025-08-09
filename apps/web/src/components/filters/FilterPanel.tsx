@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ChevronDownIcon, FunnelIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FunnelIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface FilterValues {
   city: string;
-  genre: string;
+  tags: string;
   venue: string;
   dateFrom: string;
   dateTo: string;
@@ -31,96 +31,59 @@ export function FilterPanel({
   onToggle
 }: FilterPanelProps) {
   const hasActiveFilters = Object.values(filters).some(value => value);
+  
+  // Local state for form inputs - only applied when "Apply Filters" is clicked
+  const [localValues, setLocalValues] = useState(filters);
+  
+  // Check if there are pending changes
+  const hasChanges = JSON.stringify(localValues) !== JSON.stringify(filters);
+  
+  // Update local values when external filters change (but preserve user input)
+  useEffect(() => {
+    if (!hasChanges) {
+      setLocalValues(filters);
+    }
+  }, [filters, hasChanges]);
+  
+  // Individual handlers to prevent function recreation
+  const handleCityChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalValues(prev => ({ ...prev, city: e.target.value }));
+  }, []);
+  
+  const handleTagsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalValues(prev => ({ ...prev, tags: e.target.value }));
+  }, []);
+  
+  const handleVenueChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalValues(prev => ({ ...prev, venue: e.target.value }));
+  }, []);
+  
+  const handleDateFromChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalValues(prev => ({ ...prev, dateFrom: e.target.value }));
+  }, []);
+  
+  const handleDateToChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalValues(prev => ({ ...prev, dateTo: e.target.value }));
+  }, []);
+  
+  // Apply filters when button is clicked
+  const handleApplyFilters = useCallback(() => {
+    onChange(localValues);
+  }, [localValues, onChange]);
+  
+  // Reset both local and applied filters
+  const handleResetFilters = useCallback(() => {
+    const emptyFilters = {
+      city: '',
+      tags: '',
+      venue: '',
+      dateFrom: '',
+      dateTo: ''
+    };
+    setLocalValues(emptyFilters);
+    onReset();
+  }, [onReset]);
 
-  const handleInputChange = (key: keyof FilterValues) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    onChange({ [key]: e.target.value });
-  };
-
-  const FilterContent = () => (
-    <div className="space-y-6">
-      <div>
-        <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-          City
-        </label>
-        <input
-          type="text"
-          id="city"
-          value={filters.city}
-          onChange={handleInputChange('city')}
-          placeholder="e.g., London, Manchester"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="genre" className="block text-sm font-medium text-gray-700 mb-2">
-          Genre
-        </label>
-        <input
-          type="text"
-          id="genre"
-          value={filters.genre}
-          onChange={handleInputChange('genre')}
-          placeholder="e.g., Rock, Jazz, Electronic"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="date-from" className="block text-sm font-medium text-gray-700 mb-2">
-            From Date
-          </label>
-          <input
-            type="date"
-            id="date-from"
-            value={filters.dateFrom}
-            onChange={handleInputChange('dateFrom')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="date-to" className="block text-sm font-medium text-gray-700 mb-2">
-            To Date
-          </label>
-          <input
-            type="date"
-            id="date-to"
-            value={filters.dateTo}
-            onChange={handleInputChange('dateTo')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="venue" className="block text-sm font-medium text-gray-700 mb-2">
-          Venue
-        </label>
-        <input
-          type="text"
-          id="venue"
-          value={filters.venue}
-          onChange={handleInputChange('venue')}
-          placeholder="e.g., O2 Arena, Royal Albert Hall"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-        />
-      </div>
-
-      {hasActiveFilters && (
-        <button
-          type="button"
-          onClick={onReset}
-          className="w-full btn-secondary text-sm"
-        >
-          Reset Filters
-        </button>
-      )}
-    </div>
-  );
 
   if (isMobile) {
     return (
@@ -160,7 +123,101 @@ export function FilterPanel({
                 </button>
               </div>
               
-              <FilterContent />
+              <div className="space-y-6">
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    id="city"
+                    value={localValues.city}
+                    onChange={handleCityChange}
+                    placeholder="e.g., London, Manchester"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
+                    Tags
+                  </label>
+                  <input
+                    type="text"
+                    id="tags"
+                    value={localValues.tags}
+                    onChange={handleTagsChange}
+                    placeholder="e.g., Rock, Jazz, Electronic"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="date-from" className="block text-sm font-medium text-gray-700 mb-2">
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    id="date-from"
+                    value={localValues.dateFrom}
+                    onChange={handleDateFromChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="date-to" className="block text-sm font-medium text-gray-700 mb-2">
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    id="date-to"
+                    value={localValues.dateTo}
+                    onChange={handleDateToChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="venue" className="block text-sm font-medium text-gray-700 mb-2">
+                    Venue
+                  </label>
+                  <input
+                    type="text"
+                    id="venue"
+                    value={localValues.venue}
+                    onChange={handleVenueChange}
+                    placeholder="e.g., O2 Arena, Royal Albert Hall"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+                  />
+                </div>
+
+                {/* Apply Filters Button */}
+                <div className="pt-2 space-y-3">
+                  <button
+                    type="button"
+                    onClick={handleApplyFilters}
+                    disabled={!hasChanges}
+                    className={`w-full px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      hasChanges
+                        ? 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500'
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Apply Filters
+                  </button>
+                  
+                  {hasActiveFilters && (
+                    <button
+                      type="button"
+                      onClick={handleResetFilters}
+                      className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-primary-500"
+                    >
+                      Reset Filters
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </>
         )}
@@ -176,7 +233,101 @@ export function FilterPanel({
         Filters
       </h2>
       
-      <FilterContent />
+      <div className="space-y-6">
+        <div>
+          <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+            City
+          </label>
+          <input
+            type="text"
+            id="city"
+            value={localValues.city}
+            onChange={handleCityChange}
+            placeholder="e.g., London, Manchester"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
+            Tags
+          </label>
+          <input
+            type="text"
+            id="tags"
+            value={localValues.tags}
+            onChange={handleTagsChange}
+            placeholder="e.g., Rock, Jazz, Electronic"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="date-from" className="block text-sm font-medium text-gray-700 mb-2">
+            From Date
+          </label>
+          <input
+            type="date"
+            id="date-from"
+            value={localValues.dateFrom}
+            onChange={handleDateFromChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="date-to" className="block text-sm font-medium text-gray-700 mb-2">
+            To Date
+          </label>
+          <input
+            type="date"
+            id="date-to"
+            value={localValues.dateTo}
+            onChange={handleDateToChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="venue" className="block text-sm font-medium text-gray-700 mb-2">
+            Venue
+          </label>
+          <input
+            type="text"
+            id="venue"
+            value={localValues.venue}
+            onChange={handleVenueChange}
+            placeholder="e.g., O2 Arena, Royal Albert Hall"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+          />
+        </div>
+
+        {/* Apply Filters Button */}
+        <div className="pt-2 space-y-3">
+          <button
+            type="button"
+            onClick={handleApplyFilters}
+            disabled={!hasChanges}
+            className={`w-full px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              hasChanges
+                ? 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            Apply Filters
+          </button>
+          
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-primary-500"
+            >
+              Reset Filters
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

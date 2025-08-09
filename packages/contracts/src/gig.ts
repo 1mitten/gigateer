@@ -6,7 +6,7 @@ export const GigSchema = z.object({
   sourceId: z.string().optional(), // upstream unique id if available
   title: z.string(),
   artists: z.array(z.string()).default([]),
-  genre: z.array(z.string()).default([]),
+  tags: z.array(z.string()).default([]),
   dateStart: z.string(), // ISO datetime
   dateEnd: z.string().optional(), // ISO if available
   timezone: z.string().optional(), // e.g. "Europe/Amsterdam"
@@ -18,13 +18,6 @@ export const GigSchema = z.object({
     lat: z.number().optional(),
     lng: z.number().optional(),
   }),
-  price: z
-    .object({
-      min: z.number().nullable(),
-      max: z.number().nullable(),
-      currency: z.string().nullable(), // "EUR", "GBP"
-    })
-    .optional(),
   ageRestriction: z.string().optional(),
   status: z.enum(["scheduled", "cancelled", "postponed"]).default("scheduled"),
   ticketsUrl: z.string().url().optional(),

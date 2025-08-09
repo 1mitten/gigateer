@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+// Load environment variables from .env file
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// Load .env from project root (two levels up from services/ingestor/src)
+const envPath = resolve(process.cwd(), '../../.env');
+config({ path: envPath });
+
 import { Command } from "commander";
 import { join } from "path";
 import { writeFileSync } from "fs";
@@ -157,17 +165,45 @@ program
   .command("stats")
   .description("Show statistics about all sources")
   .option("-c, --config <path>", "Path to configuration file")
+  .option("-d, --detailed", "Show detailed statistics with change information")
   .action(async (options) => {
     try {
       const config = await loadConfig(options.config);
       const ingestor = new Ingestor(config);
       
-      const stats = await ingestor.getSourceStats();
-      
-      logger.info(stats, "Source statistics");
-      
-      const totalGigs = Object.values(stats).reduce((sum, stat) => sum + stat.count, 0);
-      logger.info({ totalSources: Object.keys(stats).length, totalGigs }, "Summary");
+      if (options.detailed) {
+        const detailedStats = await ingestor.getDetailedStats();
+        
+        // Log detailed information for each source
+        for (const [sourceName, sourceStats] of Object.entries(detailedStats.sources)) {
+          logger.info({
+            source: sourceName,
+            total: sourceStats.total,
+            new: sourceStats.new,
+            updated: sourceStats.updated,
+            unchanged: sourceStats.unchanged,
+            lastUpdated: sourceStats.lastUpdated
+          }, `${sourceName} detailed stats`);
+          
+          if (sourceStats.recentChanges.length > 0) {
+            logger.info({
+              source: sourceName,
+              recentChanges: sourceStats.recentChanges
+            }, `${sourceName} recent changes`);
+          }
+        }
+        
+        // Log summary
+        logger.info(detailedStats.summary, "Detailed Summary");
+        
+      } else {
+        const stats = await ingestor.getSourceStats();
+        
+        logger.info(stats, "Source statistics");
+        
+        const totalGigs = Object.values(stats).reduce((sum, stat) => sum + stat.count, 0);
+        logger.info({ totalSources: Object.keys(stats).length, totalGigs }, "Summary");
+      }
       
     } catch (error) {
       logger.error({ error: (error as Error).message }, "Failed to get stats");
@@ -618,6 +654,57 @@ program
       
     } catch (error) {
       logger.error({ error: (error as Error).message }, "Failed to load plugin information");
+      process.exit(1);
+    }
+  });
+
+program
+  .command("db:status")
+  .description("Check database connection status and statistics")
+  .option("-c, --config <path>", "Path to configuration file")
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const ingestor = new Ingestor(config);
+      
+      await ingestor.initialize();
+      
+      // Get database manager from the ingestor (we need to add a getter method)
+      const databaseManager = (ingestor as any).databaseManager;
+      const healthCheck = await databaseManager.healthCheck();
+      const stats = await databaseManager.getStats();
+      
+      console.log("\n🗄️  Database Status");
+      console.log("=================");
+      console.log(`Status: ${healthCheck.status}`);
+      console.log(`Connected: ${stats.connected}`);
+      console.log(`Enabled: ${stats.enabled}`);
+      
+      if (stats.connected && stats.collections) {
+        console.log("\n📊 Collection Counts:");
+        for (const [collection, count] of Object.entries(stats.collections)) {
+          console.log(`  - ${collection}: ${count} documents`);
+        }
+      }
+      
+      if (stats.gigStatsBySource) {
+        console.log("\n🎵 Gigs by Source:");
+        for (const [source, sourceStats] of Object.entries(stats.gigStatsBySource)) {
+          const typedStats = sourceStats as { count: number; lastUpdated?: Date };
+          const lastUpdated = typedStats.lastUpdated ? 
+            ` (last updated: ${typedStats.lastUpdated.toISOString()})` : '';
+          console.log(`  - ${source}: ${typedStats.count} gigs${lastUpdated}`);
+        }
+      }
+      
+      if (healthCheck.details.error) {
+        console.log(`\n❌ Error: ${healthCheck.details.error}`);
+      }
+      
+      await ingestor.cleanup();
+      
+    } catch (error) {
+      logger.error({ error: (error as Error).message }, "Failed to check database status");
       process.exit(1);
     }
   });

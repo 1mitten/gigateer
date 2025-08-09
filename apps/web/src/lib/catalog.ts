@@ -174,14 +174,21 @@ export function filterGigs(
   gigs: Gig[],
   filters: {
     city?: string;
-    genre?: string;
+    tags?: string;
     dateFrom?: string;
     dateTo?: string;
     venue?: string;
     q?: string;
+    showPastEvents?: boolean;
   }
 ): Gig[] {
   let filtered = [...gigs];
+  
+  // Filter out past events by default (only show future/upcoming gigs)
+  if (!filters.showPastEvents) {
+    const now = new Date();
+    filtered = filtered.filter(gig => new Date(gig.dateStart) >= now);
+  }
   
   // City filter (case-insensitive includes)
   if (filters.city) {
@@ -191,11 +198,12 @@ export function filterGigs(
     );
   }
   
-  // Genre filter (case-insensitive includes)
-  if (filters.genre) {
-    const genreLower = filters.genre.toLowerCase();
+  // Tags filter (case-insensitive includes)
+  if (filters.tags) {
+    const tagsLower = filters.tags.toLowerCase();
     filtered = filtered.filter(gig =>
-      gig.genre.some(g => g.toLowerCase().includes(genreLower))
+      (gig.tags && gig.tags.some(g => g.toLowerCase().includes(tagsLower))) ||
+      ((gig as any).genre && (gig as any).genre.some((g: string) => g.toLowerCase().includes(tagsLower)))
     );
   }
   

@@ -16,10 +16,10 @@
   "dependencies": {
     "@gigateer/contracts": "workspace:*",
     "@heroicons/react": "^2.2.0",
-    "@next/font": "^14.1.0",
     "autoprefixer": "^10.4.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
+    "mongodb": "^6.18.0",
     "next": "^14.1.0",
     "next-pwa": "^5.6.0",
     "postcss": "^8.4.0",

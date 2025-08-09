@@ -40,6 +40,42 @@ export function GigCardSkeleton() {
   );
 }
 
+export function GigListItemSkeleton() {
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="flex items-start justify-between">
+        <div className="flex-1 space-y-3">
+          {/* Title and status */}
+          <div className="flex items-start justify-between">
+            <LoadingSkeleton className="h-5 w-3/4" />
+            <LoadingSkeleton className="h-6 w-20" />
+          </div>
+          
+          {/* Date, time, venue line */}
+          <div className="flex items-center space-x-4">
+            <LoadingSkeleton className="h-4 w-20" />
+            <LoadingSkeleton className="h-4 w-16" />
+            <LoadingSkeleton className="h-4 w-32" />
+          </div>
+          
+          {/* Tags */}
+          <div className="flex items-center space-x-2">
+            <LoadingSkeleton className="h-6 w-16" />
+            <LoadingSkeleton className="h-6 w-20" />
+            <LoadingSkeleton className="h-6 w-18" />
+          </div>
+        </div>
+        
+        {/* Action buttons */}
+        <div className="ml-4 flex items-center space-x-2 flex-shrink-0">
+          <LoadingSkeleton className="h-8 w-16" />
+          <LoadingSkeleton className="h-8 w-20" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function FiltersPanelSkeleton() {
   return (
     <div className="space-y-6">

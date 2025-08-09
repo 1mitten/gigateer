@@ -7,7 +7,7 @@ describe("GigSchema", () => {
     sourceId: "12345",
     title: "Amazing Concert",
     artists: ["Artist One", "Artist Two"],
-    genre: ["rock", "indie"],
+    tags: ["rock", "indie"],
     dateStart: "2024-01-15T20:00:00Z",
     dateEnd: "2024-01-15T23:00:00Z",
     timezone: "Europe/Amsterdam",
@@ -18,11 +18,6 @@ describe("GigSchema", () => {
       country: "Netherlands",
       lat: 52.3676,
       lng: 4.9041,
-    },
-    price: {
-      min: 25.0,
-      max: 45.0,
-      currency: "EUR",
     },
     ageRestriction: "18+",
     status: "scheduled",
@@ -58,32 +53,11 @@ describe("GigSchema", () => {
       
       // Check defaults are applied
       expect(result.artists).toEqual([]);
-      expect(result.genre).toEqual([]);
+      expect(result.tags).toEqual([]);
       expect(result.status).toBe("scheduled");
       expect(result.images).toEqual([]);
     });
 
-    it("should handle null price fields", () => {
-      const gigWithNullPrice = {
-        ...validGig,
-        price: {
-          min: null,
-          max: null,
-          currency: null,
-        },
-      };
-
-      expect(() => GigSchema.parse(gigWithNullPrice)).not.toThrow();
-    });
-
-    it("should handle optional price object", () => {
-      const gigWithoutPrice = {
-        ...validGig,
-        price: undefined,
-      };
-
-      expect(() => GigSchema.parse(gigWithoutPrice)).not.toThrow();
-    });
   });
 
   describe("Invalid data validation", () => {
@@ -107,9 +81,8 @@ describe("GigSchema", () => {
       const invalidGigs = [
         { ...validGig, id: 123 },
         { ...validGig, artists: "not an array" },
-        { ...validGig, genre: ["valid", 123] },
+        { ...validGig, tags: ["valid", 123] },
         { ...validGig, venue: { name: 123 } },
-        { ...validGig, price: { min: "not a number", max: 50, currency: "EUR" } },
       ];
 
       invalidGigs.forEach((gig) => {
@@ -152,7 +125,7 @@ describe("GigSchema", () => {
   });
 
   describe("Default values", () => {
-    it("should apply default empty arrays for artists, genre, and images", () => {
+    it("should apply default empty arrays for artists, tags, and images", () => {
       const gigWithoutArrays = {
         id: "test-gig",
         source: "test-source",
@@ -165,7 +138,7 @@ describe("GigSchema", () => {
 
       const result = GigSchema.parse(gigWithoutArrays);
       expect(result.artists).toEqual([]);
-      expect(result.genre).toEqual([]);
+      expect(result.tags).toEqual([]);
       expect(result.images).toEqual([]);
     });
 
@@ -198,7 +171,6 @@ describe("GigSchema", () => {
         sourceId: undefined,
         dateEnd: undefined,
         timezone: undefined,
-        price: undefined,
         ageRestriction: undefined,
         ticketsUrl: undefined,
         eventUrl: undefined,

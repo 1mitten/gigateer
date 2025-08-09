@@ -3,12 +3,14 @@
 import React, { useState } from 'react';
 import { useSearchFilters } from '../../hooks/useSearchFilters';
 import { useGigsApi, useGigSort } from '../../hooks/useGigsApi';
+import { useViewPreference } from '../../hooks/useViewPreference';
 import { useToast } from '../ui/Toast';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { SearchInput } from '../search/SearchInput';
 import { FilterPanel } from '../filters/FilterPanel';
 import { FilterChipsBar } from '../filters/FilterChip';
-import { GigsList } from '../gigs/GigsList';
+import { GigsList, GigsGrid } from '../gigs/GigsList';
+import { ViewToggle } from '../ui/ViewToggle';
 import { Pagination } from '../ui/Pagination';
 import { SortControls, CompactSortControls } from '../ui/SortControls';
 import { InstallButton } from '../pwa-install-prompt';
@@ -16,8 +18,10 @@ import { useOnlineStatus } from '../offline-detector';
 
 export function SearchPage() {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const { addToast } = useToast();
   const isOnline = useOnlineStatus();
+  const { view, setView, isLoaded } = useViewPreference();
   
   // Search and filter state
   const {
@@ -42,6 +46,27 @@ export function SearchPage() {
     return sortGigs(gigs);
   }, [gigs, sortGigs]);
 
+  // Handle initialization
+  React.useEffect(() => {
+    // Exit initializing state when:
+    // 1. We're not loading anymore (request completed)
+    // 2. We have gigs OR we have an error OR we've received an empty response (loading finished)
+    if (isInitializing && !loading) {
+      setIsInitializing(false);
+    }
+  }, [isInitializing, loading]);
+
+  // Failsafe timeout to exit initialization state
+  React.useEffect(() => {
+    if (isInitializing) {
+      const timeout = setTimeout(() => {
+        setIsInitializing(false);
+      }, 10000); // 10 second maximum initialization time
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isInitializing]);
+
   // Handle errors
   React.useEffect(() => {
     if (error) {
@@ -52,6 +77,19 @@ export function SearchPage() {
       });
     }
   }, [error, addToast]);
+
+  // Show initialization loading state
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <h2 className="text-lg font-medium text-gray-900 mb-2">Loading Gigateer</h2>
+          <p className="text-gray-600">Discovering live music events...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
@@ -124,22 +162,33 @@ export function SearchPage() {
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Mobile filter button and sort controls */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:hidden">
-              <FilterPanel
-                filters={filters}
-                onChange={updateFilters}
-                onReset={resetFilters}
-                isMobile
-                isOpen={isMobileFiltersOpen}
-                onToggle={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-              />
+            <div className="flex flex-col gap-4 mb-6 lg:hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <FilterPanel
+                  filters={filters}
+                  onChange={updateFilters}
+                  onReset={resetFilters}
+                  isMobile
+                  isOpen={isMobileFiltersOpen}
+                  onToggle={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+                />
+                
+                <CompactSortControls
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onToggleSort={toggleSort}
+                  className="sm:w-48"
+                />
+              </div>
               
-              <CompactSortControls
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-                onToggleSort={toggleSort}
-                className="sm:w-48"
-              />
+              {isLoaded && (
+                <div className="flex justify-center sm:justify-end">
+                  <ViewToggle
+                    currentView={view}
+                    onViewChange={setView}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Desktop sort controls and results info */}
@@ -152,11 +201,20 @@ export function SearchPage() {
                 />
               </div>
 
-              {pagination && (
-                <div className="text-sm text-gray-600">
-                  Showing {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} gigs
-                </div>
-              )}
+              <div className="flex items-center space-x-4">
+                {pagination && (
+                  <div className="text-sm text-gray-600">
+                    Showing {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} gigs
+                  </div>
+                )}
+                
+                {isLoaded && (
+                  <ViewToggle
+                    currentView={view}
+                    onViewChange={setView}
+                  />
+                )}
+              </div>
             </div>
 
             {/* Error State */}
@@ -214,15 +272,28 @@ export function SearchPage() {
 
             {/* Results */}
             <ErrorBoundary>
-              <GigsList
-                gigs={sortedGigs}
-                loading={loading}
-                showCount={false}
-                emptyMessage={hasActiveFilters ? 
-                  "No gigs match your current filters. Try adjusting your search criteria." : 
-                  "No gigs available at the moment. Check back later!"
-                }
-              />
+              {view === 'grid' ? (
+                <GigsGrid
+                  gigs={sortedGigs}
+                  loading={loading}
+                  showCount={false}
+                  emptyMessage={hasActiveFilters ? 
+                    "No gigs match your current filters. Try adjusting your search criteria." : 
+                    "No gigs available at the moment. Check back later!"
+                  }
+                />
+              ) : (
+                <GigsList
+                  gigs={sortedGigs}
+                  loading={loading}
+                  variant="list"
+                  showCount={false}
+                  emptyMessage={hasActiveFilters ? 
+                    "No gigs match your current filters. Try adjusting your search criteria." : 
+                    "No gigs available at the moment. Check back later!"
+                  }
+                />
+              )}
             </ErrorBoundary>
 
             {/* Pagination */}

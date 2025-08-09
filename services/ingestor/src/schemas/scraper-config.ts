@@ -30,13 +30,14 @@ export const ScrollConfigSchema = z.object({
 
 export const ExtractConfigSchema = z.object({
   type: z.literal('extract'),
+  method: z.string().optional(), // Special extraction method (e.g., 'exchange-bristol')
   containerSelector: z.string(),
   fields: z.record(z.object({
     selector: z.string(),
     attribute: z.string().optional(), // 'text', 'href', 'src', or custom attribute
     multiple: z.boolean().default(false),
     required: z.boolean().default(true),
-    transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'price', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex']).optional(),
+    transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'exchange-bristol-datetime', 'parse-date-group', 'exchange-venue-name']).optional(),
     fallback: z.string().optional(),
     transformParams: z.record(z.any()).optional(), // For regex patterns, etc.
     followUp: z.object({
@@ -44,7 +45,7 @@ export const ExtractConfigSchema = z.object({
       fields: z.record(z.object({
         selector: z.string(),
         attribute: z.string().optional(),
-        transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'price', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex']).optional(),
+        transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'exchange-bristol-datetime', 'parse-date-group', 'exchange-venue-name']).optional(),
         transformParams: z.record(z.any()).optional()
       }))
     }).optional() // Follow-up extraction from linked pages
@@ -111,12 +112,6 @@ export const ScraperConfigSchema = z.object({
       end: z.string().optional(),
       timezone: z.string().optional()
     }),
-    price: z.object({
-      min: z.string().optional(),
-      max: z.string().optional(),
-      currency: z.string().optional(),
-      text: z.string().optional()
-    }).optional(),
     urls: z.object({
       event: z.string().optional(),
       tickets: z.string().optional(),

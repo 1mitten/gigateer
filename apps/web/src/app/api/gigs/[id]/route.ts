@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { withRateLimit } from '../../../../lib/rate-limiter';
 import { getGigById } from '../../../../lib/catalog';
+import { getWebDatabaseService, isDatabaseEnabled } from '../../../../lib/database';
 import { ErrorResponse } from '../../../../types/api';
 
 async function handleGigDetailRequest(
@@ -23,8 +24,14 @@ async function handleGigDetailRequest(
       });
     }
     
-    // Get the specific gig
-    const gig = await getGigById(id.trim());
+    // Get the specific gig - use database if enabled, otherwise fallback to catalog
+    let gig;
+    if (isDatabaseEnabled()) {
+      const dbService = getWebDatabaseService();
+      gig = await dbService.getGigById(id.trim());
+    } else {
+      gig = await getGigById(id.trim());
+    }
     
     if (!gig) {
       const errorResponse: ErrorResponse = {

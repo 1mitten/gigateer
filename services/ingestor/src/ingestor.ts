@@ -6,12 +6,14 @@ import { FileManager, type DetailedRunLog, type PerformanceMetrics } from "./fil
 import { ChangeDetector } from "./change-detector.js";
 import { RateLimiter } from "./rate-limiter.js";
 import { HybridPluginLoader } from "./hybrid-plugin-loader.js";
+import { DatabaseManager } from "./database/index.js";
 
 export class Ingestor {
   private fileManager: FileManager;
   private changeDetector: ChangeDetector;
   private rateLimiter: RateLimiter;
   private pluginLoader: HybridPluginLoader;
+  private databaseManager: DatabaseManager;
   
   constructor(
     private readonly config: IngestorConfig,
@@ -30,13 +32,15 @@ export class Ingestor {
       join(process.cwd(), "data/scraper-configs"),
       this.logger
     );
+    this.databaseManager = DatabaseManager.fromEnvironment();
   }
 
   /**
-   * Initializes the ingestor by loading all plugins
+   * Initializes the ingestor by loading all plugins and connecting to database
    */
   async initialize(): Promise<void> {
     await this.pluginLoader.loadPlugins();
+    await this.databaseManager.initialize();
   }
 
   /**
@@ -92,6 +96,18 @@ export class Ingestor {
     };
     
     await this.fileManager.saveRunLog(runLog);
+    
+    // Store bulk ingestion results in database
+    await this.databaseManager.storeScraperRun('ingest_all', {
+      rawCount: runLog.summary.totalGigs,
+      normalizedCount: runLog.summary.totalGigs,
+      newCount: runLog.summary.totalNew,
+      updatedCount: runLog.summary.totalUpdated,
+      errorCount: runLog.summary.totalErrors,
+      success: runLog.summary.failedSources === 0,
+      duration: runLog.summary.totalDuration,
+      errors: results.filter(r => !r.success).flatMap(r => r.errors || [])
+    }, runLog.summary);
 
     return results;
   }
@@ -169,6 +185,18 @@ export class Ingestor {
           },
           severity: invalidCount > normalizedGigs.length * 0.5 ? 'high' : 'medium',
         });
+        
+        // Store error log in database
+        await this.databaseManager.storeErrorLog(
+          source,
+          `${invalidCount} gigs failed validation`,
+          { 
+            totalGigs: normalizedGigs.length, 
+            validGigs: validatedGigs.length,
+            logType
+          },
+          invalidCount > normalizedGigs.length * 0.5 ? 'high' : 'medium'
+        );
       }
 
       // Load previous normalized data for change detection
@@ -182,7 +210,16 @@ export class Ingestor {
       // Merge results and save with timing
       const saveStartTime = Date.now();
       const finalGigs = this.changeDetector.mergeResults(changeResult);
+      
+      // Save to file storage
       await this.fileManager.saveNormalizedData(source, finalGigs);
+      
+      // Generate batch ID for this ingestion run
+      const batchId = `${source}-${new Date().toISOString()}`;
+      
+      // Store in database if enabled
+      await this.databaseManager.storeGigs(finalGigs, source, batchId);
+      
       performanceTimers.save = Date.now() - saveStartTime;
 
       stats.success = true;
@@ -208,6 +245,19 @@ export class Ingestor {
         };
         
         await this.fileManager.savePerformanceMetrics(performanceMetrics);
+        
+        // Store performance metrics in database
+        await this.databaseManager.storePerformanceMetrics(source, {
+          fetchDuration: performanceTimers.fetch,
+          normalizeDuration: performanceTimers.normalize,
+          validationDuration: performanceTimers.validation,
+          saveDuration: performanceTimers.save,
+          totalDuration,
+          memoryUsage: process.memoryUsage(),
+          gigThroughput,
+          gigCount: stats.normalizedCount,
+          errorCount: stats.errorCount || 0
+        });
       } catch (error) {
         this.logger.warn({ error: (error as Error).message }, "Failed to save performance metrics");
       }
@@ -246,6 +296,19 @@ export class Ingestor {
           },
           severity: 'critical',
         });
+        
+        // Store error log in database
+        await this.databaseManager.storeErrorLog(
+          source,
+          (error as Error).message,
+          { 
+            logType,
+            rawCount: stats.rawCount,
+            normalizedCount: stats.normalizedCount
+          },
+          'critical',
+          (error as Error).stack
+        );
       } catch (logError) {
         this.logger.warn({ logError: (logError as Error).message }, "Failed to save error log");
       }
@@ -258,6 +321,19 @@ export class Ingestor {
       const endTime = new Date();
       stats.endTime = endTime.toISOString();
       stats.duration = endTime.getTime() - overallStartTime.getTime();
+      
+      // Store scraper run results in database
+      await this.databaseManager.storeScraperRun(logType, {
+        source,
+        rawCount: stats.rawCount,
+        normalizedCount: stats.normalizedCount,
+        newCount: stats.newCount,
+        updatedCount: stats.updatedCount,
+        errorCount: stats.errorCount || 0,
+        success: stats.success,
+        duration: stats.duration,
+        errors: stats.errors
+      });
     }
 
     return stats;
@@ -339,9 +415,88 @@ export class Ingestor {
   }
 
   /**
+   * Get detailed statistics including change information
+   */
+  async getDetailedStats(): Promise<{
+    sources: { [source: string]: {
+      total: number;
+      new: number;
+      updated: number;
+      unchanged: number;
+      lastUpdated?: string;
+      recentChanges: Array<{
+        id: string;
+        title: string;
+        status: 'new' | 'updated';
+        venue: string;
+        date: string;
+      }>;
+    }};
+    summary: {
+      totalSources: number;
+      totalGigs: number;
+      totalNew: number;
+      totalUpdated: number;
+      totalUnchanged: number;
+    };
+  }> {
+    const sources = await this.fileManager.listNormalizedSources();
+    const result = {
+      sources: {} as any,
+      summary: {
+        totalSources: 0,
+        totalGigs: 0,
+        totalNew: 0,
+        totalUpdated: 0,
+        totalUnchanged: 0,
+      }
+    };
+
+    for (const source of sources) {
+      const gigs = await this.fileManager.loadNormalizedData(source);
+      if (gigs && gigs.length > 0) {
+        const newGigs = gigs.filter(g => g.isNew);
+        const updatedGigs = gigs.filter(g => g.isUpdated);
+        const unchangedGigs = gigs.filter(g => !g.isNew && !g.isUpdated);
+        
+        // Get recent changes (last 10 new or updated)
+        const recentChanges = [...newGigs, ...updatedGigs]
+          .sort((a, b) => new Date(b.lastSeenAt || b.updatedAt).getTime() - new Date(a.lastSeenAt || a.updatedAt).getTime())
+          .slice(0, 10)
+          .map(gig => ({
+            id: gig.id,
+            title: gig.title,
+            status: gig.isNew ? 'new' as const : 'updated' as const,
+            venue: gig.venue.name,
+            date: gig.dateStart.substring(0, 10) // Just the date part
+          }));
+
+        result.sources[source] = {
+          total: gigs.length,
+          new: newGigs.length,
+          updated: updatedGigs.length,
+          unchanged: unchangedGigs.length,
+          lastUpdated: gigs[0].updatedAt,
+          recentChanges
+        };
+
+        // Update summary
+        result.summary.totalGigs += gigs.length;
+        result.summary.totalNew += newGigs.length;
+        result.summary.totalUpdated += updatedGigs.length;
+        result.summary.totalUnchanged += unchangedGigs.length;
+      }
+    }
+
+    result.summary.totalSources = sources.length;
+    return result;
+  }
+
+  /**
    * Cleanup resources
    */
   async cleanup(): Promise<void> {
     await this.rateLimiter.cleanup();
+    await this.databaseManager.cleanup();
   }
 }

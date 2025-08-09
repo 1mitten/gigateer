@@ -46,12 +46,6 @@
           "fallback": "23:59"
         },
         
-        "price": {
-          "selector": ".event-price",
-          "attribute": "text",
-          "transform": "price"
-        },
-        
         "slug": {
           "selector": ".event-title",
           "attribute": "text",
@@ -124,9 +118,6 @@
     "date": {
       "start": "startTime",
       "end": "endTime"
-    },
-    "price": {
-      "text": "price"
     },
     "urls": {
       "event": "eventUrl"

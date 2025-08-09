@@ -7,7 +7,6 @@ import {
   ClockIcon, 
   TicketIcon,
   LinkIcon,
-  CurrencyPoundIcon,
   ArrowLeftIcon,
   ShareIcon,
   UserGroupIcon,
@@ -21,6 +20,21 @@ interface GigDetailProps {
 }
 
 export function GigDetail({ gig, onBack }: GigDetailProps) {
+  // Color palette for tags
+  const tagColors = ['#A3DC9A', '#DEE791', '#FFF9BD', '#FFD6BA'];
+  
+  // Helper function to get color for tag
+  const getTagColor = (index: number) => {
+    const colorIndex = index % tagColors.length;
+    return tagColors[colorIndex];
+  };
+  
+  // Helper function to get text color based on background
+  const getTextColor = (backgroundColor: string) => {
+    // Light colors, use dark text
+    return '#374151'; // gray-700
+  };
+  
   const gigDate = new Date(gig.dateStart);
   const gigEndDate = gig.dateEnd ? new Date(gig.dateEnd) : null;
   const isUpcoming = gigDate >= new Date();
@@ -29,30 +43,6 @@ export function GigDetail({ gig, onBack }: GigDetailProps) {
   const formattedTime = format(gigDate, 'h:mm a');
   const formattedEndTime = gigEndDate ? format(gigEndDate, 'h:mm a') : null;
 
-  const getPriceDisplay = () => {
-    if (!gig.price || (!gig.price.min && !gig.price.max)) {
-      return 'Price TBA';
-    }
-
-    const currency = gig.price.currency === 'GBP' ? '£' : gig.price.currency === 'EUR' ? '€' : '$';
-    
-    if (gig.price.min && gig.price.max) {
-      if (gig.price.min === gig.price.max) {
-        return `${currency}${gig.price.min}`;
-      }
-      return `${currency}${gig.price.min} - ${currency}${gig.price.max}`;
-    }
-    
-    if (gig.price.min) {
-      return `From ${currency}${gig.price.min}`;
-    }
-    
-    if (gig.price.max) {
-      return `Up to ${currency}${gig.price.max}`;
-    }
-
-    return 'Price TBA';
-  };
 
   const getStatusInfo = () => {
     if (gig.status === 'cancelled') {
@@ -234,26 +224,36 @@ export function GigDetail({ gig, onBack }: GigDetailProps) {
                 <img
                   src={gig.images[0]}
                   alt={gig.title}
-                  className="w-full h-64 sm:h-80 object-cover"
+                  className="w-full h-64 sm:h-80 object-contain bg-gray-100"
+                  onError={(e) => {
+                    // Fallback to object-cover if object-contain fails
+                    const img = e.target as HTMLImageElement;
+                    img.className = "w-full h-64 sm:h-80 object-cover";
+                  }}
                 />
               </div>
             )}
 
-            {/* Genres */}
-            {gig.genre.length > 0 && (
+            {/* Tags */}
+            {((gig.tags && gig.tags.length > 0) || ((gig as any).genre && (gig as any).genre.length > 0)) && (
               <div className="card p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Genre
+                  Tags
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {gig.genre.map((genre, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800"
-                    >
-                      {genre}
-                    </span>
-                  ))}
+                  {(gig.tags || (gig as any).genre || []).map((tag: string, index: number) => {
+                    const backgroundColor = getTagColor(index);
+                    const textColor = getTextColor(backgroundColor);
+                    return (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                        style={{ backgroundColor, color: textColor }}
+                      >
+                        {tag}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -304,15 +304,10 @@ export function GigDetail({ gig, onBack }: GigDetailProps) {
             {/* Ticket info */}
             <div className="card p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Tickets & Pricing
+                Tickets
               </h2>
               
               <div className="space-y-4">
-                <div className="flex items-center">
-                  <CurrencyPoundIcon className="h-5 w-5 mr-2 text-primary-500" />
-                  <span className="font-medium text-lg">{getPriceDisplay()}</span>
-                </div>
-
                 {gig.ageRestriction && (
                   <div className="text-sm text-gray-600">
                     <span className="font-medium">Age Restriction:</span> {gig.ageRestriction}

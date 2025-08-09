@@ -39,7 +39,10 @@ export function SearchInput({
 
     // Set new timeout for debounced onChange
     debounceRef.current = setTimeout(() => {
-      onChange(newValue);
+      // Only trigger search if 3+ characters or empty (for clearing search)
+      if (newValue.length >= 3 || newValue.length === 0) {
+        onChange(newValue);
+      }
     }, debounceMs);
   };
 

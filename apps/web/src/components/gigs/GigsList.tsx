@@ -3,12 +3,13 @@
 import React, { useMemo } from 'react';
 import { Gig } from '@gigateer/contracts';
 import { GigCard, GigCardCompact } from './GigCard';
-import { GigCardSkeleton } from '../ui/LoadingSkeleton';
+import { GigListItem } from './GigListItem';
+import { GigCardSkeleton, GigListItemSkeleton } from '../ui/LoadingSkeleton';
 
 interface GigsListProps {
   gigs: Gig[];
   loading?: boolean;
-  variant?: 'default' | 'compact';
+  variant?: 'default' | 'compact' | 'list';
   showCount?: boolean;
   emptyMessage?: string;
   className?: string;
@@ -22,14 +23,18 @@ export function GigsList({
   emptyMessage = "No gigs found matching your criteria.",
   className = ""
 }: GigsListProps) {
-  const GigComponent = variant === 'compact' ? GigCardCompact : GigCard;
+  const GigComponent = variant === 'compact' ? GigCardCompact : 
+                       variant === 'list' ? GigListItem : GigCard;
 
   // Loading skeleton
   if (loading) {
+    const SkeletonComponent = variant === 'list' ? GigListItemSkeleton : GigCardSkeleton;
+    const spacingClass = variant === 'compact' ? 'space-y-2' : variant === 'list' ? 'space-y-3' : 'space-y-4';
+    
     return (
-      <div className={`space-y-4 ${className}`}>
+      <div className={`${spacingClass} ${className}`}>
         {Array.from({ length: 6 }).map((_, index) => (
-          <GigCardSkeleton key={index} />
+          <SkeletonComponent key={index} />
         ))}
       </div>
     );
@@ -58,7 +63,7 @@ export function GigsList({
           <ul className="list-disc list-inside space-y-1">
             <li>Check your date range</li>
             <li>Try different cities or venues</li>
-            <li>Broaden your genre selection</li>
+            <li>Broaden your tags selection</li>
             <li>Use more general search terms</li>
           </ul>
         </div>
@@ -79,7 +84,7 @@ export function GigsList({
       )}
 
       {/* Gigs list */}
-      <div className={variant === 'compact' ? 'space-y-2' : 'space-y-4'}>
+      <div className={variant === 'compact' ? 'space-y-2' : variant === 'list' ? 'space-y-3' : 'space-y-4'}>
         {gigs.map((gig, index) => (
           <GigComponent
             key={gig.id}

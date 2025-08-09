@@ -303,6 +303,12 @@ export class ConfigDrivenScraper {
 
     const containers = await this.page.$$(action.containerSelector);
     scraperLogger.info(`Found ${containers.length} containers to extract from`);
+
+    // Check if this uses a special extraction method
+    if ((action as any).method === 'exchange-bristol' || this.config.site.source === 'exchange-bristol') {
+      await this.executeExchangeBristolExtraction(action);
+      return;
+    }
     
     // Debug: log some container information if debug is enabled
     if (this.config.debug?.logLevel === 'debug' && containers.length > 0) {
@@ -424,12 +430,15 @@ export class ConfigDrivenScraper {
       case 'date':
         // Basic date normalization - can be extended
         return new Date(value).toISOString();
-      case 'price':
-        // Extract numeric price - can be extended
-        const match = value.match(/[\d.,]+/);
-        return match ? match[0] : value;
       case 'slug':
         return value.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').trim();
+      case 'exchange-venue-name':
+        // Transform venue name to "Exchange, [room]" format
+        const trimmedVenue = value.trim();
+        if (!trimmedVenue || trimmedVenue.toLowerCase().includes('exchange')) {
+          return 'Exchange';
+        }
+        return `Exchange, ${trimmedVenue}`;
       case 'url':
         // Convert relative URLs to absolute URLs
         if (value.startsWith('#') || value.startsWith('/')) {
@@ -463,9 +472,257 @@ export class ConfigDrivenScraper {
           return value.replace(regex, transformParams.replacement || '');
         }
         return value;
+      case 'exchange-bristol-datetime':
+        // Combine date group and time range into ISO datetime
+        return this.parseExchangeBristolDateTime(value, transformParams);
+      case 'parse-date-group':
+        // Parse Exchange Bristol date groups like "Today" or "Monday 11th August"
+        return this.parseExchangeBristolDateGroup(value);
       default:
         return value;
     }
+  }
+
+  /**
+   * Special extraction method for Exchange Bristol that handles date groups
+   */
+  private async executeExchangeBristolExtraction(action: ExtractConfig): Promise<void> {
+    if (!this.page) return;
+
+    scraperLogger.debug('Using Exchange Bristol date-group extraction');
+
+    // Run custom extraction in the browser that handles date groups
+    const extractedData = await this.page.evaluate((config) => {
+      const { containerSelector, fieldConfigs } = config;
+      const events: any[] = [];
+      let currentDateGroup = '';
+
+      // Get all elements (date groups and event listings) in order
+      const allElements = document.querySelectorAll('.hf__listings-date.js_headfirst_embed_date, ' + containerSelector);
+
+      for (const element of allElements) {
+        if (element.classList.contains('hf__listings-date')) {
+          // This is a date group header
+          currentDateGroup = element.textContent?.trim() || '';
+        } else if (element.classList.contains('hf__event-listing') && currentDateGroup) {
+          // This is an event listing
+          const event: any = { dateGroup: currentDateGroup };
+
+          // Extract fields for this event
+          for (const [fieldName, fieldConfig] of Object.entries(fieldConfigs)) {
+            if (fieldName === 'dateGroup') continue; // Skip dateGroup, we already set it
+
+            try {
+              const fieldElement = element.querySelector(fieldConfig.selector);
+              if (fieldElement) {
+                let value: string | null = null;
+
+                switch (fieldConfig.attribute || 'text') {
+                  case 'text':
+                    value = fieldElement.textContent;
+                    break;
+                  case 'href':
+                    value = (fieldElement as HTMLAnchorElement).href;
+                    break;
+                  case 'src':
+                    value = (fieldElement as HTMLImageElement).src;
+                    break;
+                  default:
+                    value = fieldElement.getAttribute(fieldConfig.attribute || 'text');
+                }
+
+                if (value) {
+                  if (fieldConfig.multiple) {
+                    // Handle multiple values (like genres)
+                    const multipleElements = element.querySelectorAll(fieldConfig.selector);
+                    const values = Array.from(multipleElements).map(el => {
+                      switch (fieldConfig.attribute || 'text') {
+                        case 'text':
+                          return el.textContent?.trim();
+                        case 'href':
+                          return (el as HTMLAnchorElement).href;
+                        case 'src':
+                          return (el as HTMLImageElement).src;
+                        default:
+                          return el.getAttribute(fieldConfig.attribute || 'text');
+                      }
+                    }).filter(Boolean);
+                    event[fieldName] = values;
+                  } else {
+                    event[fieldName] = value.trim();
+                  }
+                }
+              }
+              
+              // Apply fallback if no value was found
+              if (!event[fieldName] && fieldConfig.fallback) {
+                event[fieldName] = fieldConfig.fallback;
+              }
+            } catch (error) {
+              console.error(`Error extracting field '${fieldName}':`, error);
+            }
+          }
+
+          events.push(event);
+        }
+      }
+
+      return events;
+    }, { containerSelector: action.containerSelector, fieldConfigs: action.fields });
+
+    // Process extracted data with transformations
+    for (const item of extractedData) {
+      const processedItem: Record<string, any> = {};
+
+      for (const [fieldName, value] of Object.entries(item)) {
+        const fieldConfig = action.fields[fieldName];
+        let processedValue = value;
+
+        // Apply transformations
+        if (fieldConfig?.transform && processedValue && typeof processedValue === 'string') {
+          if (fieldConfig.transform === 'exchange-bristol-datetime') {
+            // Special case: pass dateGroup and field context as transform parameters
+            const transformParams = { 
+              dateGroup: item.dateGroup,
+              isEndTime: fieldName === 'endTime'
+            };
+            processedValue = this.parseExchangeBristolDateTime(processedValue, transformParams);
+          } else {
+            processedValue = this.transformValue(processedValue, fieldConfig.transform, fieldConfig.transformParams);
+          }
+        }
+
+        processedItem[fieldName] = processedValue;
+      }
+
+      this.extractedData.push(processedItem);
+    }
+
+    scraperLogger.info(`Exchange Bristol extraction completed: ${extractedData.length} events extracted with date groups`);
+  }
+
+  /**
+   * Parse Exchange Bristol date groups like "Today" or "Monday 11th August"
+   */
+  private parseExchangeBristolDateGroup(dateGroup: string): string {
+    const today = new Date();
+    
+    if (dateGroup === 'Today') {
+      return today.toISOString().substring(0, 10); // Return just YYYY-MM-DD
+    }
+    
+    // Parse formats like "Monday 11th August", "Friday 10 January"
+    const cleanDateStr = dateGroup.replace(/(\d+)(st|nd|rd|th)/, '$1');
+    const parts = cleanDateStr.trim().split(' ');
+    
+    if (parts.length >= 3) {
+      const day = parseInt(parts[1]); // e.g., "11"
+      const month = parts[2]; // e.g., "August"
+      
+      // Convert month name to month number
+      const monthIndex = this.getMonthIndex(month);
+      
+      if (monthIndex !== -1 && !isNaN(day)) {
+        let year = today.getFullYear();
+        let date = new Date(year, monthIndex, day);
+        
+        // If the date is more than a few days in the past, assume it's next year
+        // This handles the case where we're at the end of a year looking at next year's events
+        const daysDifference = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysDifference > 5) {
+          date.setFullYear(year + 1);
+        }
+        
+        return date.toISOString().substring(0, 10); // Return just YYYY-MM-DD
+      }
+    }
+    
+    // Fallback to today if parsing fails
+    return today.toISOString().substring(0, 10);
+  }
+
+  /**
+   * Combine date group and time range into ISO datetime
+   */
+  private parseExchangeBristolDateTime(timeRange: string, params?: Record<string, any>): string {
+    try {
+      // Extract date from params.dateGroup if provided, parse it first
+      let dateStr: string;
+      if (params?.dateGroup) {
+        dateStr = this.parseExchangeBristolDateGroup(params.dateGroup);
+      } else {
+        dateStr = new Date().toISOString().substring(0, 10);
+      }
+      
+      scraperLogger.debug(`Parsing datetime - dateGroup: ${params?.dateGroup}, dateStr: ${dateStr}, timeRange: ${timeRange}`);
+      
+      // Parse time range like "13:00 - 14:45" or "20:00 - 02:00"
+      const timeMatch = timeRange.trim().match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+      
+      if (timeMatch) {
+        const [, startHour, startMin, endHour, endMin] = timeMatch;
+        const baseDate = new Date(`${dateStr}T00:00:00.000Z`);
+        
+        // Validate base date
+        if (isNaN(baseDate.getTime())) {
+          scraperLogger.warn(`Invalid base date: ${dateStr}, falling back to today`);
+          const today = new Date();
+          const fallbackDateStr = today.toISOString().substring(0, 10);
+          const fallbackDate = new Date(`${fallbackDateStr}T00:00:00.000Z`);
+          return fallbackDate.toISOString();
+        }
+        
+        // Determine if this should be start or end time based on field name context
+        const isEndTime = params?.isEndTime || false;
+        
+        if (isEndTime) {
+          // For end time, handle cases where event goes past midnight
+          const startTime = parseInt(startHour);
+          const endTime = parseInt(endHour);
+          
+          const endDate = new Date(baseDate);
+          endDate.setUTCHours(parseInt(endHour), parseInt(endMin), 0, 0);
+          
+          // If end time is earlier than start time, assume it's the next day
+          if (endTime < startTime) {
+            endDate.setUTCDate(endDate.getUTCDate() + 1);
+          }
+          
+          return endDate.toISOString();
+        } else {
+          // For start time, use the event date
+          const startDate = new Date(baseDate);
+          startDate.setUTCHours(parseInt(startHour), parseInt(startMin), 0, 0);
+          return startDate.toISOString();
+        }
+      }
+      
+      // Fallback if time parsing fails
+      const date = new Date(`${dateStr}T00:00:00.000Z`);
+      if (isNaN(date.getTime())) {
+        scraperLogger.warn(`Fallback date is invalid, using current time`);
+        return new Date().toISOString();
+      }
+      return date.toISOString();
+      
+    } catch (error) {
+      scraperLogger.error(`Error parsing Exchange Bristol datetime: ${error}, falling back to current time`);
+      return new Date().toISOString();
+    }
+  }
+
+  /**
+   * Convert month name to month index (0-based)
+   */
+  private getMonthIndex(monthName: string): number {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    return months.findIndex(month => 
+      month.toLowerCase().startsWith(monthName.toLowerCase().substring(0, 3))
+    );
   }
 
   /**
@@ -490,13 +747,28 @@ export class ConfigDrivenScraper {
       const venue: any = {};
       this.mapField(item, venue, 'name', this.config.mapping.venue.name);
       if (this.config.mapping.venue.address) {
-        this.mapField(item, venue, 'address', this.config.mapping.venue.address);
+        if (item[this.config.mapping.venue.address] !== undefined) {
+          this.mapField(item, venue, 'address', this.config.mapping.venue.address);
+        } else {
+          // Static value
+          venue.address = this.config.mapping.venue.address;
+        }
       }
       if (this.config.mapping.venue.city) {
-        this.mapField(item, venue, 'city', this.config.mapping.venue.city);
+        if (item[this.config.mapping.venue.city] !== undefined) {
+          this.mapField(item, venue, 'city', this.config.mapping.venue.city);
+        } else {
+          // Static value
+          venue.city = this.config.mapping.venue.city;
+        }
       }
       if (this.config.mapping.venue.country) {
-        this.mapField(item, venue, 'country', this.config.mapping.venue.country);
+        if (item[this.config.mapping.venue.country] !== undefined) {
+          this.mapField(item, venue, 'country', this.config.mapping.venue.country);
+        } else {
+          // Static value
+          venue.country = this.config.mapping.venue.country;
+        }
       }
       gig.venue = venue;
 
@@ -509,22 +781,6 @@ export class ConfigDrivenScraper {
         this.mapField(item, gig, 'timezone', this.config.mapping.date.timezone);
       }
 
-      // Optional fields
-      if (this.config.mapping.price) {
-        const price: any = {};
-        if (this.config.mapping.price.min) {
-          this.mapField(item, price, 'min', this.config.mapping.price.min, false, parseFloat);
-        }
-        if (this.config.mapping.price.max) {
-          this.mapField(item, price, 'max', this.config.mapping.price.max, false, parseFloat);
-        }
-        if (this.config.mapping.price.currency) {
-          this.mapField(item, price, 'currency', this.config.mapping.price.currency);
-        }
-        if (Object.keys(price).length > 0) {
-          gig.price = price;
-        }
-      }
 
       // URLs
       if (this.config.mapping.urls?.event) {

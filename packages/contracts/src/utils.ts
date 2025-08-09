@@ -39,11 +39,10 @@ export function generateGigHash(gig: Partial<Gig>): string {
   const hashableFields = {
     title: gig.title,
     artists: gig.artists,
-    genre: gig.genre,
+    tags: gig.tags,
     dateStart: gig.dateStart,
     dateEnd: gig.dateEnd,
     venue: gig.venue,
-    price: gig.price,
     ageRestriction: gig.ageRestriction,
     status: gig.status,
     ticketsUrl: gig.ticketsUrl,

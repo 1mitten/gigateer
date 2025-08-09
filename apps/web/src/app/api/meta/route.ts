@@ -1,12 +1,33 @@
 import { NextRequest } from 'next/server';
 import { withRateLimit } from '../../../lib/rate-limiter';
 import { getCatalogMeta } from '../../../lib/catalog';
+import { getWebDatabaseService, isDatabaseEnabled } from '../../../lib/database';
 import { ErrorResponse } from '../../../types/api';
 
 async function handleMetaRequest(request: NextRequest): Promise<Response> {
   try {
-    // Get catalog metadata and statistics
-    const meta = await getCatalogMeta();
+    // Get metadata and statistics - use database if enabled, otherwise fallback to catalog
+    let meta;
+    if (isDatabaseEnabled()) {
+      const dbService = getWebDatabaseService();
+      const dbStats = await dbService.getDatabaseStats();
+      
+      // Transform database stats to match catalog meta format
+      meta = {
+        totalGigs: dbStats.totalGigs,
+        sources: dbStats.sources.map(source => ({
+          name: source.name,
+          lastRun: source.lastUpdated?.toISOString() || new Date().toISOString(),
+          gigCount: source.gigCount,
+          status: 'success' as const // Database doesn't track status, assume success
+        })),
+        lastUpdated: dbStats.lastUpdated,
+        upcomingGigs: dbStats.upcomingGigs,
+        pastGigs: dbStats.pastGigs
+      };
+    } else {
+      meta = await getCatalogMeta();
+    }
     
     // Prepare response
     const response = {

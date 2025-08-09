@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { ZodError } from 'zod';
 import { withRateLimit } from '../../../lib/rate-limiter';
 import { getAllGigs, filterGigs, paginateResults } from '../../../lib/catalog';
+import { getWebDatabaseService, isDatabaseEnabled } from '../../../lib/database';
 import { GigsQuerySchema, ErrorResponse } from '../../../types/api';
 
 async function handleGigsRequest(request: NextRequest): Promise<Response> {
@@ -32,30 +33,105 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
       throw error;
     }
     
-    // Get all gigs from catalog
-    const allGigs = await getAllGigs();
+    let gigs;
+    let paginatedResult;
     
-    // Apply filters
-    const filteredGigs = filterGigs(allGigs, {
-      city: validatedQuery.city,
-      genre: validatedQuery.genre,
-      dateFrom: validatedQuery.dateFrom,
-      dateTo: validatedQuery.dateTo,
-      venue: validatedQuery.venue,
-      q: validatedQuery.q
-    });
-    
-    // Sort by date (ascending, upcoming first)
-    const sortedGigs = filteredGigs.sort((a, b) => 
-      new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime()
-    );
-    
-    // Apply pagination
-    const paginatedResult = paginateResults(
-      sortedGigs,
-      validatedQuery.page,
-      validatedQuery.limit
-    );
+    // Use database if enabled, otherwise fall back to file-based catalog
+    if (isDatabaseEnabled()) {
+      try {
+        console.log('Using database for gigs query...');
+        const dbService = getWebDatabaseService();
+        
+        // Build filters for database query
+        const filters: any = {};
+        if (validatedQuery.city) filters.city = validatedQuery.city;
+        if (validatedQuery.tags) filters.tags = validatedQuery.tags;
+        if (validatedQuery.dateFrom) filters.dateFrom = new Date(validatedQuery.dateFrom);
+        if (validatedQuery.dateTo) {
+          const dateTo = new Date(validatedQuery.dateTo);
+          // If it's just a date (no time), set to end of day
+          if (!validatedQuery.dateTo.includes('T')) {
+            dateTo.setHours(23, 59, 59, 999);
+          }
+          filters.dateTo = dateTo;
+        }
+        if (validatedQuery.venue) filters.venue = validatedQuery.venue;
+        if (validatedQuery.q) filters.search = validatedQuery.q;
+        filters.showPastEvents = false; // Only show future events by default
+        
+        // Query database with pagination
+        const result = await dbService.getGigs({
+          filters,
+          sort: { field: 'dateStart', order: 1 }, // Upcoming first
+          pagination: {
+            page: validatedQuery.page,
+            limit: validatedQuery.limit
+          }
+        });
+        
+        paginatedResult = {
+          data: result.gigs,
+          pagination: result.pagination!
+        };
+        console.log(`Database query successful: ${result.gigs.length} gigs returned`);
+      } catch (dbError) {
+        console.error('Database query failed, falling back to file-based catalog:', dbError);
+        
+        // Fallback to file-based catalog on database error
+        const allGigs = await getAllGigs();
+        
+        // Apply filters
+        const filteredGigs = filterGigs(allGigs, {
+          city: validatedQuery.city,
+          tags: validatedQuery.tags,
+          dateFrom: validatedQuery.dateFrom,
+          dateTo: validatedQuery.dateTo,
+          venue: validatedQuery.venue,
+          q: validatedQuery.q,
+          showPastEvents: false // Only show future events by default
+        });
+        
+        // Sort by date (ascending, upcoming first)
+        const sortedGigs = filteredGigs.sort((a, b) => 
+          new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime()
+        );
+        
+        // Apply pagination
+        paginatedResult = paginateResults(
+          sortedGigs,
+          validatedQuery.page,
+          validatedQuery.limit
+        );
+        console.log(`File-based fallback successful: ${paginatedResult.data.length} gigs returned`);
+      }
+    } else {
+      console.log('Database disabled, using file-based catalog...');
+      // Fallback to file-based catalog
+      const allGigs = await getAllGigs();
+      
+      // Apply filters
+      const filteredGigs = filterGigs(allGigs, {
+        city: validatedQuery.city,
+        tags: validatedQuery.tags,
+        dateFrom: validatedQuery.dateFrom,
+        dateTo: validatedQuery.dateTo,
+        venue: validatedQuery.venue,
+        q: validatedQuery.q,
+        showPastEvents: false // Only show future events by default
+      });
+      
+      // Sort by date (ascending, upcoming first)
+      const sortedGigs = filteredGigs.sort((a, b) => 
+        new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime()
+      );
+      
+      // Apply pagination
+      paginatedResult = paginateResults(
+        sortedGigs,
+        validatedQuery.page,
+        validatedQuery.limit
+      );
+    }
     
     // Prepare response
     const response = {
@@ -65,7 +141,7 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
         query: validatedQuery.q,
         filters: {
           city: validatedQuery.city,
-          genre: validatedQuery.genre,
+          tags: validatedQuery.tags,
           dateFrom: validatedQuery.dateFrom,
           dateTo: validatedQuery.dateTo,
           venue: validatedQuery.venue

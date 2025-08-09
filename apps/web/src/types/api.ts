@@ -4,7 +4,7 @@ import { Gig } from '@gigateer/contracts';
 // Query parameters for GET /api/gigs
 export const GigsQuerySchema = z.object({
   city: z.string().optional(),
-  genre: z.string().optional(),
+  tags: z.string().optional(),
   dateFrom: z.string().datetime().optional().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   dateTo: z.string().datetime().optional().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   venue: z.string().optional(),
@@ -30,7 +30,7 @@ export const QueryMetaSchema = z.object({
   query: z.string().optional(),
   filters: z.object({
     city: z.string().optional(),
-    genre: z.string().optional(),
+    tags: z.string().optional(),
     dateFrom: z.string().optional(),
     dateTo: z.string().optional(),
     venue: z.string().optional()

@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface FilterValues {
   city: string;
-  genre: string;
+  tags: string;
   venue: string;
   dateFrom: string;
   dateTo: string;
@@ -16,7 +16,7 @@ interface FilterValues {
 
 const DEFAULT_FILTERS: FilterValues = {
   city: '',
-  genre: '',
+  tags: '',
   venue: '',
   dateFrom: '',
   dateTo: '',
@@ -28,6 +28,7 @@ const DEFAULT_FILTERS: FilterValues = {
 export function useSearchFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const debounceTimerRef = useRef<NodeJS.Timeout>();
   
   // Initialize filters from URL params
   const [filters, setFilters] = useState<FilterValues>(() => {
@@ -35,7 +36,7 @@ export function useSearchFilters() {
     
     // Parse URL params
     initialFilters.city = searchParams.get('city') || '';
-    initialFilters.genre = searchParams.get('genre') || '';
+    initialFilters.tags = searchParams.get('tags') || '';
     initialFilters.venue = searchParams.get('venue') || '';
     initialFilters.dateFrom = searchParams.get('dateFrom') || '';
     initialFilters.dateTo = searchParams.get('dateTo') || '';
@@ -46,8 +47,8 @@ export function useSearchFilters() {
     return initialFilters;
   });
 
-  // Update URL when filters change
-  const updateURL = useCallback((newFilters: FilterValues) => {
+  // Update URL when filters change (debounced for text inputs)
+  const updateURL = useCallback((newFilters: FilterValues, immediate = false) => {
     const params = new URLSearchParams();
     
     // Add non-empty filter values to URL
@@ -62,6 +63,11 @@ export function useSearchFilters() {
         if (value !== DEFAULT_FILTERS.limit) {
           params.set(key, value.toString());
         }
+      } else if (key === 'q') {
+        // For search query, only add if 3+ characters or empty
+        if (value && (value.toString().length >= 3 || value.toString().length === 0)) {
+          params.set(key, value.toString());
+        }
       } else if (value) {
         params.set(key, value.toString());
       }
@@ -70,12 +76,28 @@ export function useSearchFilters() {
     const queryString = params.toString();
     const newPath = queryString ? `/?${queryString}` : '/';
     
-    // Use replace to avoid cluttering browser history
-    router.replace(newPath, { scroll: false });
+    const performUpdate = () => {
+      // Use replace to avoid cluttering browser history
+      router.replace(newPath, { scroll: false });
+    };
+    
+    if (immediate) {
+      // Clear any pending debounced update
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      performUpdate();
+    } else {
+      // Debounce the update for text inputs
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      debounceTimerRef.current = setTimeout(performUpdate, 500);
+    }
   }, [router]);
 
   // Update filters and URL
-  const updateFilters = useCallback((updates: Partial<FilterValues>) => {
+  const updateFilters = useCallback((updates: Partial<FilterValues>, immediate = false) => {
     const newFilters = { ...filters, ...updates };
     
     // Reset page when changing search/filters (except when explicitly updating page)
@@ -84,7 +106,14 @@ export function useSearchFilters() {
     }
     
     setFilters(newFilters);
-    updateURL(newFilters);
+    
+    // Determine if this should be immediate (non-text inputs like dates, page changes)
+    const shouldBeImmediate = immediate || 
+      updates.hasOwnProperty('page') || 
+      updates.hasOwnProperty('dateFrom') || 
+      updates.hasOwnProperty('dateTo');
+    
+    updateURL(newFilters, shouldBeImmediate);
   }, [filters, updateURL]);
 
   // Update only page (for pagination)
@@ -106,8 +135,8 @@ export function useSearchFilters() {
     if (filters.city) {
       active.push({ key: 'city', label: 'City', value: filters.city });
     }
-    if (filters.genre) {
-      active.push({ key: 'genre', label: 'Genre', value: filters.genre });
+    if (filters.tags) {
+      active.push({ key: 'tags', label: 'Tags', value: filters.tags });
     }
     if (filters.venue) {
       active.push({ key: 'venue', label: 'Venue', value: filters.venue });
@@ -144,7 +173,14 @@ export function useSearchFilters() {
     
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
-        params[key] = value.toString();
+        // For search query, only include if 3+ characters or empty
+        if (key === 'q') {
+          if (value.toString().length >= 3 || value.toString().length === 0) {
+            params[key] = value.toString();
+          }
+        } else {
+          params[key] = value.toString();
+        }
       }
     });
     

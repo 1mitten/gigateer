@@ -41,6 +41,7 @@
     },
     {
       "type": "extract", 
+      "method": "exchange-bristol",
       "containerSelector": ".hf__event-listing",
       "fields": {
         "title": {
@@ -66,27 +67,21 @@
           "selector": ".hf__event-listing--time",
           "attribute": "text",
           "required": false,
-          "transform": "time-range-start",
+          "transform": "exchange-bristol-datetime",
           "fallback": "TBA"
         },
         "endTime": {
           "selector": ".hf__event-listing--time",
           "attribute": "text",
           "required": false,
-          "transform": "time-range-end"
+          "transform": "exchange-bristol-datetime"
         },
         "venue": {
           "selector": ".hf__event-listing--stage-inner",
           "attribute": "text",
           "required": false,
-          "transform": "trim",
-          "fallback": "Exchange Bristol"
-        },
-        "price": {
-          "selector": ".hf__ticket-button, .button--tickets",
-          "attribute": "text",
-          "required": false,
-          "transform": "trim"
+          "transform": "exchange-venue-name",
+          "fallback": "Exchange"
         },
         "eventUrl": {
           "selector": ".hf__event-listing--name",
@@ -129,24 +124,20 @@
   "mapping": {
     "id": {
       "strategy": "generated",
-      "fields": ["title", "venue", "date"]
+      "fields": ["title", "venue", "timeRange"]
     },
     "title": "title",
     "artist": "artist",
     "venue": {
       "name": "venue",
-      "address": "address",
-      "city": "city",
-      "country": "country"
+      "address": "Old Market",
+      "city": "Bristol",
+      "country": "UK"
     },
     "date": {
       "start": "startTime",
       "end": "endTime",
-      "timezone": "timezone"
-    },
-    "price": {
-      "text": "price",
-      "currency": "currency"
+      "timezone": "Europe/London"
     },
     "urls": {
       "event": "eventUrl",
