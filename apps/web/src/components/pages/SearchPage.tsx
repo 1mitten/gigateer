@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSearchFilters } from '../../hooks/useSearchFilters';
 import { useGigsApi, useGigSort } from '../../hooks/useGigsApi';
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { useViewPreference } from '../../hooks/useViewPreference';
 import { useToast } from '../ui/Toast';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
@@ -11,6 +12,7 @@ import { SearchInput } from '../search/SearchInput';
 import { FilterPanel } from '../filters/FilterPanel';
 import { FilterChipsBar } from '../filters/FilterChip';
 import { GigsList, GigsGrid } from '../gigs/GigsList';
+import { GigsListInfinite, GigsGridInfinite } from '../gigs/GigsListInfinite';
 import { ViewToggle } from '../ui/ViewToggle';
 import { Pagination } from '../ui/Pagination';
 import { SortControls, CompactSortControls } from '../ui/SortControls';
@@ -19,6 +21,7 @@ import { SortControls, CompactSortControls } from '../ui/SortControls';
 
 export function SearchPage() {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [useInfiniteScrollMode, setUseInfiniteScrollMode] = useState(true);
   const { addToast } = useToast();
   const isOnline = true; // useOnlineStatus();
   const { view, setView, isLoaded } = useViewPreference();
@@ -35,11 +38,28 @@ export function SearchPage() {
     apiParams,
   } = useSearchFilters();
 
-  // API data
-  const { data: gigs, pagination, loading, error, refetch } = useGigsApi(apiParams);
+  // API data - traditional pagination
+  const { data: traditionalGigs, pagination, loading: traditionalLoading, error: traditionalError, refetch } = useGigsApi(apiParams);
+  
+  // Infinite scroll data
+  const { 
+    gigs: infiniteGigs, 
+    loading: infiniteLoading, 
+    error: infiniteError, 
+    hasNextPage, 
+    fetchNextPage, 
+    refresh: refreshInfinite,
+    totalCount,
+    meta: infiniteMeta
+  } = useInfiniteScroll({ apiParams, enabled: useInfiniteScrollMode });
   
   // Sorting
   const { sortBy, sortOrder, sortGigs, toggleSort } = useGigSort();
+  
+  // Use appropriate data source based on mode
+  const gigs = useInfiniteScrollMode ? infiniteGigs : traditionalGigs;
+  const loading = useInfiniteScrollMode ? infiniteLoading : traditionalLoading;
+  const error = useInfiniteScrollMode ? infiniteError : traditionalError;
   
   // Sort gigs on client side (API returns by date asc by default)
   const sortedGigs = React.useMemo(() => {
@@ -56,6 +76,15 @@ export function SearchPage() {
       });
     }
   }, [error, addToast]);
+  
+  // Handle refresh based on mode
+  const handleRefresh = React.useCallback(() => {
+    if (useInfiniteScrollMode) {
+      refreshInfinite();
+    } else {
+      refetch();
+    }
+  }, [useInfiniteScrollMode, refreshInfinite, refetch]);
 
   return (
     <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
@@ -168,17 +197,30 @@ export function SearchPage() {
               </div>
 
               <div className="flex items-center space-x-4">
-                {pagination && (
+                {(pagination || useInfiniteScrollMode) && (
                   <div className="text-sm text-gray-600">
-                    Showing {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} gigs
+                    {useInfiniteScrollMode ? (
+                      `Showing ${sortedGigs.length} of ${totalCount || 0} gigs`
+                    ) : pagination ? (
+                      `Showing ${((pagination.page - 1) * pagination.limit) + 1}-${Math.min(pagination.page * pagination.limit, pagination.total)} of ${pagination.total} gigs`
+                    ) : null}
                   </div>
                 )}
                 
                 {isLoaded && (
-                  <ViewToggle
-                    currentView={view}
-                    onViewChange={setView}
-                  />
+                  <div className="flex items-center space-x-2">
+                    <ViewToggle
+                      currentView={view}
+                      onViewChange={setView}
+                    />
+                    <button
+                      onClick={() => setUseInfiniteScrollMode(!useInfiniteScrollMode)}
+                      className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+                      title={useInfiniteScrollMode ? 'Switch to pagination' : 'Switch to infinite scroll'}
+                    >
+                      {useInfiniteScrollMode ? '∞' : '📄'}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -211,7 +253,7 @@ export function SearchPage() {
                 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <button
-                    onClick={refetch}
+                    onClick={handleRefresh}
                     className="btn-primary touch-manipulation"
                     disabled={!isOnline}
                   >
@@ -238,34 +280,67 @@ export function SearchPage() {
 
             {/* Results with smooth transitions */}
             <ErrorBoundary>
-              <ContentTransition transitionKey={view}>
-                {view === 'grid' ? (
-                  <GigsGrid
-                    gigs={sortedGigs}
-                    loading={loading}
-                    showCount={false}
-                    emptyMessage={hasActiveFilters ? 
-                      "No gigs match your current filters. Try adjusting your search criteria." : 
-                      "No gigs available at the moment. Check back later!"
-                    }
-                  />
+              <ContentTransition transitionKey={`${view}-${useInfiniteScrollMode}`}>
+                {useInfiniteScrollMode ? (
+                  // Infinite scroll versions
+                  view === 'grid' ? (
+                    <GigsGridInfinite
+                      gigs={sortedGigs}
+                      loading={loading}
+                      showCount={false}
+                      hasMore={hasNextPage}
+                      fetchMore={fetchNextPage}
+                      totalCount={totalCount}
+                      emptyMessage={hasActiveFilters ? 
+                        "No gigs match your current filters. Try adjusting your search criteria." : 
+                        "No gigs available at the moment. Check back later!"
+                      }
+                    />
+                  ) : (
+                    <GigsListInfinite
+                      gigs={sortedGigs}
+                      loading={loading}
+                      variant="list"
+                      showCount={false}
+                      hasMore={hasNextPage}
+                      fetchMore={fetchNextPage}
+                      totalCount={totalCount}
+                      emptyMessage={hasActiveFilters ? 
+                        "No gigs match your current filters. Try adjusting your search criteria." : 
+                        "No gigs available at the moment. Check back later!"
+                      }
+                    />
+                  )
                 ) : (
-                  <GigsList
-                    gigs={sortedGigs}
-                    loading={loading}
-                    variant="list"
-                    showCount={false}
-                    emptyMessage={hasActiveFilters ? 
-                      "No gigs match your current filters. Try adjusting your search criteria." : 
-                      "No gigs available at the moment. Check back later!"
-                    }
-                  />
+                  // Traditional pagination versions
+                  view === 'grid' ? (
+                    <GigsGrid
+                      gigs={sortedGigs}
+                      loading={loading}
+                      showCount={false}
+                      emptyMessage={hasActiveFilters ? 
+                        "No gigs match your current filters. Try adjusting your search criteria." : 
+                        "No gigs available at the moment. Check back later!"
+                      }
+                    />
+                  ) : (
+                    <GigsList
+                      gigs={sortedGigs}
+                      loading={loading}
+                      variant="list"
+                      showCount={false}
+                      emptyMessage={hasActiveFilters ? 
+                        "No gigs match your current filters. Try adjusting your search criteria." : 
+                        "No gigs available at the moment. Check back later!"
+                      }
+                    />
+                  )
                 )}
               </ContentTransition>
             </ErrorBoundary>
 
-            {/* Pagination */}
-            {pagination && pagination.pages > 1 && !loading && (
+            {/* Pagination - only show in traditional pagination mode */}
+            {!useInfiniteScrollMode && pagination && pagination.pages > 1 && !loading && (
               <div className="mt-8">
                 <Pagination
                   currentPage={pagination.page}

@@ -39,7 +39,7 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
     // Use database if enabled, otherwise fall back to file-based catalog
     if (isDatabaseEnabled()) {
       try {
-        console.log('Using database for gigs query...');
+        // Using database for gigs query
         const dbService = getWebDatabaseService();
         
         // Build filters for database query
@@ -73,7 +73,7 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
           data: result.gigs,
           pagination: result.pagination!
         };
-        console.log(`Database query successful: ${result.gigs.length} gigs returned`);
+        // Database query successful
       } catch (dbError) {
         console.error('Database query failed, falling back to file-based catalog:', dbError);
         
@@ -102,10 +102,10 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
           validatedQuery.page,
           validatedQuery.limit
         );
-        console.log(`File-based fallback successful: ${paginatedResult.data.length} gigs returned`);
+        // File-based fallback successful
       }
     } else {
-      console.log('Database disabled, using file-based catalog...');
+      // Database disabled, using file-based catalog
       // Fallback to file-based catalog
       const allGigs = await getAllGigs();
       

@@ -90,8 +90,11 @@ logs/
 # Data files (these will be generated)
 data/sources/*.json
 data/catalog.json
+data/catalog.json.backup
 data/run-logs/*.log
 data/run-logs/*.jsonl
+data/gigs-import.json
+data/mongodb/
 
 # PID files for daemon processes
 services/ingestor/.pid
@@ -111,6 +114,10 @@ services/ingestor/performance-*.jsonl
 # Scraper cache files
 services/ingestor/cache/
 packages/scraper/cache/
+
+# Debug screenshots from scraping
+services/ingestor/debug-*.png
+services/ingestor/debug-*.html
 
 # PWA cache and service worker files
 apps/web/public/sw*

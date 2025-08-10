@@ -30,7 +30,6 @@ export function useGigsApi(params: Record<string, string>) {
 
   // Handle hydration issues
   useEffect(() => {
-    console.log('useGigsApi: Component mounting...');
     setMounted(true);
     // Start loading only after component is mounted
     setState(prev => ({ ...prev, loading: true }));
@@ -65,8 +64,6 @@ export function useGigsApi(params: Record<string, string>) {
       });
 
       const url = `/api/gigs${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-      
-      console.log(`Fetching gigs from: ${url}${isRetry ? ' (retry)' : ''}`);
       
       // Create manual abort controller for timeout
       const abortController = new AbortController();
@@ -123,7 +120,7 @@ export function useGigsApi(params: Record<string, string>) {
       );
       
       if (shouldRetry && !isRetry) {
-        console.log(`Retrying request (attempt ${retryCount + 1}/${maxRetries})...`);
+        // Retrying request with exponential backoff
         setRetryCount(prev => prev + 1);
         // Exponential backoff: 1s, 2s, 4s
         setTimeout(() => fetchGigs(true), Math.pow(2, retryCount) * 1000);
@@ -156,9 +153,7 @@ export function useGigsApi(params: Record<string, string>) {
 
   // Fetch data when params change, but only after component is mounted
   useEffect(() => {
-    console.log('useGigsApi: Effect running, mounted:', mounted, 'params:', params);
     if (mounted) {
-      console.log('useGigsApi: Calling fetchGigs...');
       fetchGigs();
     }
   }, [fetchGigs, mounted]);
