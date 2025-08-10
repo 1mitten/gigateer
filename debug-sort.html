@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Sort Issue</title>
+</head>
+<body>
+    <h1>Debug Sort Issue</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testSort() {
+            const results = document.getElementById('results');
+            
+            // Test ASC
+            results.innerHTML += '<h2>Testing Date ASC:</h2>';
+            const ascResponse = await fetch('/api/gigs?sortBy=date&sortOrder=asc&limit=3');
+            const ascData = await ascResponse.json();
+            results.innerHTML += `<pre>First gig (ASC): ${ascData.data[0].title} - ${new Date(ascData.data[0].dateStart).toLocaleDateString()}</pre>`;
+            
+            // Test DESC
+            results.innerHTML += '<h2>Testing Date DESC:</h2>';
+            const descResponse = await fetch('/api/gigs?sortBy=date&sortOrder=desc&limit=3');
+            const descData = await descResponse.json();
+            results.innerHTML += `<pre>First gig (DESC): ${descData.data[0].title} - ${new Date(descData.data[0].dateStart).toLocaleDateString()}</pre>`;
+            
+            // Show raw data
+            results.innerHTML += '<h2>Raw DESC Data (first 3):</h2>';
+            descData.data.slice(0, 3).forEach((gig, i) => {
+                results.innerHTML += `<pre>${i+1}. ${gig.title} - ${new Date(gig.dateStart).toLocaleDateString()} @ ${gig.venue.name}</pre>`;
+            });
+        }
+        
+        testSort();
+    </script>
+</body>
+</html>

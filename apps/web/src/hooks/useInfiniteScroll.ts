@@ -33,15 +33,37 @@ export function useInfiniteScroll({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [meta, setMeta] = useState<GigsResponse['meta'] | null>(null);
+  const [isResetting, setIsResetting] = useState(false);
   
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastParamsRef = useRef<string>('');
+  const currentApiParamsRef = useRef(apiParams);
   
   // Memoize all gigs from all pages
   const allGigs = useMemo(() => {
-    return pages.flatMap(page => page.data);
-  }, [pages]);
+    // If we're resetting (params changed), always return empty array to prevent showing stale data
+    if (isResetting) {
+      // TEMP DEBUG: Log when returning empty due to reset
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[INFINITE SCROLL] Returning empty gigs due to isResetting=true');
+      }
+      return [];
+    }
+    const result = pages.flatMap(page => page.data);
+    // TEMP DEBUG: Log first gig when data changes
+    if (process.env.NODE_ENV === 'development' && result.length > 0) {
+      const firstGig = result[0];
+      console.log(`[INFINITE SCROLL] Returning ${result.length} gigs to component`);
+      console.log(`[INFINITE SCROLL] First gig: "${firstGig?.title}" on ${new Date(firstGig?.dateStart).toLocaleDateString()}`);
+    }
+    return result;
+  }, [pages, isResetting]);
 
+  // Update current params ref
+  useEffect(() => {
+    currentApiParamsRef.current = apiParams;
+  }, [apiParams]);
+  
   // Check if params have changed (for reset detection)
   const paramsString = useMemo(() => {
     // Create a stable string representation of params (excluding page)
@@ -51,21 +73,37 @@ export function useInfiniteScroll({
 
   // Reset when search params change (excluding page)
   useEffect(() => {
-    if (paramsString !== lastParamsRef.current) {
+    // Handle initial load
+    if (lastParamsRef.current === '' && enabled) {
       lastParamsRef.current = paramsString;
+      setLoading(true);
+      fetchPage(1, true);
+      return;
+    }
+    
+    // Handle parameter changes
+    if (paramsString !== lastParamsRef.current) {
+      // TEMP DEBUG: Log parameter changes
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[INFINITE SCROLL] Params changed from "${lastParamsRef.current}" to "${paramsString}"`);
+      }
+      
+      lastParamsRef.current = paramsString;
+      setIsResetting(true); // Mark as resetting to clear displayed data immediately
       setPages([]);
       setCurrentPage(1);
       setHasNextPage(true);
       setError(null);
       setTotalCount(0);
       setMeta(null);
+      setLoading(true); // Ensure loading state is set during reset
       
       // Fetch first page with new params
       if (enabled) {
         fetchPage(1, true);
       }
     }
-  }, [paramsString, enabled]);
+  }, [paramsString, enabled]); // Removed fetchPage to avoid dependency cycle
 
   const fetchPage = useCallback(async (page: number, isReset: boolean = false) => {
     // Cancel any existing request
@@ -84,16 +122,22 @@ export function useInfiniteScroll({
     try {
       const queryParams = new URLSearchParams();
       
+      // Use current params from ref to avoid closure issues
+      const currentParams = currentApiParamsRef.current;
+      
       // Add all params except page (we control page here)
-      Object.entries(apiParams).forEach(([key, value]) => {
-        if (key !== 'page' && value) {
-          queryParams.set(key, value);
+      Object.entries(currentParams).forEach(([key, value]) => {
+        if (key !== 'page') {
+          // Always include sortBy and sortOrder even if they're default values
+          if (key === 'sortBy' || key === 'sortOrder' || value) {
+            queryParams.set(key, value);
+          }
         }
       });
       
       // Set the specific page we want
       queryParams.set('page', page.toString());
-      queryParams.set('limit', (apiParams.limit || APP_CONFIG.pagination.DEFAULT_LIMIT.toString()).toString());
+      queryParams.set('limit', (currentParams.limit || APP_CONFIG.pagination.DEFAULT_LIMIT.toString()).toString());
 
       const url = `/api/gigs?${queryParams.toString()}`;
 
@@ -110,6 +154,15 @@ export function useInfiniteScroll({
       }
 
       const result: GigsResponse = await response.json();
+      
+      // TEMP DEBUG: Log what we received from API
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[FETCH PAGE] URL: ${url}`);
+        if (result.data.length > 0) {
+          console.log(`[FETCH PAGE] Received ${result.data.length} gigs, first: "${result.data[0]?.title}" (${new Date(result.data[0]?.dateStart).toLocaleDateString()})`);
+          console.log(`[FETCH PAGE] Sort params: sortBy=${(result.meta as any)?.sort?.sortBy} sortOrder=${(result.meta as any)?.sort?.sortOrder}`);
+        }
+      }
       
       // Update state based on whether this is a reset or additional page
       setPages(prevPages => {
@@ -136,6 +189,11 @@ export function useInfiniteScroll({
       setHasNextPage(result.pagination.page < result.pagination.pages);
       setError(null);
       
+      // Clear isResetting flag after successfully loading new data
+      if (isReset) {
+        setIsResetting(false);
+      }
+      
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         // Request was cancelled, ignore
@@ -150,7 +208,7 @@ export function useInfiniteScroll({
     } finally {
       setLoading(false);
     }
-  }, [apiParams]);
+  }, []); // Using ref instead of direct dependency
 
   const fetchNextPage = useCallback(() => {
     if (!hasNextPage || loading) {
@@ -177,13 +235,6 @@ export function useInfiniteScroll({
       }
     };
   }, []);
-
-  // Load first page when enabled
-  useEffect(() => {
-    if (enabled && pages.length === 0 && !loading) {
-      fetchPage(1, true);
-    }
-  }, [enabled, pages.length, loading, fetchPage]);
 
   return {
     gigs: allGigs,

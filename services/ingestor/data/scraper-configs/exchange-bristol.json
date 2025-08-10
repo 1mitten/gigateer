@@ -145,7 +145,7 @@
       "info": "infoUrl"
     },
     "images": "image",
-    "genres": "genres",
+    "tags": "genres",
     "description": "description",
     "ageRestriction": "ageRestriction"
   },

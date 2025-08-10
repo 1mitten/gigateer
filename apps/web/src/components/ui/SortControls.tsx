@@ -1,14 +1,24 @@
 import React from 'react';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
+import { DATE_FILTER_OPTIONS, DateFilterOption } from '../../utils/dateFilters';
 
 interface SortControlsProps {
   sortBy: 'date' | 'name' | 'venue';
   sortOrder: 'asc' | 'desc';
   onToggleSort: (sortBy: 'date' | 'name' | 'venue') => void;
+  dateFilter?: DateFilterOption;
+  onDateFilterChange?: (dateFilter: DateFilterOption) => void;
   className?: string;
 }
 
-export function SortControls({ sortBy, sortOrder, onToggleSort, className = "" }: SortControlsProps) {
+export function SortControls({ 
+  sortBy, 
+  sortOrder, 
+  onToggleSort, 
+  dateFilter = 'all',
+  onDateFilterChange,
+  className = "" 
+}: SortControlsProps) {
   const SortButton = ({ 
     value, 
     children, 
@@ -39,26 +49,54 @@ export function SortControls({ sortBy, sortOrder, onToggleSort, className = "" }
   );
 
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      <span className="text-sm text-gray-600 mr-2">Sort by:</span>
-      
-      <SortButton value="date" active={sortBy === 'date'}>
-        Date
-      </SortButton>
-      
-      <SortButton value="name" active={sortBy === 'name'}>
-        Event
-      </SortButton>
-      
-      <SortButton value="venue" active={sortBy === 'venue'}>
-        Venue
-      </SortButton>
+    <div className={`flex items-center gap-4 ${className}`}>
+      {/* Sort Controls */}
+      <div className="flex items-center gap-1">
+        <span className="text-sm text-gray-600 mr-2">Sort by:</span>
+        
+        <SortButton value="date" active={sortBy === 'date'}>
+          Date
+        </SortButton>
+        
+        <SortButton value="name" active={sortBy === 'name'}>
+          Event
+        </SortButton>
+        
+        <SortButton value="venue" active={sortBy === 'venue'}>
+          Venue
+        </SortButton>
+      </div>
+
+      {/* Date Filter */}
+      {onDateFilterChange && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">Date:</span>
+          <select
+            value={dateFilter}
+            onChange={(e) => onDateFilterChange(e.target.value as DateFilterOption)}
+            className="block px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+          >
+            {DATE_FILTER_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }
 
 // Compact version for mobile
-export function CompactSortControls({ sortBy, sortOrder, onToggleSort, className = "" }: SortControlsProps) {
+export function CompactSortControls({ 
+  sortBy, 
+  sortOrder, 
+  onToggleSort, 
+  dateFilter = 'all',
+  onDateFilterChange,
+  className = "" 
+}: SortControlsProps) {
   const getSortLabel = () => {
     const labels = { date: 'Date', name: 'Event', venue: 'Venue' };
     const orderLabel = sortOrder === 'asc' ? '↑' : '↓';
@@ -66,26 +104,46 @@ export function CompactSortControls({ sortBy, sortOrder, onToggleSort, className
   };
 
   return (
-    <div className={`relative ${className}`}>
-      <select
-        value={`${sortBy}-${sortOrder}`}
-        onChange={(e) => {
-          const [newSortBy, newSortOrder] = e.target.value.split('-') as ['date' | 'name' | 'venue', 'asc' | 'desc'];
-          if (newSortBy !== sortBy) {
-            onToggleSort(newSortBy);
-          } else if (newSortOrder !== sortOrder) {
-            onToggleSort(sortBy);
-          }
-        }}
-        className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-      >
-        <option value="date-asc">Date (Earliest First)</option>
-        <option value="date-desc">Date (Latest First)</option>
-        <option value="name-asc">Event (A-Z)</option>
-        <option value="name-desc">Event (Z-A)</option>
-        <option value="venue-asc">Venue (A-Z)</option>
-        <option value="venue-desc">Venue (Z-A)</option>
-      </select>
+    <div className={`flex flex-col gap-3 ${className}`}>
+      {/* Sort Selection */}
+      <div className="relative">
+        <select
+          value={`${sortBy}-${sortOrder}`}
+          onChange={(e) => {
+            const [newSortBy, newSortOrder] = e.target.value.split('-') as ['date' | 'name' | 'venue', 'asc' | 'desc'];
+            if (newSortBy !== sortBy) {
+              onToggleSort(newSortBy);
+            } else if (newSortOrder !== sortOrder) {
+              onToggleSort(sortBy);
+            }
+          }}
+          className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+        >
+          <option value="date-asc">Date (Earliest First)</option>
+          <option value="date-desc">Date (Latest First)</option>
+          <option value="name-asc">Event (A-Z)</option>
+          <option value="name-desc">Event (Z-A)</option>
+          <option value="venue-asc">Venue (A-Z)</option>
+          <option value="venue-desc">Venue (Z-A)</option>
+        </select>
+      </div>
+
+      {/* Date Filter */}
+      {onDateFilterChange && (
+        <div className="relative">
+          <select
+            value={dateFilter}
+            onChange={(e) => onDateFilterChange(e.target.value as DateFilterOption)}
+            className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+          >
+            {DATE_FILTER_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }

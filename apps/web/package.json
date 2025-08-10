@@ -16,6 +16,8 @@
   "dependencies": {
     "@gigateer/contracts": "workspace:*",
     "@heroicons/react": "^2.2.0",
+    "@tanstack/react-query": "^5.84.2",
+    "@tanstack/react-query-devtools": "^5.84.2",
     "autoprefixer": "^10.4.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",

@@ -122,9 +122,9 @@ export function GigsGridInfinite({
 }: GigsListInfiniteProps) {
   const gridClassName = `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4`;
 
-  // Group gigs by date for the grid view
+  // Group gigs by date for the grid view, preserving API sort order
   const groupedGigs = React.useMemo(() => {
-    return groupGigsByDate(gigs);
+    return groupGigsByDate(gigs, true); // preserveOrder = true
   }, [gigs]);
 
   // Empty state
@@ -141,7 +141,7 @@ export function GigsGridInfinite({
     <InfiniteScrollGridWrapper
       gigs={gigs}
       hasMore={hasMore}
-      loading={loading}
+      loading={Boolean(loading)}
       fetchMore={fetchMore}
       totalCount={totalCount}
       className={className}

@@ -65,20 +65,22 @@ export function FilterPanel({
     onChange(localValues);
   }, [localValues, onChange]);
   
-  // Handle date filter change
-  const handleDateFilterChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLocalValues(prev => ({ ...prev, dateFilter: e.target.value as DateFilterOption }));
-  }, []);
+  // Handle Enter key press on input fields
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && hasChanges) {
+      handleApplyFilters();
+    }
+  }, [hasChanges, handleApplyFilters]);
+  
   
   // Reset both local and applied filters
   const handleResetFilters = useCallback(() => {
-    const emptyFilters = {
+    const emptyFilters: Partial<FilterValues> = {
       city: '',
       tags: '',
-      venue: '',
-      dateFilter: 'today' as DateFilterOption
+      venue: ''
     };
-    setLocalValues(emptyFilters);
+    setLocalValues(prev => ({ ...prev, ...emptyFilters }));
     onReset();
   }, [onReset]);
 
@@ -131,6 +133,7 @@ export function FilterPanel({
                     id="city"
                     value={localValues.city}
                     onChange={handleCityChange}
+                    onKeyPress={handleKeyPress}
                     placeholder="e.g., London, Manchester"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
                   />
@@ -145,28 +148,10 @@ export function FilterPanel({
                     id="tags"
                     value={localValues.tags}
                     onChange={handleTagsChange}
+                    onKeyPress={handleKeyPress}
                     placeholder="e.g., Rock, Jazz, Electronic"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
                   />
-                </div>
-
-                <div>
-                  <label htmlFor="date-filter" className="block text-sm font-medium text-gray-700 mb-2">
-                    Date Range
-                  </label>
-                  <select
-                    id="date-filter"
-                    value={localValues.dateFilter}
-                    onChange={handleDateFilterChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-                  >
-                    <option value="today">Today</option>
-                    <option value="tomorrow">Tomorrow</option>
-                    <option value="this-week">This Week</option>
-                    <option value="next-week">Next Week</option>
-                    <option value="this-month">This Month</option>
-                    <option value="all">All Dates</option>
-                  </select>
                 </div>
 
                 <div>
@@ -178,6 +163,7 @@ export function FilterPanel({
                     id="venue"
                     value={localValues.venue}
                     onChange={handleVenueChange}
+                    onKeyPress={handleKeyPress}
                     placeholder="e.g., O2 Arena, Royal Albert Hall"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
                   />
@@ -234,6 +220,7 @@ export function FilterPanel({
             id="city"
             value={localValues.city}
             onChange={handleCityChange}
+            onKeyPress={handleKeyPress}
             placeholder="e.g., London, Manchester"
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
           />
@@ -248,28 +235,10 @@ export function FilterPanel({
             id="tags"
             value={localValues.tags}
             onChange={handleTagsChange}
+            onKeyPress={handleKeyPress}
             placeholder="e.g., Rock, Jazz, Electronic"
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
           />
-        </div>
-
-        <div>
-          <label htmlFor="date-filter" className="block text-sm font-medium text-gray-700 mb-2">
-            Date Range
-          </label>
-          <select
-            id="date-filter"
-            value={localValues.dateFilter}
-            onChange={handleDateFilterChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-          >
-            <option value="today">Today</option>
-            <option value="tomorrow">Tomorrow</option>
-            <option value="this-week">This Week</option>
-            <option value="next-week">Next Week</option>
-            <option value="this-month">This Month</option>
-            <option value="all">All Dates</option>
-          </select>
         </div>
 
         <div>
@@ -281,6 +250,7 @@ export function FilterPanel({
             id="venue"
             value={localValues.venue}
             onChange={handleVenueChange}
+            onKeyPress={handleKeyPress}
             placeholder="e.g., O2 Arena, Royal Albert Hall"
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
           />

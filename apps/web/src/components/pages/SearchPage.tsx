@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useSearchFilters } from '../../hooks/useSearchFilters';
-import { useGigsApi, useGigSort } from '../../hooks/useGigsApi';
-import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
+import { useGigsApi } from '../../hooks/useGigsApi';
+import { useGigsInfiniteQuery } from '../../hooks/useGigsInfiniteQuery';
 import { useViewPreference } from '../../hooks/useViewPreference';
 import { useToast } from '../ui/Toast';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
@@ -26,7 +26,7 @@ export function SearchPage() {
   const isOnline = true; // useOnlineStatus();
   const { view, setView, isLoaded } = useViewPreference();
   
-  // Search and filter state
+  // Search and filter state - MUST be called before any conditional returns
   const {
     filters,
     updateFilters,
@@ -41,43 +41,99 @@ export function SearchPage() {
   // API data - traditional pagination
   const { data: traditionalGigs, pagination, loading: traditionalLoading, error: traditionalError, refetch } = useGigsApi(apiParams);
   
-  // Infinite scroll data
+  // Infinite scroll data using React Query
+  const isQueryReady = (filters.dateFilter !== undefined);
+  
   const { 
     gigs: infiniteGigs, 
     loading: infiniteLoading, 
     error: infiniteError, 
     hasNextPage, 
-    fetchNextPage, 
+    fetchNextPage,
+    isFetchingNextPage,
     refresh: refreshInfinite,
     totalCount,
     meta: infiniteMeta
-  } = useInfiniteScroll({ apiParams, enabled: useInfiniteScrollMode });
+  } = useGigsInfiniteQuery({ 
+    sortBy: filters.sortBy,
+    sortOrder: filters.sortOrder,
+    city: filters.city,
+    tags: filters.tags,
+    venue: filters.venue,
+    dateFrom: filters.dateFrom,
+    dateTo: filters.dateTo,
+    q: filters.q,
+    limit: filters.limit,
+    enabled: useInfiniteScrollMode && isQueryReady
+  });
   
-  // Sorting
-  const { sortBy, sortOrder, sortGigs, toggleSort } = useGigSort();
-  
-  // Use appropriate data source based on mode
-  const gigs = useInfiniteScrollMode ? infiniteGigs : traditionalGigs;
-  const loading = useInfiniteScrollMode ? infiniteLoading : traditionalLoading;
-  const error = useInfiniteScrollMode ? infiniteError : traditionalError;
-  
-  // Sort gigs on client side (API returns by date asc by default)
-  const sortedGigs = React.useMemo(() => {
-    return sortGigs(gigs);
-  }, [gigs, sortGigs]);
+  // CLIENT-SIDE DATA LOADING - Move all hooks here
+  const [hasMounted, setHasMounted] = useState(false);
+  const [clientGigs, setClientGigs] = useState<any[]>([]);
+  const [clientLoading, setClientLoading] = useState(true);
+  const [clientError, setClientError] = useState<string | null>(null);
 
-  // Handle errors
+  // Hydration detection
   React.useEffect(() => {
-    if (error) {
+    console.log('HYDRATION: Component mounted');
+    setHasMounted(true);
+  }, []);
+
+  // Data loading after hydration (only for pagination mode)
+  React.useEffect(() => {
+    // Skip client fetch if using infinite scroll mode
+    if (useInfiniteScrollMode) {
+      console.log('CLIENT: Skipping fetch - using infinite scroll mode');
+      return;
+    }
+    
+    if (!hasMounted) {
+      console.log('HYDRATION: Not mounted yet, skipping fetch');
+      return;
+    }
+    
+    console.log('CLIENT: Starting data fetch for pagination mode...');
+    
+    const fetchGigs = async () => {
+      console.log('CLIENT: Calling API...');
+      try {
+        const params = new URLSearchParams();
+        params.set('sortBy', filters.sortBy || 'date');
+        params.set('sortOrder', filters.sortOrder || 'asc');
+        params.set('limit', '20');
+        params.set('client', 'hydrated-fetch');
+        
+        const url = `/api/gigs?${params.toString()}`;
+        console.log('CLIENT: URL =', url);
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        console.log('CLIENT: Got', data.data?.length, 'gigs');
+        setClientGigs(data.data || []);
+        setClientLoading(false);
+      } catch (error) {
+        console.error('CLIENT: Failed -', error);
+        setClientError('Failed to load gigs');
+        setClientLoading(false);
+      }
+    };
+
+    fetchGigs();
+  }, [useInfiniteScrollMode, hasMounted, filters.sortBy, filters.sortOrder, filters.dateFrom, filters.dateTo]);
+
+  // Error handling effect
+  React.useEffect(() => {
+    if (clientError) {
       addToast({
         type: 'error',
         title: 'Failed to load gigs',
-        message: error,
+        message: clientError,
       });
     }
-  }, [error, addToast]);
+  }, [clientError, addToast]);
   
-  // Handle refresh based on mode
+  // Handle refresh callback
   const handleRefresh = React.useCallback(() => {
     if (useInfiniteScrollMode) {
       refreshInfinite();
@@ -85,6 +141,37 @@ export function SearchPage() {
       refetch();
     }
   }, [useInfiniteScrollMode, refreshInfinite, refetch]);
+  
+  // Sort controls - now managed by filters
+  const handleToggleSort = (newSortBy: 'date' | 'name' | 'venue') => {
+    if (newSortBy === filters.sortBy) {
+      // Toggle sort order
+      updateFilters({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' });
+    } else {
+      // Change sort field and reset to ascending
+      updateFilters({ sortBy: newSortBy, sortOrder: 'asc' });
+    }
+  };
+
+  // Handle date filter changes
+  const handleDateFilterChange = (dateFilter: string) => {
+    updateFilters({ dateFilter: dateFilter as any });
+  };
+  
+  // USE APPROPRIATE DATA SOURCE BASED ON MODE
+  const gigs = useInfiniteScrollMode ? infiniteGigs : clientGigs;
+  const loading = useInfiniteScrollMode ? infiniteLoading : clientLoading;  
+  const error = useInfiniteScrollMode ? infiniteError : clientError;
+  
+  console.log('RENDER: gigs.length =', gigs.length, 'loading =', loading, 'hasMounted =', hasMounted, 'infiniteMode =', useInfiniteScrollMode);
+  
+  // Show skeleton until hydrated and data loaded
+  // For infinite scroll mode, rely on React Query loading state
+  // For pagination mode, wait for hydration + client fetch
+  const isLoading = useInfiniteScrollMode ? 
+    Boolean(loading) : 
+    (Boolean(loading) || !hasMounted);
+
 
   return (
     <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
@@ -169,9 +256,11 @@ export function SearchPage() {
                 />
                 
                 <CompactSortControls
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                  onToggleSort={toggleSort}
+                  sortBy={filters.sortBy}
+                  sortOrder={filters.sortOrder}
+                  onToggleSort={handleToggleSort}
+                  dateFilter={filters.dateFilter}
+                  onDateFilterChange={handleDateFilterChange}
                   className="sm:w-48"
                 />
               </div>
@@ -190,20 +279,18 @@ export function SearchPage() {
             <div className="hidden lg:flex lg:items-center lg:justify-between mb-6">
               <div className="flex items-center space-x-6">
                 <SortControls
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                  onToggleSort={toggleSort}
+                  sortBy={filters.sortBy}
+                  sortOrder={filters.sortOrder}
+                  onToggleSort={handleToggleSort}
+                  dateFilter={filters.dateFilter}
+                  onDateFilterChange={handleDateFilterChange}
                 />
               </div>
 
               <div className="flex items-center space-x-4">
                 {(pagination || useInfiniteScrollMode) && (
                   <div className="text-sm text-gray-600">
-                    {useInfiniteScrollMode ? (
-                      `Showing ${sortedGigs.length} of ${totalCount || 0} gigs`
-                    ) : pagination ? (
-                      `Showing ${((pagination.page - 1) * pagination.limit) + 1}-${Math.min(pagination.page * pagination.limit, pagination.total)} of ${pagination.total} gigs`
-                    ) : null}
+                    {`Showing ${gigs.length} of ${gigs.length} gigs`}
                   </div>
                 )}
                 
@@ -218,7 +305,7 @@ export function SearchPage() {
                       className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
                       title={useInfiniteScrollMode ? 'Switch to pagination' : 'Switch to infinite scroll'}
                     >
-                      {useInfiniteScrollMode ? '∞' : '📄'}
+                      {useInfiniteScrollMode ? 'INF' : 'PAGE'}
                     </button>
                   </div>
                 )}
@@ -278,65 +365,102 @@ export function SearchPage() {
               </div>
             )}
 
-            {/* Results with smooth transitions */}
+            {/* Results with skeleton loading to prevent layout shifts */}
             <ErrorBoundary>
-              <ContentTransition transitionKey={`${view}-${useInfiniteScrollMode}`}>
-                {useInfiniteScrollMode ? (
-                  // Infinite scroll versions
-                  view === 'grid' ? (
-                    <GigsGridInfinite
-                      gigs={sortedGigs}
-                      loading={loading}
-                      showCount={false}
-                      hasMore={hasNextPage}
-                      fetchMore={fetchNextPage}
-                      totalCount={totalCount}
-                      emptyMessage={hasActiveFilters ? 
-                        "No gigs match your current filters. Try adjusting your search criteria." : 
-                        "No gigs available at the moment. Check back later!"
-                      }
-                    />
-                  ) : (
-                    <GigsListInfinite
-                      gigs={sortedGigs}
-                      loading={loading}
-                      variant="list"
-                      showCount={false}
-                      hasMore={hasNextPage}
-                      fetchMore={fetchNextPage}
-                      totalCount={totalCount}
-                      emptyMessage={hasActiveFilters ? 
-                        "No gigs match your current filters. Try adjusting your search criteria." : 
-                        "No gigs available at the moment. Check back later!"
-                      }
-                    />
-                  )
+              {loading ? (
+                // Show skeleton during loading to prevent layout shift
+                view === 'grid' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                      <div key={index} className="card p-6 space-y-4">
+                        <div className="animate-pulse bg-gray-200 h-6 w-3/4 rounded"></div>
+                        <div className="animate-pulse bg-gray-200 h-5 w-1/2 rounded"></div>
+                        <div className="flex justify-between items-center">
+                          <div className="animate-pulse bg-gray-200 h-4 w-1/3 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-4 w-1/4 rounded"></div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-4 w-2/3 rounded"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
-                  // Traditional pagination versions
-                  view === 'grid' ? (
-                    <GigsGrid
-                      gigs={sortedGigs}
-                      loading={loading}
-                      showCount={false}
-                      emptyMessage={hasActiveFilters ? 
-                        "No gigs match your current filters. Try adjusting your search criteria." : 
-                        "No gigs available at the moment. Check back later!"
-                      }
-                    />
+                  <div className="space-y-4">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                      <div key={index} className="card p-6 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2 flex-1">
+                            <div className="animate-pulse bg-gray-200 h-6 w-2/3 rounded"></div>
+                            <div className="animate-pulse bg-gray-200 h-5 w-1/2 rounded"></div>
+                          </div>
+                          <div className="animate-pulse bg-gray-200 h-4 w-20 rounded"></div>
+                        </div>
+                        <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              ) : (
+                <ContentTransition transitionKey={`${view}-data`}>
+                  {useInfiniteScrollMode ? (
+                    // Infinite scroll versions
+                    view === 'grid' ? (
+                      <GigsGridInfinite
+                        gigs={gigs}
+                        loading={false}
+                        showCount={false}
+                        hasMore={hasNextPage}
+                        fetchMore={fetchNextPage}
+                        totalCount={totalCount}
+                        emptyMessage={hasActiveFilters ? 
+                          "No gigs match your current filters. Try adjusting your search criteria." : 
+                          "No gigs available at the moment. Check back later!"
+                        }
+                      />
+                    ) : (
+                      <GigsListInfinite
+                        gigs={gigs}
+                        loading={false}
+                        variant="list"
+                        showCount={false}
+                        hasMore={hasNextPage}
+                        fetchMore={fetchNextPage}
+                        totalCount={totalCount}
+                        emptyMessage={hasActiveFilters ? 
+                          "No gigs match your current filters. Try adjusting your search criteria." : 
+                          "No gigs available at the moment. Check back later!"
+                        }
+                      />
+                    )
                   ) : (
-                    <GigsList
-                      gigs={sortedGigs}
-                      loading={loading}
-                      variant="list"
-                      showCount={false}
-                      emptyMessage={hasActiveFilters ? 
-                        "No gigs match your current filters. Try adjusting your search criteria." : 
-                        "No gigs available at the moment. Check back later!"
-                      }
-                    />
-                  )
-                )}
-              </ContentTransition>
+                    // Traditional pagination versions
+                    view === 'grid' ? (
+                      <GigsGrid
+                        gigs={gigs}
+                        loading={false}
+                        showCount={false}
+                        emptyMessage={hasActiveFilters ? 
+                          "No gigs match your current filters. Try adjusting your search criteria." : 
+                          "No gigs available at the moment. Check back later!"
+                        }
+                      />
+                    ) : (
+                      <GigsList
+                        gigs={gigs}
+                        loading={false}
+                        variant="list"
+                        showCount={false}
+                        emptyMessage={hasActiveFilters ? 
+                          "No gigs match your current filters. Try adjusting your search criteria." : 
+                          "No gigs available at the moment. Check back later!"
+                        }
+                      />
+                    )
+                  )}
+                </ContentTransition>
+              )}
             </ErrorBoundary>
 
             {/* Pagination - only show in traditional pagination mode */}
@@ -357,3 +481,4 @@ export function SearchPage() {
     </div>
   );
 }
+

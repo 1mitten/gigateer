@@ -1,5 +1,5 @@
-import { SearchPage } from '../components/pages/SearchPage';
+import ClientOnlySearchPage from '../components/ClientOnlySearchPage';
 
 export default function HomePage() {
-  return <SearchPage />;
+  return <ClientOnlySearchPage />;
 }

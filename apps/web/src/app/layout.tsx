@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { PWAProvider } from '../components/pwa-provider';
 import { ToastProvider } from '../components/ui/Toast';
+import { QueryProvider } from '../providers/QueryProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -40,11 +41,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Gigateer" />
       </head>
       <body className={inter.className}>
-        <ToastProvider>
-          <div className="min-h-screen bg-gray-50">
-            {children}
-          </div>
-        </ToastProvider>
+        <QueryProvider>
+          <ToastProvider>
+            <div className="min-h-screen bg-gray-50">
+              {children}
+            </div>
+          </ToastProvider>
+        </QueryProvider>
       </body>
     </html>
   );

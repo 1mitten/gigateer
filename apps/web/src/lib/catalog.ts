@@ -230,13 +230,14 @@ export function filterGigs(
     );
   }
   
-  // Text search in title, artists, and venue name
+  // Text search in title, artists, venue name, and venue city
   if (filters.q) {
     const queryLower = filters.q.toLowerCase();
     filtered = filtered.filter(gig =>
       gig.title.toLowerCase().includes(queryLower) ||
       gig.artists.some(artist => artist.toLowerCase().includes(queryLower)) ||
-      gig.venue.name.toLowerCase().includes(queryLower)
+      gig.venue.name.toLowerCase().includes(queryLower) ||
+      (gig.venue.city && gig.venue.city.toLowerCase().includes(queryLower))
     );
   }
   

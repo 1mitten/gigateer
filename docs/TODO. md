@@ -1,11 +1,10 @@
 Tasks to complete
 
-- Remove the price field from frontend as we don't need this, remove from gig listings and gig details page
-- Use this as a base colour palette and expand beyond it #A3DC9A, #DEE791, #FFF9BD, #FFD6BA and color the tags on the gigs on the listings page and the gig details page and make sure they use the same theme.
-- Source and link should be 
-= The exchange seems to have just it's room as the venue, it should be added to the config to have "Exchange" as the venue and if there is more information like "Main" or "Basement" - This would become "Exchange, Main"
-- The images on the gig listing page seemed like not all of the image can be seen, please correct
-- _meta object on the database should be refactored, createdAt and UpdatedAt should be at the root at document for querying and indexing etc.  
-- firstSeenAt and lastSeenAt in database should also be explicit date in Mongo
-- Gig Listings should only be shown if there are in the future
-- The filters on the left hand side of the app seem broken, soon as you type first letter, it prevents you from typing so must be losing focus and also it doesn't seem to fuzzy search as you'd expect
+- FInish any remaining Tasks
+- Create a new scraper config and ingestion for Bristol O2 Academy at https://www.academymusicgroup.com/o2academybristol, be aware you may click on the event to get all the detail and also it uses pagination so make sure all the pages are navigated to
+- The Date range should still function the same but it should moved next to the sort by and onclick of a new value, the data should update. 
+- Remove the sort by for Event
+- There should be separate pages for each city (dynamic page) that is exclusive to the "City" by returning all the gigs within that "venue.city".  This page should act the same but instead the title that says "Discover live music" should say "${venue.city}."
+Remove the subtitle of "Find gigs, concerts and festivals near".  The search bar should say "Search for events".  The left hand filter will no longer have "City"
+because the entire page queries by that city - we should remove the filters left hand side entirely.  It would be handy if this could be routed too easily in the url like /Bristol for example - if possible
+- We said that we would only display future events.  We should have events happening now appear first, which can be toggled off and then future vents.  All events happening now should have a divider Says "Happening now"

@@ -153,7 +153,11 @@ export function useGigsApi(params: Record<string, string>) {
 
   // Fetch data when params change, but only after component is mounted
   useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[useGigsApi] Effect called - mounted: ${mounted}, params:`, params);
+    }
     if (mounted) {
+      console.log(`[useGigsApi] Starting fetch...`);
       fetchGigs();
     }
   }, [fetchGigs, mounted]);

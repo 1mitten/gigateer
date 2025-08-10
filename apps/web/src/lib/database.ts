@@ -255,6 +255,7 @@ export class WebDatabaseService {
           { title: searchRegex },
           { artists: { $elemMatch: searchRegex } },
           { 'venue.name': searchRegex },
+          { 'venue.city': searchRegex },
           { tags: { $elemMatch: searchRegex } }
         ];
       }

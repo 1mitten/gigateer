@@ -9,10 +9,11 @@ export interface GigsByDate {
 
 /**
  * Groups gigs by their start date
- * @param gigs Array of gigs to group
+ * @param gigs Array of gigs to group (assumes already sorted by API)
+ * @param preserveOrder Whether to preserve the original order instead of sorting
  * @returns Array of objects containing date and gigs for that date
  */
-export function groupGigsByDate(gigs: Gig[]): GigsByDate[] {
+export function groupGigsByDate(gigs: Gig[], preserveOrder: boolean = false): GigsByDate[] {
   // Create a map to group gigs by date
   const gigsByDate = new Map<string, Gig[]>();
   
@@ -67,8 +68,8 @@ export function groupGigsByDate(gigs: Gig[]): GigsByDate[] {
       return {
         date: dateKey,
         dateFormatted,
-        gigs: gigs.sort((a, b) => {
-          // Sort gigs within the same date by time
+        gigs: preserveOrder ? gigs : gigs.sort((a, b) => {
+          // Sort gigs within the same date by time (only if not preserving order)
           try {
             const timeA = new Date(a.dateStart).getTime();
             const timeB = new Date(b.dateStart).getTime();
@@ -78,8 +79,37 @@ export function groupGigsByDate(gigs: Gig[]): GigsByDate[] {
           }
         })
       };
-    })
-    .sort((a, b) => {
+    });
+
+  // If preserving order, keep groups in the order they appear in the original array
+  if (preserveOrder) {
+    // Create a map to track the order of dates as they appear
+    const dateOrder = new Map<string, number>();
+    let orderIndex = 0;
+    
+    gigs.forEach(gig => {
+      try {
+        const date = new Date(gig.dateStart);
+        const dateKey = isNaN(date.getTime()) ? 'date-tba' : date.toISOString().split('T')[0];
+        if (!dateOrder.has(dateKey)) {
+          dateOrder.set(dateKey, orderIndex++);
+        }
+      } catch {
+        if (!dateOrder.has('date-tba')) {
+          dateOrder.set('date-tba', orderIndex++);
+        }
+      }
+    });
+    
+    // Sort by original appearance order
+    groupedGigs.sort((a, b) => {
+      const orderA = dateOrder.get(a.date) ?? 999;
+      const orderB = dateOrder.get(b.date) ?? 999;
+      return orderA - orderB;
+    });
+  } else {
+    // Original sorting behavior
+    groupedGigs.sort((a, b) => {
       // Sort groups by date, with "Date TBA" at the end
       if (a.date === 'date-tba') return 1;
       if (b.date === 'date-tba') return -1;
@@ -92,6 +122,7 @@ export function groupGigsByDate(gigs: Gig[]): GigsByDate[] {
         return 0;
       }
     });
+  }
   
   return groupedGigs;
 }

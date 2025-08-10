@@ -16,6 +16,8 @@ interface FilterValues {
   q: string;
   page: number;
   limit: number;
+  sortBy: 'date' | 'name' | 'venue';
+  sortOrder: 'asc' | 'desc';
 }
 
 const DEFAULT_FILTERS: FilterValues = {
@@ -28,6 +30,8 @@ const DEFAULT_FILTERS: FilterValues = {
   q: '',
   page: APP_CONFIG.pagination.FIRST_PAGE,
   limit: APP_CONFIG.pagination.DEFAULT_LIMIT,
+  sortBy: 'date',
+  sortOrder: 'asc',
 };
 
 export function useSearchFilters() {
@@ -61,15 +65,27 @@ export function useSearchFilters() {
       initialFilters.dateFrom = dateFromParam;
       initialFilters.dateTo = dateToParam;
     } else {
-      // Default to all dates
+      // Default to all dates - keep dateFilter as 'all' and let empty dates stay empty
       const { from, to } = getDateRangeForFilter('all');
-      initialFilters.dateFrom = from;
-      initialFilters.dateTo = to;
+      initialFilters.dateFrom = from; // This should be empty string for 'all'
+      initialFilters.dateTo = to;     // This should be empty string for 'all'
     }
     
     initialFilters.q = searchParams.get('q') || '';
     initialFilters.page = parseInt(searchParams.get('page') || '1', 10);
     initialFilters.limit = parseInt(searchParams.get('limit') || '20', 10);
+    
+    // Initialize sort parameters
+    const sortBy = searchParams.get('sortBy') as 'date' | 'name' | 'venue' | null;
+    initialFilters.sortBy = (sortBy && ['date', 'name', 'venue'].includes(sortBy)) ? sortBy : 'date';
+    
+    const sortOrder = searchParams.get('sortOrder') as 'asc' | 'desc' | null;
+    initialFilters.sortOrder = (sortOrder && ['asc', 'desc'].includes(sortOrder)) ? sortOrder : 'asc';
+    
+    // TEMP DEBUG: Log initial filters
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[useSearchFilters] Initial filters:', initialFilters);
+    }
     
     return initialFilters;
   });
@@ -98,6 +114,16 @@ export function useSearchFilters() {
       } else if (key === 'dateFrom' || key === 'dateTo') {
         // Skip dateFrom/dateTo in URL - they're derived from dateFilter
         // We keep them in state for API calls but not in URL
+      } else if (key === 'sortBy') {
+        // Only add sortBy if it's not the default
+        if (value && value !== DEFAULT_FILTERS.sortBy) {
+          params.set(key, value.toString());
+        }
+      } else if (key === 'sortOrder') {
+        // Only add sortOrder if it's not the default
+        if (value && value !== DEFAULT_FILTERS.sortOrder) {
+          params.set(key, value.toString());
+        }
       } else if (key === 'q') {
         // For search query, only add if meets minimum length or empty
         if (value && (value.toString().length >= APP_CONFIG.search.MIN_QUERY_LENGTH || value.toString().length === 0)) {
@@ -149,12 +175,14 @@ export function useSearchFilters() {
     
     setFilters(newFilters);
     
-    // Determine if this should be immediate (non-text inputs like dates, page changes)
+    // Determine if this should be immediate (non-text inputs like dates, page changes, sort changes)
     const shouldBeImmediate = immediate || 
       updates.hasOwnProperty('page') || 
       updates.hasOwnProperty('dateFilter') ||
       updates.hasOwnProperty('dateFrom') || 
-      updates.hasOwnProperty('dateTo');
+      updates.hasOwnProperty('dateTo') ||
+      updates.hasOwnProperty('sortBy') ||
+      updates.hasOwnProperty('sortOrder');
     
     updateURL(newFilters, shouldBeImmediate);
   }, [filters, updateURL]);
@@ -189,7 +217,6 @@ export function useSearchFilters() {
         'today': 'Today',
         'tomorrow': 'Tomorrow',
         'this-week': 'This Week',
-        'next-week': 'Next Week',
         'this-month': 'This Month',
         'all': 'All Dates'
       };
@@ -226,7 +253,10 @@ export function useSearchFilters() {
     const params: Record<string, string> = {};
     
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
+      if (key === 'sortBy' || key === 'sortOrder') {
+        // Always include sort parameters to ensure proper API behavior
+        params[key] = value.toString();
+      } else if (value) {
         // For search query, only include if meets minimum length or empty
         if (key === 'q') {
           if (value.toString().length >= APP_CONFIG.search.MIN_QUERY_LENGTH || value.toString().length === 0) {

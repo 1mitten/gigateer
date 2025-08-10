@@ -11,6 +11,11 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
     const url = new URL(request.url);
     const queryParams = Object.fromEntries(url.searchParams.entries());
     
+    // TEMP DEBUG: Log what frontend is requesting
+    if (queryParams.sortBy || queryParams.sortOrder) {
+      console.log(`[FRONTEND REQUEST] ${new Date().toISOString()} - sortBy:${queryParams.sortBy} sortOrder:${queryParams.sortOrder} page:${queryParams.page} limit:${queryParams.limit}`);
+    }
+    
     let validatedQuery;
     try {
       validatedQuery = GigsQuerySchema.parse(queryParams);
@@ -59,10 +64,23 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
         if (validatedQuery.q) filters.search = validatedQuery.q;
         filters.showPastEvents = false; // Only show future events by default
         
+        // Convert sort parameters
+        const getSortField = (sortBy: string): 'dateStart' | 'updatedAt' | 'title' | 'createdAt' => {
+          switch (sortBy) {
+            case 'name': return 'title';
+            case 'venue': return 'title'; // Fallback to title since venue.name sorting not supported
+            case 'date':
+            default: return 'dateStart';
+          }
+        };
+
         // Query database with pagination
         const result = await dbService.getGigs({
           filters,
-          sort: { field: 'dateStart', order: 1 }, // Upcoming first
+          sort: { 
+            field: getSortField(validatedQuery.sortBy), 
+            order: validatedQuery.sortOrder === 'desc' ? -1 : 1 
+          },
           pagination: {
             page: validatedQuery.page,
             limit: validatedQuery.limit
@@ -91,10 +109,25 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
           showPastEvents: false // Only show future events by default
         });
         
-        // Sort by date (ascending, upcoming first)
-        const sortedGigs = filteredGigs.sort((a, b) => 
-          new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime()
-        );
+        // Sort gigs based on query parameters
+        const sortedGigs = filteredGigs.sort((a, b) => {
+          let comparison = 0;
+          
+          switch (validatedQuery.sortBy) {
+            case 'name':
+              comparison = a.title.localeCompare(b.title);
+              break;
+            case 'venue':
+              comparison = a.venue.name.localeCompare(b.venue.name);
+              break;
+            case 'date':
+            default:
+              comparison = new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime();
+              break;
+          }
+          
+          return validatedQuery.sortOrder === 'desc' ? -comparison : comparison;
+        });
         
         // Apply pagination
         paginatedResult = paginateResults(
@@ -120,10 +153,25 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
         showPastEvents: false // Only show future events by default
       });
       
-      // Sort by date (ascending, upcoming first)
-      const sortedGigs = filteredGigs.sort((a, b) => 
-        new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime()
-      );
+      // Sort gigs based on query parameters
+      const sortedGigs = filteredGigs.sort((a, b) => {
+        let comparison = 0;
+        
+        switch (validatedQuery.sortBy) {
+          case 'name':
+            comparison = a.title.localeCompare(b.title);
+            break;
+          case 'venue':
+            comparison = a.venue.name.localeCompare(b.venue.name);
+            break;
+          case 'date':
+          default:
+            comparison = new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime();
+            break;
+        }
+        
+        return validatedQuery.sortOrder === 'desc' ? -comparison : comparison;
+      });
       
       // Apply pagination
       paginatedResult = paginateResults(
@@ -145,6 +193,10 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
           dateFrom: validatedQuery.dateFrom,
           dateTo: validatedQuery.dateTo,
           venue: validatedQuery.venue
+        },
+        sort: {
+          sortBy: validatedQuery.sortBy,
+          sortOrder: validatedQuery.sortOrder
         }
       }
     };
