@@ -29,11 +29,16 @@ interface SearchPageProps {
 
 export function SearchPage({ city }: SearchPageProps = {}) {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-  const [useInfiniteScrollMode, setUseInfiniteScrollMode] = useState(true);
   const { addToast } = useToast();
   const isOnline = true;
   const { view, setView, isLoaded } = useViewPreference();
   const { settings } = useSettings();
+  const [useInfiniteScrollMode, setUseInfiniteScrollMode] = useState(settings.useInfiniteScroll);
+  
+  // Sync with settings when they change
+  React.useEffect(() => {
+    setUseInfiniteScrollMode(settings.useInfiniteScroll);
+  }, [settings.useInfiniteScroll]);
   
   // Search and filter state - MUST be called before any conditional returns
   const {
@@ -217,15 +222,16 @@ export function SearchPage({ city }: SearchPageProps = {}) {
     (Boolean(loading) || !hasMounted);
   
   // Use isInitialLoading instead of loading for skeleton display
-  const isLoading = isInitialLoading;
+  // Never show skeleton if we already have data (for smooth transitions)
+  const isLoading = isInitialLoading && !hasData;
   
   console.log('RENDER: gigs.length =', gigs.length, 'loading =', loading, 'hasData =', hasData, 'isInitialLoading =', isInitialLoading, 'hasMounted =', hasMounted, 'infiniteMode =', useInfiniteScrollMode);
 
 
   return (
-    <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 safe-area-top safe-area-bottom">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-30">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <div className="flex flex-col space-y-4">
@@ -233,10 +239,15 @@ export function SearchPage({ city }: SearchPageProps = {}) {
               <div className="max-w-2xl mx-auto w-full">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                      {city ? `${city.charAt(0).toUpperCase() + city.slice(1)}` : 'Discover Live Music'}
+                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
+                      {city ? (
+                        <>
+                          {city.charAt(0).toUpperCase() + city.slice(1)}
+                          <span className="text-4xl sm:text-5xl text-primary-600 dark:text-primary-400">.</span>
+                        </>
+                      ) : 'Discover Live Music'}
                     </h1>
-                    <p className="mt-2 text-gray-600">
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">
                       {city ? `Find gigs near ${city.charAt(0).toUpperCase() + city.slice(1)}` : 'Find gigs, concerts, and festivals near you'}
                       {!isOnline && (
                         <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -427,45 +438,45 @@ export function SearchPage({ city }: SearchPageProps = {}) {
               </div>
             )}
 
-            {/* Results with skeleton loading to prevent layout shifts */}
+            {/* Results with smooth transitions */}
             <ErrorBoundary>
-              {isLoading ? (
-                // Show skeleton during loading to prevent layout shift
-                view === 'grid' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {Array.from({ length: 6 }).map((_, index) => (
-                      <div key={index} className="card p-6 space-y-4">
-                        <div className="animate-pulse bg-gray-200 h-6 w-3/4 rounded"></div>
-                        <div className="animate-pulse bg-gray-200 h-5 w-1/2 rounded"></div>
-                        <div className="flex justify-between items-center">
-                          <div className="animate-pulse bg-gray-200 h-4 w-1/3 rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-4 w-1/4 rounded"></div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-4 w-2/3 rounded"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {Array.from({ length: 6 }).map((_, index) => (
-                      <div key={index} className="card p-6 space-y-3">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-2 flex-1">
-                            <div className="animate-pulse bg-gray-200 h-6 w-2/3 rounded"></div>
-                            <div className="animate-pulse bg-gray-200 h-5 w-1/2 rounded"></div>
+              <ContentTransition transitionKey={`${view}-${filters.sortBy}-${filters.sortOrder}-${filters.dateFilter}-${filters.dateFrom}-${filters.dateTo}`}>
+                {isLoading ? (
+                  // Show skeleton only for initial loading
+                  view === 'grid' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <div key={index} className="card p-6 space-y-4">
+                          <div className="animate-pulse bg-gray-200 h-6 w-3/4 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-5 w-1/2 rounded"></div>
+                          <div className="flex justify-between items-center">
+                            <div className="animate-pulse bg-gray-200 h-4 w-1/3 rounded"></div>
+                            <div className="animate-pulse bg-gray-200 h-4 w-1/4 rounded"></div>
                           </div>
-                          <div className="animate-pulse bg-gray-200 h-4 w-20 rounded"></div>
+                          <div className="space-y-2">
+                            <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
+                            <div className="animate-pulse bg-gray-200 h-4 w-2/3 rounded"></div>
+                          </div>
                         </div>
-                        <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
-                      </div>
-                    ))}
-                  </div>
-                )
-              ) : (
-                <ContentTransition transitionKey={`${view}-${filters.sortBy}-${filters.sortOrder}-data`}>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <div key={index} className="card p-6 space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-2 flex-1">
+                              <div className="animate-pulse bg-gray-200 h-6 w-2/3 rounded"></div>
+                              <div className="animate-pulse bg-gray-200 h-5 w-1/2 rounded"></div>
+                            </div>
+                            <div className="animate-pulse bg-gray-200 h-4 w-20 rounded"></div>
+                          </div>
+                          <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                ) : (
                   <GigsGroupedList
                     eventGroups={eventGroups}
                     view={view}
@@ -473,14 +484,14 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                     hasNextPage={hasNextPage}
                     fetchNextPage={fetchNextPage}
                     totalCount={totalCount}
-                    loading={false}
+                    loading={loading && hasData}
                     emptyMessage={hasActiveFilters ? 
                       "No gigs match your current filters. Try adjusting your search criteria." : 
                       "No gigs available at the moment. Check back later!"
                     }
                   />
-                </ContentTransition>
-              )}
+                )}
+              </ContentTransition>
             </ErrorBoundary>
 
             {/* Pagination - only show in traditional pagination mode */}

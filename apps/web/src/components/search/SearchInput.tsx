@@ -19,7 +19,6 @@ export function SearchInput({
   className = "" 
 }: SearchInputProps) {
   const [displayValue, setDisplayValue] = useState(value);
-  const debounceRef = useRef<NodeJS.Timeout>();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Update display value when external value changes
@@ -27,23 +26,15 @@ export function SearchInput({
     setDisplayValue(value);
   }, [value]);
 
-  // Handle input changes with debouncing
+  // Handle input changes - only update local state, don't trigger search
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setDisplayValue(newValue);
+  };
 
-    // Clear previous timeout
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    // Set new timeout for debounced onChange
-    debounceRef.current = setTimeout(() => {
-      // Only trigger search if 3+ characters or empty (for clearing search)
-      if (newValue.length >= 3 || newValue.length === 0) {
-        onChange(newValue);
-      }
-    }, debounceMs);
+  // Handle search submit
+  const handleSearch = () => {
+    onChange(displayValue);
   };
 
   // Handle clear button
@@ -55,29 +46,26 @@ export function SearchInput({
 
   // Handle key events
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === 'Enter') {
+      handleSearch();
+    } else if (e.key === 'Escape') {
       handleClear();
     }
   };
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, []);
-
   return (
     <div className={`relative ${className}`}>
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <button
+          type="button"
+          onClick={handleSearch}
+          className="absolute inset-y-0 left-0 pl-3 flex items-center hover:text-gray-600 focus:outline-none"
+          aria-label="Search"
+        >
           <MagnifyingGlassIcon 
-            className="h-5 w-5 text-gray-400" 
-            aria-hidden="true" 
+            className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" 
           />
-        </div>
+        </button>
         
         <input
           ref={inputRef}

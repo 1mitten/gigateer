@@ -2,6 +2,23 @@
 
 import dynamic from 'next/dynamic';
 import { GigGridSkeleton } from './ui/Skeleton';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSettings } from '../hooks/useSettings';
+
+// Component to handle default city redirect
+function DefaultCityRedirect() {
+  const router = useRouter();
+  const { settings, isLoaded } = useSettings();
+  
+  useEffect(() => {
+    if (isLoaded && settings.defaultCity) {
+      router.replace(`/${settings.defaultCity}`);
+    }
+  }, [isLoaded, settings.defaultCity, router]);
+  
+  return null;
+}
 
 // Dynamically import SearchPage with no SSR to avoid hydration issues
 const SearchPage = dynamic(() => import('./pages/SearchPage').then(mod => ({ default: mod.SearchPage })), {
@@ -48,4 +65,14 @@ const SearchPage = dynamic(() => import('./pages/SearchPage').then(mod => ({ def
   )
 });
 
-export default SearchPage;
+// Wrapper component to handle default city redirect
+function SearchPageWithRedirect() {
+  return (
+    <>
+      <DefaultCityRedirect />
+      <SearchPage />
+    </>
+  );
+}
+
+export default SearchPageWithRedirect;

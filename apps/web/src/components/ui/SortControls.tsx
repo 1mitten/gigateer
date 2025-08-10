@@ -52,7 +52,7 @@ export function SortControls({
     <div className={`flex items-center gap-4 ${className}`}>
       {/* Sort Controls */}
       <div className="flex items-center gap-1">
-        <span className="text-sm text-gray-600 mr-2">Sort by:</span>
+        <span className="text-sm text-gray-800 font-medium mr-2">Sort by:</span>
         
         <SortButton value="date" active={sortBy === 'date'}>
           Date
@@ -70,7 +70,7 @@ export function SortControls({
       {/* Date Filter */}
       {onDateFilterChange && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Date:</span>
+          <span className="text-sm text-gray-800 font-medium">Date:</span>
           <select
             value={dateFilter}
             onChange={(e) => onDateFilterChange(e.target.value as DateFilterOption)}

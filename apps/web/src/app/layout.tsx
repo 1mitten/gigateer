@@ -3,6 +3,7 @@ import './globals.css';
 import { PWAProvider } from '../components/pwa-provider';
 import { ToastProvider } from '../components/ui/Toast';
 import { QueryProvider } from '../providers/QueryProvider';
+import { DarkModeProvider } from '../providers/DarkModeProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -48,11 +49,13 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <QueryProvider>
-          <ToastProvider>
-            <div className="min-h-screen bg-gray-50">
-              {children}
-            </div>
-          </ToastProvider>
+          <DarkModeProvider>
+            <ToastProvider>
+              <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+                {children}
+              </div>
+            </ToastProvider>
+          </DarkModeProvider>
         </QueryProvider>
       </body>
     </html>

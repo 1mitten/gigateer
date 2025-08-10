@@ -122,8 +122,9 @@ export function useGigsInfiniteQuery({
       return page < pages ? page + 1 : undefined;
     },
     enabled,
-    staleTime: 0, // Always consider data stale to force immediate fetch
-    gcTime: 0, // Don't cache to force fresh requests
+    staleTime: 30000, // Keep data fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+    refetchOnWindowFocus: false, // Don't refetch on window focus
     retry: (failureCount, error) => {
       if (process.env.NODE_ENV === 'development') {
         console.log(`[useGigsInfiniteQuery] Query retry ${failureCount}, error:`, error);

@@ -1,9 +1,6 @@
 Tasks to complete
 
-- The transition when you click on Sort By - the grid and list view have a temporary skeleton loading application - it needs to use the common smooth transition.  If you click on grid or list - this transition is smooth
-- Infinity loading/Page navigation should be on the settings page and saved to local storage for now as do the existing settings
-- You can set your default city on the settings page, otherwise if this is not set, then navigate to route to search all gigs
-- The Searchinput shouldn't search 3 characters or more.  It should search if you press return or click on the magnify glass
-- Make the title for pages by city like /Bristol... make the title say "${city} ." .  Make it a little bigger and more prominent  Make the period at the end of the string, a bit bigger than the title label - to make it slightly more prominent"
-- Create a Dark mode that is based that is the black/white inverse of this.  This should also be set on the as an option on the settings page and saved
-- Make the labels for "Sort by:" and "Date:" a darker colour in the palette
+Think about each one before starting, we need to create new scraper configs - read the docs.  Make sure it's transformed into the database schema correctly and ensure it is all config.
+- Bristol Louisana - https://www.thelouisiana.net/ . The gigs are on this page and you'll need to click into them to get all of the details and there is a "Load More" button at the bottom which needs to be clicked on to see more of that data to ingest
+- Bristol The Lanes https://www.thelanesbristol.com/events#hf_type=gig , you'll need to click in and look for information in the dialog
+- Bristol Thekla https://www.theklabristol.co.uk/live/ , you need to click on "MORE INFO" for more details, it also infinite loads so you'll need to scroll down to get more data
