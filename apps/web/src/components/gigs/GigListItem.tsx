@@ -17,6 +17,9 @@ interface GigListItemProps {
 }
 
 export function GigListItem({ gig, className = "", priority = false }: GigListItemProps) {
+  // Debug log to confirm this component is being used
+  console.log('GigListItem rendering for:', gig.title);
+  
   // Color palette for tags (same as GigCard)
   const tagColors = ['#A3DC9A', '#DEE791', '#FFF9BD', '#FFD6BA'];
   
@@ -85,7 +88,7 @@ export function GigListItem({ gig, className = "", priority = false }: GigListIt
   return (
     <Link 
       href={`/gig/${gig.id}`}
-      className={`block bg-white border border-gray-200 rounded-lg px-4 py-3 hover:shadow-md transition-shadow duration-200 hover:bg-gray-50 ${className}`}
+      className={`block border-b border-gray-200 px-4 py-2 hover:bg-gray-50 transition-colors duration-200 ${className}`}
     >
       <div className="grid grid-cols-12 gap-4 items-center min-w-0">
         {/* Event title */}

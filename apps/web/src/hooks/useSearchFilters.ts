@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 import { DateFilterOption, getDateRangeForFilter, formatDateRangeForUrl, getDateFilterFromRange } from '../utils/dateFilters';
 import { APP_CONFIG } from '../config/app.config';
@@ -37,6 +37,7 @@ const DEFAULT_FILTERS: FilterValues = {
 export function useSearchFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const debounceTimerRef = useRef<NodeJS.Timeout>();
   
   // Initialize filters from URL params
@@ -135,7 +136,7 @@ export function useSearchFilters() {
     });
     
     const queryString = params.toString();
-    const newPath = queryString ? `/?${queryString}` : '/';
+    const newPath = queryString ? `${pathname}?${queryString}` : pathname;
     
     const performUpdate = () => {
       // Use replace to avoid cluttering browser history
@@ -155,7 +156,7 @@ export function useSearchFilters() {
       }
       debounceTimerRef.current = setTimeout(performUpdate, 500);
     }
-  }, [router]);
+  }, [router, pathname]);
 
   // Update filters and URL
   const updateFilters = useCallback((updates: Partial<FilterValues>, immediate = false) => {

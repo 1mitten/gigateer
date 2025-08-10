@@ -34,8 +34,14 @@ export function GigsListInfinite({
   fetchMore = () => {},
   totalCount = 0
 }: GigsListInfiniteProps) {
+  // Debug log to see what variant is being passed
+  console.log('GigsListInfinite received variant:', variant);
+  
   const GigComponent = variant === 'compact' ? GigCardCompact : 
                        variant === 'list' ? GigListItem : GigCard;
+  
+  // Debug log to see which component was selected
+  console.log('GigsListInfinite selected component:', GigComponent === GigListItem ? 'GigListItem' : GigComponent === GigCard ? 'GigCard' : 'GigCardCompact');
 
   const SkeletonComponent = variant === 'list' ? GigListItemSkeleton : GigCardSkeleton;
   const spacingClass = variant === 'compact' ? 'space-y-2' : variant === 'list' ? 'space-y-1' : 'space-y-4';
@@ -85,27 +91,46 @@ export function GigsListInfinite({
         </div>
       )}
 
-      {/* List header (only for list variant) */}
-      {variant === 'list' && <GigListHeader />}
-
-      {/* Infinite scroll wrapper */}
-      <InfiniteScrollWrapper
-        gigs={gigs}
-        hasMore={hasMore}
-        loading={loading}
-        fetchMore={fetchMore}
-        totalCount={totalCount}
-        className={spacingClass}
-      >
-        {gigs.map((gig, index) => (
-          <AnimatedItem key={gig.id} index={index}>
-            <GigComponent
-              gig={gig}
-              priority={index < 6} // Prioritize first 6 items for loading
-            />
-          </AnimatedItem>
-        ))}
-      </InfiniteScrollWrapper>
+      {/* List header and table for list variant */}
+      {variant === 'list' ? (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <GigListHeader />
+          <InfiniteScrollWrapper
+            gigs={gigs}
+            hasMore={hasMore}
+            loading={loading}
+            fetchMore={fetchMore}
+            totalCount={totalCount}
+            className=""
+          >
+            {gigs.map((gig, index) => (
+              <GigComponent
+                key={gig.id}
+                gig={gig}
+                priority={index < 6} // Prioritize first 6 items for loading
+              />
+            ))}
+          </InfiniteScrollWrapper>
+        </div>
+      ) : (
+        <InfiniteScrollWrapper
+          gigs={gigs}
+          hasMore={hasMore}
+          loading={loading}
+          fetchMore={fetchMore}
+          totalCount={totalCount}
+          className={spacingClass}
+        >
+          {gigs.map((gig, index) => (
+            <AnimatedItem key={gig.id} index={index}>
+              <GigComponent
+                gig={gig}
+                priority={index < 6} // Prioritize first 6 items for loading
+              />
+            </AnimatedItem>
+          ))}
+        </InfiniteScrollWrapper>
+      )}
     </div>
   );
 }

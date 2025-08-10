@@ -1,5 +1,7 @@
+'use client';
+
 import React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Gig } from '@gigateer/contracts';
 import { 
   MapPinIcon, 
@@ -16,10 +18,21 @@ import { format } from 'date-fns/format';
 
 interface GigDetailProps {
   gig: Gig;
-  onBack?: () => void;
 }
 
-export function GigDetail({ gig, onBack }: GigDetailProps) {
+export function GigDetail({ gig }: GigDetailProps) {
+  const router = useRouter();
+  
+  // Handle back navigation - go back to where user came from
+  const handleBack = React.useCallback(() => {
+    // Check if we can go back in history
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      // Fallback to home page if no history
+      router.push('/');
+    }
+  }, [router]);
   // Color palette for tags
   const tagColors = ['#A3DC9A', '#DEE791', '#FFF9BD', '#FFD6BA'];
   
@@ -83,29 +96,6 @@ export function GigDetail({ gig, onBack }: GigDetailProps) {
 
   const statusInfo = getStatusInfo();
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: gig.title,
-          text: `Check out this gig: ${gig.title} at ${gig.venue.name}`,
-          url: window.location.href,
-        });
-      } catch (error) {
-        // Fallback to clipboard
-        copyToClipboard();
-      }
-    } else {
-      copyToClipboard();
-    }
-  };
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      // You could show a toast here
-      console.log('Link copied to clipboard');
-    });
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -115,23 +105,13 @@ export function GigDetail({ gig, onBack }: GigDetailProps) {
           <div className="py-6">
             {/* Back button */}
             <div className="mb-6">
-              {onBack ? (
-                <button
-                  onClick={onBack}
-                  className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1"
-                >
-                  <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                  Back to search
-                </button>
-              ) : (
-                <Link
-                  href="/"
-                  className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1"
-                >
-                  <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                  Back to search
-                </Link>
-              )}
+              <button
+                onClick={handleBack}
+                className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1"
+              >
+                <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                Back to search
+              </button>
             </div>
 
             {/* Title and status */}
@@ -152,14 +132,6 @@ export function GigDetail({ gig, onBack }: GigDetailProps) {
                 
                 <div className="ml-4 flex items-center gap-2">
                   {statusInfo.badge}
-                  
-                  <button
-                    onClick={handleShare}
-                    className="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
-                    title="Share this event"
-                  >
-                    <ShareIcon className="h-5 w-5" />
-                  </button>
                 </div>
               </div>
 
@@ -224,12 +196,7 @@ export function GigDetail({ gig, onBack }: GigDetailProps) {
                 <img
                   src={gig.images[0]}
                   alt={gig.title}
-                  className="w-full h-64 sm:h-80 object-contain bg-gray-100"
-                  onError={(e) => {
-                    // Fallback to object-cover if object-contain fails
-                    const img = e.target as HTMLImageElement;
-                    img.className = "w-full h-64 sm:h-80 object-cover";
-                  }}
+                  className="w-full h-64 sm:h-80 object-cover bg-gray-100"
                 />
               </div>
             )}

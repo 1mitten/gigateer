@@ -171,9 +171,5 @@ export default function GigPage({ params }: GigPageProps) {
     notFound();
   }
 
-  return (
-    <ErrorBoundary fallback={ErrorFallback}>
-      <GigDetail gig={gig} />
-    </ErrorBoundary>
-  );
+  return <GigDetail gig={gig} />;
 }

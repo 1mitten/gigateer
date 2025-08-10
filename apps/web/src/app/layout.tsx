@@ -10,8 +10,6 @@ export const metadata = {
   title: 'Gigateer - Live Music Discovery',
   description: 'Discover live music events and gigs in your area',
   manifest: '/manifest.json',
-  themeColor: '#6366f1',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -21,6 +19,14 @@ export const metadata = {
     'mobile-web-app-capable': 'yes',
     'apple-touch-fullscreen': 'yes',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#6366f1',
 };
 
 export default function RootLayout({

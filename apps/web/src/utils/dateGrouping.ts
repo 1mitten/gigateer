@@ -58,8 +58,8 @@ export function groupGigsByDate(gigs: Gig[], preserveOrder: boolean = false): Gi
       } else {
         try {
           const date = new Date(dateKey);
-          // Format as "10th August 2025"
-          dateFormatted = format(date, 'do MMMM yyyy');
+          // Format as "MON 10th August 2025"
+          dateFormatted = format(date, 'EEE do MMMM yyyy');
         } catch (error) {
           dateFormatted = 'Date TBA';
         }

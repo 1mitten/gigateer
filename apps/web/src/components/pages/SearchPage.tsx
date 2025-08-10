@@ -1,11 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { CogIcon } from '@heroicons/react/24/outline';
 import { useSearchFilters } from '../../hooks/useSearchFilters';
 import { useGigsApi } from '../../hooks/useGigsApi';
 import { useGigsInfiniteQuery } from '../../hooks/useGigsInfiniteQuery';
 import { useViewPreference } from '../../hooks/useViewPreference';
+import { useSettings } from '../../hooks/useSettings';
 import { useToast } from '../ui/Toast';
+import { groupEventsByHappening, flattenEventGroups } from '../../utils/eventSorting';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { ContentTransition } from '../ui/LoadingWrapper';
 import { SearchInput } from '../search/SearchInput';
@@ -13,30 +17,50 @@ import { FilterPanel } from '../filters/FilterPanel';
 import { FilterChipsBar } from '../filters/FilterChip';
 import { GigsList, GigsGrid } from '../gigs/GigsList';
 import { GigsListInfinite, GigsGridInfinite } from '../gigs/GigsListInfinite';
+import { GigsGroupedList } from '../gigs/GigsGroupedList';
 import { ViewToggle } from '../ui/ViewToggle';
 import { Pagination } from '../ui/Pagination';
 import { SortControls, CompactSortControls } from '../ui/SortControls';
-// import { InstallButton } from '../pwa-install-prompt';
-// import { useOnlineStatus } from '../offline-detector';
+import { DateDivider } from '../ui/DateDivider';
 
-export function SearchPage() {
+interface SearchPageProps {
+  city?: string;
+}
+
+export function SearchPage({ city }: SearchPageProps = {}) {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [useInfiniteScrollMode, setUseInfiniteScrollMode] = useState(true);
   const { addToast } = useToast();
-  const isOnline = true; // useOnlineStatus();
+  const isOnline = true;
   const { view, setView, isLoaded } = useViewPreference();
+  const { settings } = useSettings();
   
   // Search and filter state - MUST be called before any conditional returns
   const {
-    filters,
+    filters: baseFilters,
     updateFilters,
     updatePage,
     resetFilters,
     removeFilter,
     activeFilters,
     hasActiveFilters,
-    apiParams,
+    apiParams: baseApiParams,
   } = useSearchFilters();
+  
+  // For city pages, override the filters and apiParams to include the city
+  const filters = React.useMemo(() => {
+    if (city) {
+      return { ...baseFilters, city };
+    }
+    return baseFilters;
+  }, [baseFilters, city]);
+  
+  const apiParams = React.useMemo(() => {
+    if (city) {
+      return { ...baseApiParams, city };
+    }
+    return baseApiParams;
+  }, [baseApiParams, city]);
 
   // API data - traditional pagination
   const { data: traditionalGigs, pagination, loading: traditionalLoading, error: traditionalError, refetch } = useGigsApi(apiParams);
@@ -73,6 +97,7 @@ export function SearchPage() {
   const [clientLoading, setClientLoading] = useState(true);
   const [clientError, setClientError] = useState<string | null>(null);
 
+
   // Hydration detection
   React.useEffect(() => {
     console.log('HYDRATION: Component mounted');
@@ -102,6 +127,11 @@ export function SearchPage() {
         params.set('sortOrder', filters.sortOrder || 'asc');
         params.set('limit', '20');
         params.set('client', 'hydrated-fetch');
+        
+        // Add city filter if provided
+        if (filters.city) {
+          params.set('city', filters.city);
+        }
         
         const url = `/api/gigs?${params.toString()}`;
         console.log('CLIENT: URL =', url);
@@ -159,18 +189,37 @@ export function SearchPage() {
   };
   
   // USE APPROPRIATE DATA SOURCE BASED ON MODE
-  const gigs = useInfiniteScrollMode ? infiniteGigs : clientGigs;
+  const rawGigs = useInfiniteScrollMode ? infiniteGigs : clientGigs;
   const loading = useInfiniteScrollMode ? infiniteLoading : clientLoading;  
   const error = useInfiniteScrollMode ? infiniteError : clientError;
+
+  // GROUP AND SORT EVENTS BASED ON SETTINGS
+  const { sortedGigs, eventGroups } = useMemo(() => {
+    if (!rawGigs || rawGigs.length === 0) {
+      return { sortedGigs: rawGigs, eventGroups: [] };
+    }
+
+    const groups = groupEventsByHappening(rawGigs, settings.showHappeningEvents);
+    const sorted = flattenEventGroups(groups);
+    
+    return { sortedGigs: sorted, eventGroups: groups };
+  }, [rawGigs, settings.showHappeningEvents]);
   
-  console.log('RENDER: gigs.length =', gigs.length, 'loading =', loading, 'hasMounted =', hasMounted, 'infiniteMode =', useInfiniteScrollMode);
+  // Use sorted gigs for display
+  const gigs = sortedGigs;
   
-  // Show skeleton until hydrated and data loaded
-  // For infinite scroll mode, rely on React Query loading state
+  // Show skeleton only for initial loading, not for sort/filter refetches
+  // For infinite scroll mode, only show skeleton if we have no data AND we're loading
   // For pagination mode, wait for hydration + client fetch
-  const isLoading = useInfiniteScrollMode ? 
-    Boolean(loading) : 
+  const hasData = gigs && gigs.length > 0;
+  const isInitialLoading = useInfiniteScrollMode ? 
+    (Boolean(loading) && !hasData) : 
     (Boolean(loading) || !hasMounted);
+  
+  // Use isInitialLoading instead of loading for skeleton display
+  const isLoading = isInitialLoading;
+  
+  console.log('RENDER: gigs.length =', gigs.length, 'loading =', loading, 'hasData =', hasData, 'isInitialLoading =', isInitialLoading, 'hasMounted =', hasMounted, 'infiniteMode =', useInfiniteScrollMode);
 
 
   return (
@@ -181,14 +230,14 @@ export function SearchPage() {
           <div className="py-6">
             <div className="flex flex-col space-y-4">
               {/* Title */}
-              <div className="text-center sm:text-left">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                  <div>
+              <div className="max-w-2xl mx-auto w-full">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex-1">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                      Discover Live Music
+                      {city ? `${city.charAt(0).toUpperCase() + city.slice(1)}` : 'Discover Live Music'}
                     </h1>
                     <p className="mt-2 text-gray-600">
-                      Find gigs, concerts, and festivals near you
+                      {city ? `Find gigs near ${city.charAt(0).toUpperCase() + city.slice(1)}` : 'Find gigs, concerts, and festivals near you'}
                       {!isOnline && (
                         <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
                           <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -199,29 +248,38 @@ export function SearchPage() {
                       )}
                     </p>
                   </div>
-                  <div className="mt-4 sm:mt-0 flex justify-center sm:justify-end">
-                    {/* <InstallButton className="btn-secondary text-sm" /> */}
+                  <div className="mt-4 sm:mt-0 flex justify-end">
+                    {/* Settings Gear Icon */}
+                    <Link 
+                      href="/settings"
+                      className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                      aria-label="Settings"
+                    >
+                      <CogIcon className="h-6 w-6" />
+                    </Link>
                   </div>
                 </div>
               </div>
 
               {/* Search bar */}
-              <div className="max-w-2xl mx-auto w-full sm:mx-0">
+              <div className="max-w-2xl mx-auto w-full">
                 <SearchInput
                   value={filters.q}
                   onChange={(q) => updateFilters({ q })}
-                  placeholder="Search for artists, venues, or events..."
+                  placeholder={city ? "Search for gigs and venues..." : "Search for artists, venues, or events..."}
                 />
               </div>
 
               {/* Active filters */}
               {hasActiveFilters && (
-                <FilterChipsBar
-                  filters={activeFilters}
-                  onRemoveFilter={removeFilter}
-                  onClearAll={resetFilters}
-                  className="justify-center sm:justify-start"
-                />
+                <div className="max-w-2xl mx-auto w-full">
+                  <FilterChipsBar
+                    filters={activeFilters}
+                    onRemoveFilter={removeFilter}
+                    onClearAll={resetFilters}
+                    className="justify-start"
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -229,31 +287,35 @@ export function SearchPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="lg:grid lg:grid-cols-4 lg:gap-8">
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-32">
-              <FilterPanel
-                filters={filters}
-                onChange={updateFilters}
-                onReset={resetFilters}
-              />
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {/* Mobile filter button and sort controls */}
-            <div className="flex flex-col gap-4 mb-6 lg:hidden">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className={city ? "w-full" : "lg:grid lg:grid-cols-4 lg:gap-8"}>
+          {/* Desktop Sidebar - Hidden for city pages */}
+          {!city && (
+            <div className="hidden lg:block lg:col-span-1">
+              <div className="sticky top-32">
                 <FilterPanel
                   filters={filters}
                   onChange={updateFilters}
                   onReset={resetFilters}
-                  isMobile
-                  isOpen={isMobileFiltersOpen}
-                  onToggle={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
                 />
+              </div>
+            </div>
+          )}
+
+          {/* Main Content */}
+          <div className={city ? "w-full" : "lg:col-span-3"}>
+            {/* Mobile filter button and sort controls */}
+            <div className="flex flex-col gap-4 mb-6 lg:hidden">
+              <div className={city ? "flex justify-end" : "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"}>
+                {!city && (
+                  <FilterPanel
+                    filters={filters}
+                    onChange={updateFilters}
+                    onReset={resetFilters}
+                    isMobile
+                    isOpen={isMobileFiltersOpen}
+                    onToggle={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+                  />
+                )}
                 
                 <CompactSortControls
                   sortBy={filters.sortBy}
@@ -367,7 +429,7 @@ export function SearchPage() {
 
             {/* Results with skeleton loading to prevent layout shifts */}
             <ErrorBoundary>
-              {loading ? (
+              {isLoading ? (
                 // Show skeleton during loading to prevent layout shift
                 view === 'grid' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -403,62 +465,20 @@ export function SearchPage() {
                   </div>
                 )
               ) : (
-                <ContentTransition transitionKey={`${view}-data`}>
-                  {useInfiniteScrollMode ? (
-                    // Infinite scroll versions
-                    view === 'grid' ? (
-                      <GigsGridInfinite
-                        gigs={gigs}
-                        loading={false}
-                        showCount={false}
-                        hasMore={hasNextPage}
-                        fetchMore={fetchNextPage}
-                        totalCount={totalCount}
-                        emptyMessage={hasActiveFilters ? 
-                          "No gigs match your current filters. Try adjusting your search criteria." : 
-                          "No gigs available at the moment. Check back later!"
-                        }
-                      />
-                    ) : (
-                      <GigsListInfinite
-                        gigs={gigs}
-                        loading={false}
-                        variant="list"
-                        showCount={false}
-                        hasMore={hasNextPage}
-                        fetchMore={fetchNextPage}
-                        totalCount={totalCount}
-                        emptyMessage={hasActiveFilters ? 
-                          "No gigs match your current filters. Try adjusting your search criteria." : 
-                          "No gigs available at the moment. Check back later!"
-                        }
-                      />
-                    )
-                  ) : (
-                    // Traditional pagination versions
-                    view === 'grid' ? (
-                      <GigsGrid
-                        gigs={gigs}
-                        loading={false}
-                        showCount={false}
-                        emptyMessage={hasActiveFilters ? 
-                          "No gigs match your current filters. Try adjusting your search criteria." : 
-                          "No gigs available at the moment. Check back later!"
-                        }
-                      />
-                    ) : (
-                      <GigsList
-                        gigs={gigs}
-                        loading={false}
-                        variant="list"
-                        showCount={false}
-                        emptyMessage={hasActiveFilters ? 
-                          "No gigs match your current filters. Try adjusting your search criteria." : 
-                          "No gigs available at the moment. Check back later!"
-                        }
-                      />
-                    )
-                  )}
+                <ContentTransition transitionKey={`${view}-${filters.sortBy}-${filters.sortOrder}-data`}>
+                  <GigsGroupedList
+                    eventGroups={eventGroups}
+                    view={view}
+                    useInfiniteScrollMode={useInfiniteScrollMode}
+                    hasNextPage={hasNextPage}
+                    fetchNextPage={fetchNextPage}
+                    totalCount={totalCount}
+                    loading={false}
+                    emptyMessage={hasActiveFilters ? 
+                      "No gigs match your current filters. Try adjusting your search criteria." : 
+                      "No gigs available at the moment. Check back later!"
+                    }
+                  />
                 </ContentTransition>
               )}
             </ErrorBoundary>
@@ -481,4 +501,3 @@ export function SearchPage() {
     </div>
   );
 }
-

@@ -1,10 +1,9 @@
 Tasks to complete
 
-- FInish any remaining Tasks
-- Create a new scraper config and ingestion for Bristol O2 Academy at https://www.academymusicgroup.com/o2academybristol, be aware you may click on the event to get all the detail and also it uses pagination so make sure all the pages are navigated to
-- The Date range should still function the same but it should moved next to the sort by and onclick of a new value, the data should update. 
-- Remove the sort by for Event
-- There should be separate pages for each city (dynamic page) that is exclusive to the "City" by returning all the gigs within that "venue.city".  This page should act the same but instead the title that says "Discover live music" should say "${venue.city}."
-Remove the subtitle of "Find gigs, concerts and festivals near".  The search bar should say "Search for events".  The left hand filter will no longer have "City"
-because the entire page queries by that city - we should remove the filters left hand side entirely.  It would be handy if this could be routed too easily in the url like /Bristol for example - if possible
-- We said that we would only display future events.  We should have events happening now appear first, which can be toggled off and then future vents.  All events happening now should have a divider Says "Happening now"
+- The transition when you click on Sort By - the grid and list view have a temporary skeleton loading application - it needs to use the common smooth transition.  If you click on grid or list - this transition is smooth
+- Infinity loading/Page navigation should be on the settings page and saved to local storage for now as do the existing settings
+- You can set your default city on the settings page, otherwise if this is not set, then navigate to route to search all gigs
+- The Searchinput shouldn't search 3 characters or more.  It should search if you press return or click on the magnify glass
+- Make the title for pages by city like /Bristol... make the title say "${city} ." .  Make it a little bigger and more prominent  Make the period at the end of the string, a bit bigger than the title label - to make it slightly more prominent"
+- Create a Dark mode that is based that is the black/white inverse of this.  This should also be set on the as an option on the settings page and saved
+- Make the labels for "Sort by:" and "Date:" a darker colour in the palette

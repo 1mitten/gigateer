@@ -84,20 +84,33 @@ export function GigsList({
         </div>
       )}
 
-      {/* List header (only for list variant) */}
-      {variant === 'list' && <GigListHeader />}
-
-      {/* Gigs list with animations */}
-      <div className={spacingClass}>
-        {gigs.map((gig, index) => (
-          <AnimatedItem key={gig.id} index={index}>
+      {/* List header and table for list variant */}
+      {variant === 'list' ? (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <GigListHeader />
+          {gigs.map((gig, index) => (
             <GigComponent
+              key={gig.id}
               gig={gig}
               priority={index < 3} // Prioritize first 3 items for loading
             />
-          </AnimatedItem>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          {/* Gigs list with animations for grid/card views */}
+          <div className={spacingClass}>
+            {gigs.map((gig, index) => (
+              <AnimatedItem key={gig.id} index={index}>
+                <GigComponent
+                  gig={gig}
+                  priority={index < 3} // Prioritize first 3 items for loading
+                />
+              </AnimatedItem>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 
