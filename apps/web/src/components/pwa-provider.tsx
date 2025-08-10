@@ -14,27 +14,20 @@ export function PWAProvider({ children }: PWAProviderProps) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Only initialize PWA features in the browser
-    if (typeof window !== 'undefined') {
-      try {
-        initializePWA();
-        setIsInitialized(true);
-        console.log('PWA features initialized');
-      } catch (error) {
-        console.error('Failed to initialize PWA features:', error);
-      }
-    }
+    // PWA is disabled during debugging - skip initialization
+    console.log('PWA initialization skipped (disabled for debugging)');
+    setIsInitialized(true);
   }, []);
 
-  // Track page views for PWA analytics
-  useEffect(() => {
-    if (isInitialized) {
-      trackPWAEvent('page_view', {
-        path: window.location.pathname,
-        timestamp: Date.now(),
-      });
-    }
-  }, [isInitialized]);
+  // Track page views for PWA analytics - disabled during debugging
+  // useEffect(() => {
+  //   if (isInitialized) {
+  //     trackPWAEvent('page_view', {
+  //       path: window.location.pathname,
+  //       timestamp: Date.now(),
+  //     });
+  //   }
+  // }, [isInitialized]);
 
   return (
     <>

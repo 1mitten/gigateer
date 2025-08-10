@@ -7,6 +7,8 @@ import { GigListItem } from './GigListItem';
 import { GigListHeader } from './GigListHeader';
 import { GigCardSkeleton, GigListItemSkeleton } from '../ui/LoadingSkeleton';
 import { LoadingWrapper, AnimatedItem } from '../ui/LoadingWrapper';
+import { DateDivider } from '../ui/DateDivider';
+import { groupGigsByDate } from '../../utils/dateGrouping';
 
 interface GigsListProps {
   gigs: Gig[];
@@ -121,11 +123,16 @@ export function VirtualizedGigsList({ gigs, ...props }: GigsListProps) {
 
 // Grid version for different layout
 export function GigsGrid({ gigs, loading, className = "", ...props }: GigsListProps) {
-  const gridClassName = `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`;
+  const gridClassName = `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4`;
+
+  // Group gigs by date for the grid view
+  const groupedGigs = React.useMemo(() => {
+    return groupGigsByDate(gigs);
+  }, [gigs]);
 
   // Loading content
   const LoadingContent = (
-    <div className={gridClassName}>
+    <div className={`${gridClassName} ${className}`}>
       {Array.from({ length: 6 }).map((_, index) => (
         <GigCardSkeleton key={index} />
       ))}
@@ -139,23 +146,42 @@ export function GigsGrid({ gigs, loading, className = "", ...props }: GigsListPr
     </div>
   );
 
-  // Content with results
+  // Content with results grouped by date
   const ContentWithResults = (
-    <div className={gridClassName}>
-      {gigs.map((gig, index) => (
-        <AnimatedItem key={gig.id} index={index}>
-          <GigCard
-            gig={gig}
-            priority={index < 6} // Prioritize first 6 items
-          />
-        </AnimatedItem>
-      ))}
+    <div className={className}>
+      {groupedGigs.map((group, groupIndex) => {
+        const startIndex = groupedGigs
+          .slice(0, groupIndex)
+          .reduce((acc, g) => acc + g.gigs.length, 0);
+
+        return (
+          <div key={group.date}>
+            {/* Date divider */}
+            <DateDivider date={group.dateFormatted} />
+            
+            {/* Grid of gigs for this date */}
+            <div className={gridClassName}>
+              {group.gigs.map((gig, gigIndex) => {
+                const absoluteIndex = startIndex + gigIndex;
+                return (
+                  <AnimatedItem key={gig.id} index={absoluteIndex}>
+                    <GigCard
+                      gig={gig}
+                      priority={absoluteIndex < 6} // Prioritize first 6 items overall
+                    />
+                  </AnimatedItem>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 
   return (
     <LoadingWrapper 
-      isLoading={loading} 
+      isLoading={loading || false} 
       loadingComponent={LoadingContent}
       className=""
     >

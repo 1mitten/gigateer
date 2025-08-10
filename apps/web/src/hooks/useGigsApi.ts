@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { GigsResponse, GigDetailResponse, ErrorResponse } from '../types/api';
 import { Gig } from '@gigateer/contracts';
+import { APP_CONFIG } from '../config/app.config';
 
 interface UseGigsApiState {
   data: Gig[];
@@ -24,11 +25,12 @@ export function useGigsApi(params: Record<string, string>) {
   const [retryCount, setRetryCount] = useState(0);
   const [mounted, setMounted] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const maxRetries = 2;
-  const loadingTimeoutMs = 60000; // 60 seconds max loading time
+  const maxRetries = APP_CONFIG.api.RETRY_ATTEMPTS;
+  const loadingTimeoutMs = APP_CONFIG.api.LOADING_TIMEOUT;
 
   // Handle hydration issues
   useEffect(() => {
+    console.log('useGigsApi: Component mounting...');
     setMounted(true);
     // Start loading only after component is mounted
     setState(prev => ({ ...prev, loading: true }));
@@ -70,7 +72,7 @@ export function useGigsApi(params: Record<string, string>) {
       const abortController = new AbortController();
       const timeoutId = setTimeout(() => {
         abortController.abort();
-      }, 30000); // 30 second timeout
+      }, APP_CONFIG.api.TIMEOUT);
 
       const response = await fetch(url, {
         signal: abortController.signal,
@@ -154,7 +156,9 @@ export function useGigsApi(params: Record<string, string>) {
 
   // Fetch data when params change, but only after component is mounted
   useEffect(() => {
+    console.log('useGigsApi: Effect running, mounted:', mounted, 'params:', params);
     if (mounted) {
+      console.log('useGigsApi: Calling fetchGigs...');
       fetchGigs();
     }
   }, [fetchGigs, mounted]);

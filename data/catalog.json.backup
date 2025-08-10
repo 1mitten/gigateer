@@ -1,0 +1,231 @@
+{
+  "gigs": [
+    {
+      "id": "london-coldplay-2024-12-15-o2-arena",
+      "source": "songkick",
+      "sourceId": "12345",
+      "title": "Coldplay - Music of the Spheres Tour",
+      "artists": ["Coldplay"],
+      "genre": ["pop", "rock"],
+      "dateStart": "2024-12-15T19:30:00Z",
+      "dateEnd": "2024-12-15T23:00:00Z",
+      "timezone": "Europe/London",
+      "venue": {
+        "name": "The O2 Arena",
+        "address": "Peninsula Square",
+        "city": "London",
+        "country": "UK",
+        "lat": 51.5033,
+        "lng": 0.0029
+      },
+      "price": {
+        "min": 45.00,
+        "max": 150.00,
+        "currency": "GBP"
+      },
+      "ageRestriction": "All ages",
+      "status": "scheduled",
+      "ticketsUrl": "https://example.com/tickets/coldplay",
+      "eventUrl": "https://example.com/events/coldplay",
+      "images": ["https://example.com/coldplay.jpg"],
+      "updatedAt": "2024-08-09T12:00:00Z",
+      "hash": "abc123coldplay"
+    },
+    {
+      "id": "manchester-the-1975-2024-12-20-apollo",
+      "source": "bandsintown",
+      "sourceId": "67890",
+      "title": "The 1975 - Being Funny In A Foreign Language Tour",
+      "artists": ["The 1975"],
+      "genre": ["indie", "pop", "rock"],
+      "dateStart": "2024-12-20T20:00:00Z",
+      "dateEnd": "2024-12-20T23:30:00Z",
+      "timezone": "Europe/London",
+      "venue": {
+        "name": "O2 Apollo Manchester",
+        "address": "Stockport Road",
+        "city": "Manchester",
+        "country": "UK",
+        "lat": 53.4722,
+        "lng": -2.2235
+      },
+      "price": {
+        "min": 35.00,
+        "max": 85.00,
+        "currency": "GBP"
+      },
+      "ageRestriction": "14+",
+      "status": "scheduled",
+      "ticketsUrl": "https://example.com/tickets/1975",
+      "eventUrl": "https://example.com/events/1975",
+      "images": ["https://example.com/1975.jpg"],
+      "updatedAt": "2024-08-09T10:30:00Z",
+      "hash": "def456the1975"
+    },
+    {
+      "id": "birmingham-arctic-monkeys-2025-01-10-arena",
+      "source": "venue-direct",
+      "sourceId": "venue123",
+      "title": "Arctic Monkeys - The Car Tour",
+      "artists": ["Arctic Monkeys"],
+      "genre": ["indie", "rock", "alternative"],
+      "dateStart": "2025-01-10T19:00:00Z",
+      "dateEnd": "2025-01-10T22:30:00Z",
+      "timezone": "Europe/London",
+      "venue": {
+        "name": "Utilita Arena Birmingham",
+        "address": "King Edwards Road",
+        "city": "Birmingham",
+        "country": "UK",
+        "lat": 52.4796,
+        "lng": -1.9026
+      },
+      "price": {
+        "min": 50.00,
+        "max": 120.00,
+        "currency": "GBP"
+      },
+      "ageRestriction": "All ages",
+      "status": "scheduled",
+      "ticketsUrl": "https://example.com/tickets/arctic-monkeys",
+      "eventUrl": "https://example.com/events/arctic-monkeys",
+      "images": ["https://example.com/arctic-monkeys.jpg"],
+      "updatedAt": "2024-08-09T11:15:00Z",
+      "hash": "ghi789arctic"
+    },
+    {
+      "id": "london-billie-eilish-2025-02-14-wembley",
+      "source": "ticketmaster",
+      "sourceId": "tm456",
+      "title": "Billie Eilish - Hit Me Hard and Soft Tour",
+      "artists": ["Billie Eilish"],
+      "genre": ["pop", "alternative", "electronic"],
+      "dateStart": "2025-02-14T19:30:00Z",
+      "dateEnd": "2025-02-14T22:00:00Z",
+      "timezone": "Europe/London",
+      "venue": {
+        "name": "OVO Arena Wembley",
+        "address": "Arena Square",
+        "city": "London",
+        "country": "UK",
+        "lat": 51.5523,
+        "lng": -0.2817
+      },
+      "price": {
+        "min": 55.00,
+        "max": 200.00,
+        "currency": "GBP"
+      },
+      "ageRestriction": "All ages",
+      "status": "scheduled",
+      "ticketsUrl": "https://example.com/tickets/billie-eilish",
+      "eventUrl": "https://example.com/events/billie-eilish",
+      "images": ["https://example.com/billie-eilish.jpg"],
+      "updatedAt": "2024-08-09T09:45:00Z",
+      "hash": "jkl012billie"
+    },
+    {
+      "id": "glasgow-radiohead-2025-03-05-ovo-hydro",
+      "source": "songkick",
+      "sourceId": "sk789",
+      "title": "Radiohead - World Tour 2025",
+      "artists": ["Radiohead"],
+      "genre": ["alternative", "rock", "experimental"],
+      "dateStart": "2025-03-05T20:00:00Z",
+      "dateEnd": "2025-03-05T23:00:00Z",
+      "timezone": "Europe/London",
+      "venue": {
+        "name": "OVO Hydro",
+        "address": "Exhibition Way",
+        "city": "Glasgow",
+        "country": "UK",
+        "lat": 55.8596,
+        "lng": -4.2820
+      },
+      "price": {
+        "min": 65.00,
+        "max": 180.00,
+        "currency": "GBP"
+      },
+      "ageRestriction": "16+",
+      "status": "scheduled",
+      "ticketsUrl": "https://example.com/tickets/radiohead",
+      "eventUrl": "https://example.com/events/radiohead",
+      "images": ["https://example.com/radiohead.jpg"],
+      "updatedAt": "2024-08-09T08:20:00Z",
+      "hash": "mno345radiohead"
+    },
+    {
+      "id": "bristol-massive-attack-2024-11-30-colston-hall",
+      "source": "venue-direct",
+      "sourceId": "bristol001",
+      "title": "Massive Attack - Mezzanine 25th Anniversary",
+      "artists": ["Massive Attack"],
+      "genre": ["electronic", "trip-hop", "alternative"],
+      "dateStart": "2024-11-30T20:00:00Z",
+      "dateEnd": "2024-11-30T23:30:00Z",
+      "timezone": "Europe/London",
+      "venue": {
+        "name": "Bristol Beacon",
+        "address": "Colston Street",
+        "city": "Bristol",
+        "country": "UK",
+        "lat": 51.4545,
+        "lng": -2.5879
+      },
+      "price": {
+        "min": 40.00,
+        "max": 95.00,
+        "currency": "GBP"
+      },
+      "ageRestriction": "18+",
+      "status": "scheduled",
+      "ticketsUrl": "https://example.com/tickets/massive-attack",
+      "eventUrl": "https://example.com/events/massive-attack",
+      "images": ["https://example.com/massive-attack.jpg"],
+      "updatedAt": "2024-08-09T07:10:00Z",
+      "hash": "pqr678massive"
+    }
+  ],
+  "sourceStats": {
+    "lastUpdate": "2024-08-09T12:00:00Z",
+    "totalGigs": 6,
+    "newGigs": 2,
+    "updatedGigs": 1,
+    "sources": {
+      "songkick": {
+        "lastRun": "2024-08-09T12:00:00Z",
+        "gigCount": 2,
+        "status": "success",
+        "newGigs": 1,
+        "updatedGigs": 0
+      },
+      "bandsintown": {
+        "lastRun": "2024-08-09T11:45:00Z",
+        "gigCount": 1,
+        "status": "success",
+        "newGigs": 0,
+        "updatedGigs": 1
+      },
+      "venue-direct": {
+        "lastRun": "2024-08-09T11:30:00Z",
+        "gigCount": 2,
+        "status": "success",
+        "newGigs": 1,
+        "updatedGigs": 0
+      },
+      "ticketmaster": {
+        "lastRun": "2024-08-09T11:00:00Z",
+        "gigCount": 1,
+        "status": "success",
+        "newGigs": 0,
+        "updatedGigs": 0
+      }
+    }
+  },
+  "metadata": {
+    "version": "1.0",
+    "generatedAt": "2024-08-09T12:00:00Z",
+    "schema": "@gigateer/contracts/GigSchema"
+  }
+}

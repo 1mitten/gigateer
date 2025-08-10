@@ -14,13 +14,13 @@ import { GigsList, GigsGrid } from '../gigs/GigsList';
 import { ViewToggle } from '../ui/ViewToggle';
 import { Pagination } from '../ui/Pagination';
 import { SortControls, CompactSortControls } from '../ui/SortControls';
-import { InstallButton } from '../pwa-install-prompt';
-import { useOnlineStatus } from '../offline-detector';
+// import { InstallButton } from '../pwa-install-prompt';
+// import { useOnlineStatus } from '../offline-detector';
 
 export function SearchPage() {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const { addToast } = useToast();
-  const isOnline = useOnlineStatus();
+  const isOnline = true; // useOnlineStatus();
   const { view, setView, isLoaded } = useViewPreference();
   
   // Search and filter state
@@ -84,7 +84,7 @@ export function SearchPage() {
                     </p>
                   </div>
                   <div className="mt-4 sm:mt-0 flex justify-center sm:justify-end">
-                    <InstallButton className="btn-secondary text-sm" />
+                    {/* <InstallButton className="btn-secondary text-sm" /> */}
                   </div>
                 </div>
               </div>

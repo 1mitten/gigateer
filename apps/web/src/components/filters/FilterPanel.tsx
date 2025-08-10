@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { FunnelIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import type { DateFilterOption } from '../../utils/dateFilters';
 
 interface FilterValues {
   city: string;
   tags: string;
   venue: string;
-  dateFrom: string;
-  dateTo: string;
+  dateFilter: DateFilterOption;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 interface FilterPanelProps {
@@ -58,18 +60,15 @@ export function FilterPanel({
     setLocalValues(prev => ({ ...prev, venue: e.target.value }));
   }, []);
   
-  const handleDateFromChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalValues(prev => ({ ...prev, dateFrom: e.target.value }));
-  }, []);
-  
-  const handleDateToChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalValues(prev => ({ ...prev, dateTo: e.target.value }));
-  }, []);
-  
   // Apply filters when button is clicked
   const handleApplyFilters = useCallback(() => {
     onChange(localValues);
   }, [localValues, onChange]);
+  
+  // Handle date filter change
+  const handleDateFilterChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLocalValues(prev => ({ ...prev, dateFilter: e.target.value as DateFilterOption }));
+  }, []);
   
   // Reset both local and applied filters
   const handleResetFilters = useCallback(() => {
@@ -77,8 +76,7 @@ export function FilterPanel({
       city: '',
       tags: '',
       venue: '',
-      dateFrom: '',
-      dateTo: ''
+      dateFilter: 'today' as DateFilterOption
     };
     setLocalValues(emptyFilters);
     onReset();
@@ -153,29 +151,22 @@ export function FilterPanel({
                 </div>
 
                 <div>
-                  <label htmlFor="date-from" className="block text-sm font-medium text-gray-700 mb-2">
-                    From Date
+                  <label htmlFor="date-filter" className="block text-sm font-medium text-gray-700 mb-2">
+                    Date Range
                   </label>
-                  <input
-                    type="date"
-                    id="date-from"
-                    value={localValues.dateFrom}
-                    onChange={handleDateFromChange}
+                  <select
+                    id="date-filter"
+                    value={localValues.dateFilter}
+                    onChange={handleDateFilterChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="date-to" className="block text-sm font-medium text-gray-700 mb-2">
-                    To Date
-                  </label>
-                  <input
-                    type="date"
-                    id="date-to"
-                    value={localValues.dateTo}
-                    onChange={handleDateToChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-                  />
+                  >
+                    <option value="today">Today</option>
+                    <option value="tomorrow">Tomorrow</option>
+                    <option value="this-week">This Week</option>
+                    <option value="next-week">Next Week</option>
+                    <option value="this-month">This Month</option>
+                    <option value="all">All Dates</option>
+                  </select>
                 </div>
 
                 <div>
@@ -263,29 +254,22 @@ export function FilterPanel({
         </div>
 
         <div>
-          <label htmlFor="date-from" className="block text-sm font-medium text-gray-700 mb-2">
-            From Date
+          <label htmlFor="date-filter" className="block text-sm font-medium text-gray-700 mb-2">
+            Date Range
           </label>
-          <input
-            type="date"
-            id="date-from"
-            value={localValues.dateFrom}
-            onChange={handleDateFromChange}
+          <select
+            id="date-filter"
+            value={localValues.dateFilter}
+            onChange={handleDateFilterChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="date-to" className="block text-sm font-medium text-gray-700 mb-2">
-            To Date
-          </label>
-          <input
-            type="date"
-            id="date-to"
-            value={localValues.dateTo}
-            onChange={handleDateToChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-          />
+          >
+            <option value="today">Today</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="this-week">This Week</option>
+            <option value="next-week">Next Week</option>
+            <option value="this-month">This Month</option>
+            <option value="all">All Dates</option>
+          </select>
         </div>
 
         <div>

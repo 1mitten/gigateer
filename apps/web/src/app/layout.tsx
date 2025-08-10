@@ -41,11 +41,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ToastProvider>
-          <PWAProvider>
-            <div className="min-h-screen bg-gray-50">
-              {children}
-            </div>
-          </PWAProvider>
+          <div className="min-h-screen bg-gray-50">
+            {children}
+          </div>
         </ToastProvider>
       </body>
     </html>

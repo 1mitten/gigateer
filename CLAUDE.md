@@ -9,7 +9,189 @@ Before executing any task:
 - Plan the optimal execution order
 - Consider dependencies between tasks
 
-### 2. Parallel Agent Strategy
+### 2. DRY (Don't Repeat Yourself) & Code Quality Principles 
+**MANDATORY**: Apply these principles to EVERY task and code change:
+
+#### 2.1 Configuration Centralization
+- **Centralize all configuration values** in dedicated config files
+- **Use environment variables** for deployment-specific values
+- **Create constants files** for application-wide settings
+- **Avoid hardcoded values** scattered throughout the codebase
+
+Example structure:
+```typescript
+// src/config/app.config.ts
+export const APP_CONFIG = {
+  pagination: {
+    DEFAULT_LIMIT: 20,
+    MAX_LIMIT: 100,
+  },
+  dateFilters: {
+    DEFAULT_FILTER: 'all',
+    SUPPORTED_FILTERS: ['all', 'today', 'tomorrow', 'this-week', 'this-month'] as const,
+  },
+  api: {
+    TIMEOUT: 30000,
+    RETRY_ATTEMPTS: 3,
+  }
+} as const;
+```
+
+#### 2.2 Default Values & Fallbacks
+- **Define defaults once** in config files, not scattered in components
+- **Use consistent fallback patterns** across the application
+- **Implement graceful degradation** when data is missing
+- **Centralize error messages** and user-facing strings
+
+#### 2.3 Component Reusability
+- **Extract common UI patterns** into reusable components
+- **Use composition over inheritance** for React components
+- **Create generic utility functions** that can be reused
+- **Implement consistent prop interfaces** across similar components
+
+#### 2.4 Type Safety & Consistency
+- **Define types once** and reuse across components
+- **Use discriminated unions** for state management
+- **Implement consistent naming conventions** (camelCase for variables, PascalCase for types)
+- **Create shared interfaces** for API responses and data structures
+
+#### 2.5 Business Logic Separation
+- **Extract business logic** from UI components into custom hooks or services
+- **Create pure functions** for data transformations
+- **Implement service layers** for API communication
+- **Use dependency injection** patterns where appropriate
+
+#### 2.6 Error Handling Patterns
+- **Create reusable error boundaries** for React components
+- **Implement consistent error response formats** from APIs
+- **Use centralized error logging** and monitoring
+- **Provide user-friendly error messages** with actionable guidance
+
+#### 2.7 Design Patterns to Apply
+**Repository Pattern**: Centralize data access logic
+```typescript
+// services/gigRepository.ts
+export class GigRepository {
+  private static instance: GigRepository;
+  
+  static getInstance(): GigRepository {
+    if (!GigRepository.instance) {
+      GigRepository.instance = new GigRepository();
+    }
+    return GigRepository.instance;
+  }
+}
+```
+
+**Factory Pattern**: Create objects based on configuration
+```typescript
+// utils/filterFactory.ts
+export const createFilter = (type: FilterType) => {
+  switch (type) {
+    case 'date': return new DateFilter();
+    case 'venue': return new VenueFilter();
+    default: throw new Error(`Unknown filter type: ${type}`);
+  }
+};
+```
+
+**Observer Pattern**: Handle state changes consistently
+```typescript
+// hooks/useEventBus.ts
+export const useEventBus = () => {
+  // Centralized event handling logic
+};
+```
+
+**Strategy Pattern**: Interchangeable algorithms
+```typescript
+// utils/sortStrategies.ts
+export const SORT_STRATEGIES = {
+  date: (a: Gig, b: Gig) => new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime(),
+  name: (a: Gig, b: Gig) => a.title.localeCompare(b.title),
+  venue: (a: Gig, b: Gig) => a.venue.name.localeCompare(b.venue.name),
+} as const;
+```
+
+## 🔍 MANDATORY Code Review Checklist
+**Apply this checklist to EVERY code change before completion:**
+
+### ✅ DRY & WET Code Review
+- [ ] **No duplicated logic**: Check for repeated code blocks, extract into reusable functions
+- [ ] **Constants centralized**: All magic numbers/strings moved to config files
+- [ ] **Single source of truth**: Each piece of data/logic defined in only one place
+- [ ] **Consistent patterns**: Similar functionality uses identical approaches
+
+### ✅ Configuration & Defaults
+- [ ] **Centralized configuration**: All settings in dedicated config files
+- [ ] **Environment variables**: Deployment-specific values use env vars with defaults
+- [ ] **Default values**: Defined once in config, not scattered in components
+- [ ] **Fallback handling**: Graceful degradation when data/config is missing
+
+### ✅ Type Safety & Interfaces
+- [ ] **Shared types**: Common interfaces defined once and imported
+- [ ] **Consistent naming**: camelCase variables, PascalCase types, UPPER_CASE constants
+- [ ] **Type exports**: All types properly exported from index files
+- [ ] **No `any` types**: Strict typing throughout the codebase
+
+### ✅ Component Quality
+- [ ] **Single responsibility**: Each component/function has one clear purpose
+- [ ] **Prop interfaces**: Consistent and well-typed component props
+- [ ] **Reusable logic**: Common functionality extracted to custom hooks/utils
+- [ ] **Pure functions**: Business logic separated from UI components
+
+### ✅ Error Handling & UX
+- [ ] **Consistent error patterns**: All errors handled using centralized approach
+- [ ] **User-friendly messages**: Technical errors converted to actionable user guidance
+- [ ] **Loading states**: Appropriate loading indicators for all async operations
+- [ ] **Graceful failures**: App continues working when non-critical features fail
+
+### ✅ Performance & Optimization
+- [ ] **Memoization**: Expensive calculations properly memoized
+- [ ] **Component re-renders**: Unnecessary re-renders prevented
+- [ ] **Bundle size**: No unnecessary dependencies or imports
+- [ ] **Code splitting**: Large features properly code-split
+
+### ✅ Testing & Validation
+- [ ] **Test coverage**: All new functionality has corresponding tests
+- [ ] **Edge cases**: Error conditions and boundary cases tested
+- [ ] **Integration tests**: Component interactions properly tested
+- [ ] **Type checking**: `pnpm typecheck` passes without errors
+
+### ✅ Documentation & Comments
+- [ ] **API documentation**: New endpoints documented in `/docs/api/`
+- [ ] **README updates**: Installation/usage docs updated if needed
+- [ ] **Inline documentation**: Complex business logic explained with comments
+- [ ] **CLAUDE.md updates**: New patterns/decisions documented
+
+## 🛠️ Refactoring Opportunities Checklist
+**Always look for these improvement opportunities:**
+
+### 🔧 Extract Patterns
+- **Repeated JSX**: Extract to reusable components
+- **Duplicate logic**: Create shared utility functions
+- **Magic numbers**: Move to configuration constants
+- **Inline styles**: Extract to CSS modules or styled components
+
+### 🔧 Consolidate State
+- **Multiple useState**: Consider useReducer for complex state
+- **Props drilling**: Use context or state management library
+- **Scattered state**: Centralize related state into single hooks
+- **Derived state**: Calculate derived values in useMemo
+
+### 🔧 Optimize Performance
+- **Heavy computations**: Wrap in useMemo or useCallback
+- **Large components**: Split into smaller, focused components
+- **Unnecessary API calls**: Implement proper caching strategies
+- **Bundle optimization**: Lazy load non-critical features
+
+### 🔧 Improve Developer Experience
+- **Better error messages**: Add context and suggested solutions
+- **TypeScript strict mode**: Enable stricter type checking
+- **Consistent formatting**: Apply prettier/eslint rules
+- **Development tools**: Add debugging utilities and dev-only features
+
+### 3. Parallel Agent Strategy
 When handling complex tasks, identify opportunities for parallel execution:
 
 #### Parallelizable Tasks
@@ -715,10 +897,136 @@ describe.skip('GigAPI integration', () => {
 - Use proper ESM import syntax
 - Handle dynamic imports correctly
 
+## MongoDB Setup and Management
+
+### Prerequisites
+MongoDB is required for production deployment and advanced features. The application can run in two modes:
+1. **File-based mode** (default): Uses JSON files in `/data` directory - good for development
+2. **Database mode**: Uses MongoDB for better performance and scalability
+
+### MongoDB Installation & Setup
+
+#### Quick Setup (Development)
+```bash
+# Use the provided setup script
+./scripts/setup-mongo.sh --quick-start
+
+# Or manually start MongoDB (if already installed)
+mongod --dbpath ./data/mongodb --port 27017 &
+
+# Check if MongoDB is running
+pgrep -x "mongod" && echo "MongoDB is running" || echo "MongoDB is not running"
+```
+
+#### Full Installation
+
+**Ubuntu/Debian:**
+```bash
+# Import MongoDB GPG key
+curl -fsSL https://pgp.mongodb.com/server-7.0.asc | \
+  sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+
+# Add MongoDB repository
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | \
+  sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+
+# Install MongoDB
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+
+# Start MongoDB service
+sudo systemctl start mongod
+sudo systemctl enable mongod
+```
+
+**macOS:**
+```bash
+# Install with Homebrew
+brew tap mongodb/brew
+brew install mongodb-community
+
+# Start MongoDB service
+brew services start mongodb-community
+```
+
+### MongoDB Management Commands
+```bash
+# Start MongoDB (development mode)
+mongod --dbpath ./data/mongodb --port 27017 &
+
+# Stop MongoDB
+pkill mongod
+
+# Check MongoDB status
+mongosh --eval "db.adminCommand('ping')"
+
+# Import catalog.json into MongoDB
+mongoimport --db gigateer --collection gigs \
+  --file ./data/catalog.json --jsonArray
+
+# Connect to MongoDB shell
+mongosh gigateer
+
+# Basic MongoDB queries (in mongosh)
+db.gigs.find().limit(5)                    # Get first 5 gigs
+db.gigs.countDocuments()                   # Count total gigs
+db.gigs.find({city: "London"})            # Find gigs in London
+db.gigs.createIndex({dateStart: 1})       # Create date index for performance
+```
+
+### Environment Configuration
+```bash
+# Add to .env.local for MongoDB connection
+MONGODB_URI=mongodb://localhost:27017/gigateer
+USE_DATABASE=true  # Enable database mode (default: false for file-based)
+```
+
+### Troubleshooting MongoDB Issues
+
+#### Connection Refused Error
+If you see `MongoServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017`:
+1. MongoDB is not running - start it with: `mongod --dbpath ./data/mongodb --port 27017 &`
+2. MongoDB is running on a different port - check with: `ps aux | grep mongod`
+3. Firewall blocking connection - check firewall settings
+
+#### Fallback to File-Based Mode
+The application automatically falls back to file-based mode when MongoDB is unavailable:
+- Reads from `/data/catalog.json`
+- Limited to basic filtering (no text search)
+- Good for development and testing
+
+#### Data Migration
+To migrate from file-based to MongoDB:
+```bash
+# Start MongoDB
+./scripts/setup-mongo.sh --quick-start
+
+# Import catalog.json
+mongoimport --db gigateer --collection gigs \
+  --file ./data/catalog.json --jsonArray \
+  --mode upsert
+
+# Verify import
+mongosh gigateer --eval "db.gigs.countDocuments()"
+```
+
+### Testing with Sample Data
+The repository includes sample data with current dates for testing:
+```bash
+# Update catalog.json with current dates (for testing)
+node scripts/update-test-dates.js  # Create this script if needed
+
+# Or manually edit dates in catalog.json
+# Change dateStart/dateEnd to current/future dates
+```
+
 ### Critical Commands for Daily Development
 ```bash
 # ALWAYS START WITH BUILD CHECK
 pnpm build                        # Must pass before any work!
+
+# Start MongoDB if using database mode
+./scripts/setup-mongo.sh --quick-start
 
 # Quick development cycle  
 pnpm dev                          # Starts all services
@@ -1125,3 +1433,149 @@ npx tsx src/cli.ts stats
 - **Schema validation**: Validate configurations before execution
 - **Performance monitoring**: Track scraping success rates
 - **Selector testing**: Tools to test selectors against live sites
+
+## 🚀 IMMEDIATE ACTION ITEMS - DRY Implementation
+**NEXT DEVELOPMENT PRIORITIES - Apply DRY principles to existing code:**
+
+### Priority 1: Configuration Centralization
+**Create centralized configuration system**
+
+1. **Create `/apps/web/src/config/app.config.ts`**:
+   ```typescript
+   export const APP_CONFIG = {
+     pagination: {
+       DEFAULT_LIMIT: 20,
+       MAX_LIMIT: 100,
+       FIRST_PAGE: 1,
+     },
+     dateFilters: {
+       DEFAULT_FILTER: 'all' as const,
+       SUPPORTED_FILTERS: ['all', 'today', 'tomorrow', 'this-week', 'this-month'] as const,
+       TIMEOUT_MS: 30000,
+     },
+     api: {
+       BASE_URL: process.env.NEXT_PUBLIC_API_URL || '',
+       TIMEOUT: 30000,
+       RETRY_ATTEMPTS: 3,
+       CACHE_TTL: 300000, // 5 minutes
+     },
+     ui: {
+       ANIMATIONS: {
+         TRANSITION_DURATION: 150,
+         DEBOUNCE_DELAY: 500,
+       },
+       BREAKPOINTS: {
+         mobile: 768,
+         tablet: 1024,
+         desktop: 1280,
+       }
+     }
+   } as const;
+   ```
+
+2. **Refactor existing hardcoded values**:
+   - Replace `limit: 20` in useSearchFilters with `APP_CONFIG.pagination.DEFAULT_LIMIT`
+   - Replace `dateFilter: 'all'` with `APP_CONFIG.dateFilters.DEFAULT_FILTER`
+   - Replace timeout values with `APP_CONFIG.api.TIMEOUT`
+   - Replace animation durations with `APP_CONFIG.ui.ANIMATIONS.*`
+
+### Priority 2: Extract Common UI Patterns
+**Identify and extract reusable components**
+
+1. **Create reusable form components**:
+   - `/components/ui/Select.tsx` - Standardize all dropdowns
+   - `/components/ui/Input.tsx` - Consistent input styling
+   - `/components/ui/Button.tsx` - Button variants and states
+
+2. **Extract filter logic patterns**:
+   - Create `useGenericFilter<T>` hook for reusable filtering
+   - Extract common validation patterns
+   - Create shared error handling components
+
+### Priority 3: Business Logic Separation
+**Move business logic out of UI components**
+
+1. **Create service layer**:
+   ```typescript
+   // services/gigService.ts
+   export class GigService {
+     static async fetchGigs(filters: FilterOptions): Promise<GigsResponse> {
+       // Centralized API logic with error handling, retries, caching
+     }
+     
+     static async fetchGigDetail(id: string): Promise<Gig> {
+       // Centralized detail fetching
+     }
+   }
+   ```
+
+2. **Extract data transformation utilities**:
+   ```typescript
+   // utils/gigTransformers.ts
+   export const transformGigForDisplay = (gig: Gig): DisplayGig => {
+     // Centralized data transformation logic
+   };
+   
+   export const formatDateRange = (start: Date, end: Date): string => {
+     // Centralized date formatting
+   };
+   ```
+
+### Priority 4: Type Safety & Consistency
+**Strengthen type system and consistency**
+
+1. **Create shared type definitions**:
+   ```typescript
+   // types/api.types.ts
+   export interface ApiResponse<T> {
+     data: T;
+     pagination?: PaginationInfo;
+     meta?: Record<string, unknown>;
+   }
+   
+   export interface FilterState {
+     dateFilter: DateFilterOption;
+     searchQuery: string;
+     cityFilter: string;
+     // ... other filters
+   }
+   ```
+
+2. **Implement consistent error types**:
+   ```typescript
+   // types/error.types.ts
+   export interface AppError {
+     code: string;
+     message: string;
+     userMessage?: string;
+     context?: Record<string, unknown>;
+   }
+   ```
+
+## 🎯 Implementation Strategy
+**How to apply DRY principles on every task:**
+
+### Before Starting Any Task:
+1. **Identify existing patterns** - Search for similar implementations
+2. **Check for duplicated logic** - Look for repeated code that can be extracted
+3. **Review configuration values** - Find hardcoded values that should be centralized
+4. **Plan reusable components** - Design for reusability from the start
+
+### During Implementation:
+1. **Follow established patterns** - Use existing components and utilities
+2. **Create abstractions** - If writing similar code twice, create a reusable function
+3. **Use configuration** - Reference centralized config instead of hardcoding values
+4. **Apply consistent naming** - Follow established conventions
+
+### After Implementation:
+1. **Run the Code Review Checklist** - Ensure all DRY principles are applied
+2. **Look for refactoring opportunities** - Identify areas for improvement
+3. **Update documentation** - Record new patterns and decisions
+4. **Update configuration** - Add any new config values to centralized files
+
+### Code Quality Gates:
+- ❌ **Block completion if**: Duplicated logic exists, hardcoded values present, inconsistent patterns used
+- ✅ **Allow completion when**: All config centralized, no code duplication, consistent patterns applied
+- 🔄 **Refactor immediately**: Any time you see repeated code or inconsistent implementations
+
+This ensures every development task improves overall code quality and maintainability!
