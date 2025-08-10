@@ -1,6 +1,24 @@
-Tasks to complete
+Tasks completed ✅
 
-Think about each one before starting, we need to create new scraper configs - read the docs.  Make sure it's transformed into the database schema correctly and ensure it is all config.
-- Bristol Louisana - https://www.thelouisiana.net/ . The gigs are on this page and you'll need to click into them to get all of the details and there is a "Load More" button at the bottom which needs to be clicked on to see more of that data to ingest
-- Bristol The Lanes https://www.thelanesbristol.com/events#hf_type=gig , you'll need to click in and look for information in the dialog
-- Bristol Thekla https://www.theklabristol.co.uk/live/ , you need to click on "MORE INFO" for more details, it also infinite loads so you'll need to scroll down to get more data
+- ✅ Show happening events - Fixed: Events happening now display correctly when enabled in settings
+- ✅ The gig details screen loading transition - Fixed: Added smooth opacity transition and loading skeleton for images
+- ✅ "Back to search" button - Fixed: Styled as proper button with hover states that blends with app design
+- ✅ City page titles font - Fixed: Changed to Public Sans ExtraBold 800
+- ✅ "Switch to pagination" button - Fixed: Removed button (functionality remains in settings)
+- ✅ "Check back later for new gigs" message - Fixed: Removed end of page messages
+- ✅ Ticket box "View on" text - Fixed: Changed to show just site.name
+- ✅ Subtitle on gig details page - Fixed: Removed subtitle below main title
+
+All UI issues have been successfully resolved on August 10, 2025
+
+
+
+
+
+
+
+
+
+
+
+

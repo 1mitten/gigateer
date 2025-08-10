@@ -450,6 +450,23 @@ export class ConfigDrivenScraper {
           }
         }
         return value;
+      case 'louisiana-url':
+        // Convert relative URLs to absolute URLs for Louisiana Bristol
+        if (value && (value.startsWith('#') || value.startsWith('/') || !value.startsWith('http'))) {
+          const baseUrl = this.config.site.baseUrl || 'https://www.thelouisiana.net';
+          if (value.startsWith('#')) {
+            return `${baseUrl}/${value}`;
+          } else if (value.startsWith('/')) {
+            return `${baseUrl}${value}`;
+          } else {
+            // Handle relative paths without leading slash
+            return `${baseUrl}/${value}`;
+          }
+        }
+        return value;
+      case 'static-louisiana-name':
+        // Return static venue name for Louisiana Bristol
+        return 'The Louisiana Bristol';
       case 'time-range-start':
         // Extract start time from "13:00 - 14:45" format
         const startMatch = value.match(/^(\d{1,2}:\d{2})/);

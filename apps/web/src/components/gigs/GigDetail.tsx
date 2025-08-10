@@ -107,7 +107,7 @@ export function GigDetail({ gig }: GigDetailProps) {
             <div className="mb-6">
               <button
                 onClick={handleBack}
-                className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1"
+                className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
                 Back to search
@@ -121,13 +121,6 @@ export function GigDetail({ gig }: GigDetailProps) {
                   <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
                     {gig.title}
                   </h1>
-                  
-                  {gig.artists.length > 0 && (
-                    <div className="flex items-center text-lg text-gray-600 mb-2">
-                      <UserGroupIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                      <span>{gig.artists.join(', ')}</span>
-                    </div>
-                  )}
                 </div>
                 
                 <div className="ml-4 flex items-center gap-2">
@@ -193,11 +186,14 @@ export function GigDetail({ gig }: GigDetailProps) {
             {/* Event image (if available) */}
             {gig.images.length > 0 && (
               <div className="card overflow-hidden">
-                <img
-                  src={gig.images[0]}
-                  alt={gig.title}
-                  className="w-full h-64 sm:h-80 object-cover bg-gray-100"
-                />
+                <div className="relative w-full h-64 sm:h-80 bg-gray-100 dark:bg-gray-700">
+                  <img
+                    src={gig.images[0]}
+                    alt={gig.title}
+                    className="w-full h-full object-cover relative z-10"
+                    loading="lazy"
+                  />
+                </div>
               </div>
             )}
 
@@ -303,7 +299,7 @@ export function GigDetail({ gig }: GigDetailProps) {
                         className="w-full btn-secondary flex items-center justify-center gap-2"
                       >
                         <LinkIcon className="h-4 w-4" />
-                        View on {gig.source}
+                        {gig.source}
                       </a>
                     )}
                   </div>

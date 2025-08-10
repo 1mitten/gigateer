@@ -1,0 +1,166 @@
+{
+  "site": {
+    "name": "The Lanes Bristol",
+    "baseUrl": "https://www.thelanesbristol.com",
+    "source": "bristol-the-lanes",
+    "description": "Underground club and venue in Bristol, UK",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2025-01-10"
+  },
+  
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 90000
+  },
+  
+  "rateLimit": {
+    "delayBetweenRequests": 3000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+  
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://www.thelanesbristol.com/events#hf_type=gig"
+    },
+    {
+      "type": "wait",
+      "condition": "networkidle",
+      "timeout": 30000
+    },
+    {
+      "type": "wait",
+      "timeout": 5000
+    },
+    {
+      "type": "extract", 
+      "containerSelector": "div > div > div:has(img):has(a[href*='headfirstbristol'])",
+      "fields": {
+        "title": {
+          "selector": "a[href*='headfirstbristol.co.uk']",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "Event at The Lanes"
+        },
+        "artist": {
+          "selector": "a[href*='headfirstbristol.co.uk']",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "date": {
+          "selector": "div > div:first-child",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "TBA"
+        },
+        "timeRange": {
+          "selector": "div > div:last-child",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "eventUrl": {
+          "selector": "a[href*='headfirstbristol.co.uk']",
+          "attribute": "href",
+          "required": false,
+          "transform": "url"
+        },
+        "infoUrl": {
+          "selector": "a:contains('Info')",
+          "attribute": "href",
+          "required": false
+        },
+        "ticketsInfo": {
+          "selector": "div:contains('Tickets')",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "image": {
+          "selector": "img",
+          "attribute": "src",
+          "required": false
+        }
+      },
+      "followUp": {
+        "urlField": "eventUrl",
+        "fields": {
+          "fullDescription": {
+            "selector": ".event-description, .content p, .description-full",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "ticketsUrl": {
+            "selector": "a[href*='ticket'], .ticket-link, .buy-tickets",
+            "attribute": "href"
+          },
+          "ticketsInfo": {
+            "selector": ".ticket-info, .pricing, .admission",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "additionalImage": {
+            "selector": ".event-hero img, .featured-image img",
+            "attribute": "src"
+          },
+          "ageRestriction": {
+            "selector": ".age-restriction, .over-18, .all-ages",
+            "attribute": "text",
+            "transform": "trim"
+          }
+        }
+      }
+    }
+  ],
+  
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "venue", "timeRange"]
+    },
+    "title": "title",
+    "artist": "artist",
+    "venue": {
+      "name": "The Lanes Bristol",
+      "address": "22 Nelson Street", 
+      "city": "Bristol",
+      "country": "UK"
+    },
+    "date": {
+      "start": "date",
+      "timeRange": "timeRange",
+      "timezone": "Europe/London"
+    },
+    "urls": {
+      "event": "eventUrl",
+      "tickets": "ticketsUrl",
+      "info": "infoUrl"
+    },
+    "images": "image",
+    "tags": "genres",
+    "description": "fullDescription",
+    "ticketInfo": "ticketsInfo",
+    "ageRestriction": "ageRestriction"
+  },
+  
+  "validation": {
+    "required": [],
+    "minEventsExpected": 0,
+    "maxEventsExpected": 200
+  },
+  
+  "debug": {
+    "screenshots": true,
+    "saveHtml": true,
+    "logLevel": "debug"
+  }
+}

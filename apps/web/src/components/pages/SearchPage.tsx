@@ -239,7 +239,7 @@ export function SearchPage({ city }: SearchPageProps = {}) {
               <div className="max-w-2xl mx-auto w-full">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
+                    <h1 className={`text-3xl sm:text-4xl ${city ? 'font-extrabold font-public-sans' : 'font-bold'} text-gray-900 dark:text-gray-100`}>
                       {city ? (
                         <>
                           {city.charAt(0).toUpperCase() + city.slice(1)}
@@ -368,19 +368,10 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                 )}
                 
                 {isLoaded && (
-                  <div className="flex items-center space-x-2">
-                    <ViewToggle
-                      currentView={view}
-                      onViewChange={setView}
-                    />
-                    <button
-                      onClick={() => setUseInfiniteScrollMode(!useInfiniteScrollMode)}
-                      className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
-                      title={useInfiniteScrollMode ? 'Switch to pagination' : 'Switch to infinite scroll'}
-                    >
-                      {useInfiniteScrollMode ? 'INF' : 'PAGE'}
-                    </button>
-                  </div>
+                  <ViewToggle
+                    currentView={view}
+                    onViewChange={setView}
+                  />
                 )}
               </div>
             </div>
@@ -407,7 +398,7 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                 <p className="text-gray-600 mb-4">
                   {!isOnline 
                     ? 'You\'re currently offline. Some cached events may still be available to browse.'
-                    : error
+                    : typeof error === 'string' ? error : error?.message || 'An unexpected error occurred'
                   }
                 </p>
                 
@@ -487,7 +478,7 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                     loading={loading && hasData}
                     emptyMessage={hasActiveFilters ? 
                       "No gigs match your current filters. Try adjusting your search criteria." : 
-                      "No gigs available at the moment. Check back later!"
+                      "No gigs available at the moment."
                     }
                   />
                 )}

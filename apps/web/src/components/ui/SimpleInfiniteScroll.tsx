@@ -56,24 +56,23 @@ export function SimpleInfiniteScroll({
     </div>
   );
 
-  // End message component
+  // End message component - simplified to just show completion
   const EndMessage = (
-    <div className="text-center py-8 border-t border-gray-100 mt-4">
-      <div className="text-gray-500">
-        <div className="mx-auto h-12 w-12 mb-3 text-gray-300">
+    <div className="text-center py-8 border-t border-gray-100 dark:border-gray-700 mt-4">
+      <div className="text-gray-500 dark:text-gray-400">
+        <div className="mx-auto h-12 w-12 mb-3 text-gray-300 dark:text-gray-500">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-full h-full">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
           </svg>
         </div>
-        <p className="text-sm font-medium text-gray-700 mb-1">
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           You've seen all {totalCount} gig{totalCount === 1 ? '' : 's'}!
         </p>
-        <p className="text-xs text-gray-500">
-          {totalCount > APP_CONFIG.pagination.DEFAULT_LIMIT ? 
-            'Try adjusting your filters to discover more events.' :
-            'Check back later for new gigs.'
-          }
-        </p>
+        {totalCount > APP_CONFIG.pagination.DEFAULT_LIMIT && (
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Try adjusting your filters to discover more events.
+          </p>
+        )}
       </div>
     </div>
   );

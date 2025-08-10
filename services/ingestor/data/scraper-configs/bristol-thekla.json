@@ -1,0 +1,201 @@
+{
+  "site": {
+    "name": "Thekla Bristol",
+    "baseUrl": "https://www.theklabristol.co.uk",
+    "source": "bristol-thekla",
+    "description": "Floating venue and nightclub on the River Avon in Bristol, UK",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2025-01-10"
+  },
+  
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 90000
+  },
+  
+  "rateLimit": {
+    "delayBetweenRequests": 3000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+  
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://www.theklabristol.co.uk/live/"
+    },
+    {
+      "type": "wait",
+      "timeout": 5000
+    },
+    {
+      "type": "scroll",
+      "direction": "down",
+      "amount": 2000,
+      "waitAfter": 2000
+    },
+    {
+      "type": "scroll",
+      "direction": "down",
+      "amount": 2000,
+      "waitAfter": 2000
+    },
+    {
+      "type": "scroll",
+      "direction": "down",
+      "amount": 2000,
+      "waitAfter": 2000
+    },
+    {
+      "type": "scroll",
+      "direction": "bottom",
+      "waitAfter": 3000
+    },
+    {
+      "type": "extract", 
+      "containerSelector": "div > div > div",
+      "fields": {
+        "title": {
+          "selector": "a[href*='/gigs/']",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "Event at Thekla"
+        },
+        "artist": {
+          "selector": "a[href*='/gigs/']",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "TBA"
+        },
+        "date": {
+          "selector": "h6",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "TBA"
+        },
+        "support": {
+          "selector": "p",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "eventUrl": {
+          "selector": "a[href*='/gigs/']",
+          "attribute": "href",
+          "required": false,
+          "transform": "url",
+          "fallback": "https://www.theklabristol.co.uk/live/"
+        },
+        "ticketsUrl": {
+          "selector": "a",
+          "attribute": "href",
+          "required": false,
+          "fallback": "https://www.theklabristol.co.uk/"
+        },
+        "moreInfoUrl": {
+          "selector": "a",
+          "attribute": "href",
+          "required": false,
+          "fallback": "https://www.theklabristol.co.uk/live/"
+        },
+        "image": {
+          "selector": "img",
+          "attribute": "src",
+          "required": false
+        },
+        "status": {
+          "selector": "mark h4, mark a",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        }
+      },
+      "followUp": {
+        "urlField": "eventUrl",
+        "fields": {
+          "fullDescription": {
+            "selector": ".content p, .gig-details, .event-description",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "venue": {
+            "selector": ".venue-info, .location",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "time": {
+            "selector": ".event-time, .doors-time, .time",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "price": {
+            "selector": ".price, .ticket-price, .admission",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "ageRestriction": {
+            "selector": ".age-restriction, .over-18, .all-ages",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "genres": {
+            "selector": ".genre, .tag, .music-style",
+            "attribute": "text",
+            "multiple": true,
+            "transform": "trim"
+          }
+        }
+      }
+    }
+  ],
+  
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "date", "venue"]
+    },
+    "title": "title",
+    "artist": "artist",
+    "venue": {
+      "name": "Thekla",
+      "address": "The Grove, East Mud Dock",
+      "city": "Bristol",
+      "country": "UK"
+    },
+    "date": {
+      "start": "date",
+      "timezone": "Europe/London"
+    },
+    "urls": {
+      "event": "eventUrl",
+      "tickets": "ticketsUrl",
+      "info": "moreInfoUrl"
+    },
+    "images": "image",
+    "description": "fullDescription",
+    "supportAct": "support",
+    "tags": "genres",
+    "ageRestriction": "ageRestriction",
+    "status": "status"
+  },
+  
+  "validation": {
+    "required": [],
+    "minEventsExpected": 5,
+    "maxEventsExpected": 300
+  },
+  
+  "debug": {
+    "screenshots": true,
+    "saveHtml": true,
+    "logLevel": "debug"
+  }
+}

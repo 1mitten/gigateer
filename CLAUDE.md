@@ -73,14 +73,14 @@ pnpm build && pnpm test          # Must pass both
 ## 🎯 Available Agents
 
 ### Core Development
-- **`general-purpose`** - Complex research, multi-step tasks, keyword searches
+- **`general-purpose`** - Complex research, multi-step tasks, keyword searches, **Playwright browser automation**
 - **`react-ui-developer`** - React components, UI/UX, test fixes, hooks conversion  
-- **`backend-architect`** - API design, database architecture, auth systems
+- **`backend-architect`** - API design, database architecture, auth systems, **scraper development with Playwright**
 - **`architecture-optimizer`** - System performance, bottleneck analysis
 
 ### Specialized  
-- **`security-penetration-tester`** - Vulnerability scans, OWASP testing, security audits
-- **`qa-specialist`** - End-to-end testing, integration verification, quality review
+- **`security-penetration-tester`** - Vulnerability scans, OWASP testing, security audits, **Playwright testing**
+- **`qa-specialist`** - End-to-end testing, integration verification, quality review, **Playwright automation**
 - **`documentation-maintainer`** - README updates, API docs, ADRs, formatting
 
 ## 🏗️ Tech Stack & Architecture
@@ -117,8 +117,41 @@ pnpm ingest:source my-venue
 # 4. Debug if needed (enable screenshots in config)
 ```
 
+### 🎭 Playwright MCP Integration for Scraper Development
+
+**Available for all agents**: Claude can now use Playwright MCP server for advanced web scraping and browser automation.
+
+#### Key Capabilities
+- **Live browser interaction** - Navigate, click, type, inspect elements in real-time
+- **Visual debugging** - Take screenshots and snapshots to understand page structure  
+- **Element discovery** - Find selectors by interacting with live pages
+- **Dynamic content handling** - Wait for JS-rendered content, handle SPAs
+- **Network monitoring** - Track API calls and resource loading
+
+#### Scraper Development Workflow
+```bash
+# 1. Use agent with Playwright to explore target website
+# Agent navigates to site, takes snapshots, identifies selectors
+
+# 2. Agent creates/updates JSON scraper config with discovered selectors
+# Based on live page inspection and testing
+
+# 3. Test scraper config immediately
+pnpm ingest:source venue-name
+
+# 4. Agent can debug failed scrapers by re-visiting pages with Playwright
+# Visual inspection of changes, updated selectors, validation
+```
+
+#### Best Practices with Playwright
+- **Visual-first approach**: Always take screenshots/snapshots before creating selectors
+- **Test selectors live**: Verify selectors work on actual pages before saving to config
+- **Handle dynamic content**: Use wait conditions for JS-heavy sites
+- **Respect rate limits**: Use realistic delays between actions
+- **Debug visually**: When scrapers fail, use Playwright to see what changed
+
 ### JSON vs Traditional Plugins
-- **Configuration-driven (.json)**: Modern, no-code, faster development ⚡
+- **Configuration-driven (.json) + Playwright**: Modern, visual development with live testing ⚡
 - **Traditional (.ts)**: Legacy approach for complex custom logic
 
 ## 📊 MongoDB Setup
@@ -143,12 +176,26 @@ pnpm --filter ingestor test      # Business logic tests
 pnpm test --coverage             # With coverage report
 ```
 
+### 🎭 Playwright-Enhanced Testing
+Use Playwright MCP for advanced scraper testing and validation:
+
+```bash
+# Example: Agent-driven scraper development
+# 1. Agent uses Playwright to visit venue website
+# 2. Agent takes snapshots and identifies selectors  
+# 3. Agent creates JSON config with discovered selectors
+# 4. Agent tests scraper: pnpm ingest:source new-venue
+# 5. If issues found, agent re-visits with Playwright to debug
+```
+
 ### ALWAYS Test For
 - [ ] New components, functions, modules
 - [ ] Bug fixes (test reproduces bug first)
 - [ ] API endpoints & data processing
 - [ ] Schema validation & transformation
 - [ ] Error handling & edge cases
+- [ ] **Scraper selectors** - Use Playwright to verify elements exist and data extracts correctly
+- [ ] **Dynamic content** - Test with Playwright on JS-heavy sites to ensure proper waiting
 
 ### Coverage Requirements
 - **Minimum**: 70% overall, 80% for new code

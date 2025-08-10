@@ -1,0 +1,167 @@
+{
+  "site": {
+    "name": "The Louisiana Bristol",
+    "baseUrl": "https://www.thelouisiana.net",
+    "source": "bristol-louisiana",
+    "description": "Historic pub and music venue in Bristol, UK",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2025-01-10"
+  },
+  
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 90000
+  },
+  
+  "rateLimit": {
+    "delayBetweenRequests": 2000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+  
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://www.thelouisiana.net/"
+    },
+    {
+      "type": "wait",
+      "condition": "networkidle",
+      "timeout": 30000
+    },
+    {
+      "type": "wait",
+      "timeout": 3000
+    },
+    {
+      "type": "scroll",
+      "direction": "down",
+      "amount": 1000,
+      "waitAfter": 2000
+    },
+    {
+      "type": "extract", 
+      "containerSelector": "h1 + div > div > div > div",
+      "fields": {
+        "title": {
+          "selector": "img",
+          "attribute": "alt",
+          "required": false,
+          "transform": "trim",
+          "fallback": "Event at The Louisiana"
+        },
+        "fullTitle": {
+          "selector": "a",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "artist": {
+          "selector": "img",
+          "attribute": "alt",
+          "required": false,
+          "transform": "trim",
+          "fallback": "TBA"
+        },
+        "date": {
+          "selector": "div",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "2025-02-01T20:00:00Z"
+        },
+        "eventUrl": {
+          "selector": "a",
+          "attribute": "href",
+          "required": false,
+          "transform": "url",
+          "fallback": "https://www.thelouisiana.net/events/"
+        },
+        "ticketsUrl": {
+          "selector": "a",
+          "attribute": "href",
+          "required": false,
+          "transform": "url",
+          "fallback": "https://www.thelouisiana.net/"
+        },
+        "price": {
+          "selector": "div",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "Free"
+        },
+        "image": {
+          "selector": "img",
+          "attribute": "src",
+          "required": false
+        }
+      },
+      "followUp": {
+        "urlField": "eventUrl",
+        "fields": {
+          "fullDescription": {
+            "selector": ".event-description, .content p, .event-info",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "time": {
+            "selector": ".event-time, .doors-time, .time",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "genres": {
+            "selector": ".event-tags .tag, .genre, .music-style",
+            "attribute": "text",
+            "multiple": true,
+            "transform": "trim"
+          }
+        }
+      }
+    }
+  ],
+  
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "date"]
+    },
+    "title": "fullTitle",
+    "artist": "artist",
+    "venue": {
+      "name": "The Louisiana Bristol",
+      "address": "Wapping Road",
+      "city": "Bristol", 
+      "country": "UK"
+    },
+    "date": {
+      "start": "date",
+      "timezone": "Europe/London"
+    },
+    "urls": {
+      "event": "eventUrl",
+      "tickets": "ticketsUrl"
+    },
+    "images": "image",
+    "description": "fullDescription",
+    "price": "price",
+    "tags": "genres"
+  },
+  
+  "validation": {
+    "required": [],
+    "minEventsExpected": 0,
+    "maxEventsExpected": 100
+  },
+  
+  "debug": {
+    "screenshots": true,
+    "saveHtml": true,
+    "logLevel": "debug"
+  }
+}

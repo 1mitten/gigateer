@@ -11,13 +11,13 @@ export interface EventGroup {
 export function isEventHappening(gig: Gig): boolean {
   const now = new Date();
   
-  if (!gig.date?.start) return false;
+  if (!gig.dateStart) return false;
   
-  const startDate = new Date(gig.date.start);
+  const startDate = new Date(gig.dateStart);
   
   // If there's an end date, check if current time is between start and end
-  if (gig.date.end) {
-    const endDate = new Date(gig.date.end);
+  if (gig.dateEnd) {
+    const endDate = new Date(gig.dateEnd);
     return now >= startDate && now <= endDate;
   }
   

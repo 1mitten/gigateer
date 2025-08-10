@@ -8,6 +8,13 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'sans': ['Public Sans', 'system-ui', 'sans-serif'],
+        'public-sans': ['Public Sans', 'system-ui', 'sans-serif'],
+      },
+      fontWeight: {
+        'extrabold': '800',
+      },
       colors: {
         primary: {
           50: '#eff6ff',
