@@ -124,6 +124,21 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
   },
+  webpack: (config, { isServer }) => {
+    // Exclude test files and vitest config from builds
+    config.module.rules.push({
+      test: /\.(test|spec)\.(js|jsx|ts|tsx)$/,
+      loader: 'ignore-loader'
+    });
+    
+    // Exclude vitest config files
+    config.module.rules.push({
+      test: /vitest\.config\.(js|ts)$/,
+      loader: 'ignore-loader'
+    });
+    
+    return config;
+  },
 };
 
 module.exports = withPWA(nextConfig);

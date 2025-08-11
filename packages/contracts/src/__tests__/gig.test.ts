@@ -7,7 +7,8 @@ describe("GigSchema", () => {
     sourceId: "12345",
     title: "Amazing Concert",
     artists: ["Artist One", "Artist Two"],
-    tags: ["rock", "indie"],
+    genre: ["rock", "indie"],
+    tags: ["concert", "live"],
     dateStart: "2024-01-15T20:00:00Z",
     dateEnd: "2024-01-15T23:00:00Z",
     timezone: "Europe/Amsterdam",
@@ -53,6 +54,7 @@ describe("GigSchema", () => {
       
       // Check defaults are applied
       expect(result.artists).toEqual([]);
+      expect(result.genre).toEqual([]);
       expect(result.tags).toEqual([]);
       expect(result.status).toBe("scheduled");
       expect(result.images).toEqual([]);
@@ -125,7 +127,7 @@ describe("GigSchema", () => {
   });
 
   describe("Default values", () => {
-    it("should apply default empty arrays for artists, tags, and images", () => {
+    it("should apply default empty arrays for artists, genre, tags, and images", () => {
       const gigWithoutArrays = {
         id: "test-gig",
         source: "test-source",
@@ -138,6 +140,7 @@ describe("GigSchema", () => {
 
       const result = GigSchema.parse(gigWithoutArrays);
       expect(result.artists).toEqual([]);
+      expect(result.genre).toEqual([]);
       expect(result.tags).toEqual([]);
       expect(result.images).toEqual([]);
     });

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import { DATE_FILTER_OPTIONS, DateFilterOption } from '../../utils/dateFilters';

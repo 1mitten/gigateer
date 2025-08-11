@@ -17,8 +17,6 @@ interface GigCardProps {
 }
 
 export function GigCard({ gig, className = "", priority = false }: GigCardProps) {
-  // Debug log to see if this component is being used instead of GigListItem
-  console.log('GigCard rendering for:', gig.title);
   
   // Color palette for tags
   const tagColors = ['#A3DC9A', '#DEE791', '#FFF9BD', '#FFD6BA'];

@@ -1,6 +1,7 @@
 import { SearchPage } from '../../components/pages/SearchPage';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
 interface CityPageProps {
   params: {
@@ -52,8 +53,14 @@ export default function CityPage({ params }: CityPageProps) {
     notFound();
   }
   
+  // Dynamically import SearchPage to ensure proper client-side rendering
+  const DynamicSearchPage = dynamic(
+    () => import('../../components/pages/SearchPage').then(mod => ({ default: mod.SearchPage })), 
+    { ssr: false }
+  );
+  
   // Pass the city to SearchPage component
-  return <SearchPage city={city} />;
+  return <DynamicSearchPage city={city} />;
 }
 
 // For static generation of common cities (optional)

@@ -33,8 +33,16 @@ const HASH_FIELDS: (keyof Gig)[] = [
  */
 export function createStableHash(data: any): string {
   try {
-    // Use stable stringify to ensure consistent ordering
-    const stableJson = stringify(data);
+    // Handle special cases for null and undefined
+    let stableJson: string;
+    if (data === null) {
+      stableJson = 'null';
+    } else if (data === undefined) {
+      stableJson = 'undefined';
+    } else {
+      // Use stable stringify to ensure consistent ordering
+      stableJson = stringify(data);
+    }
     return createHash('sha256').update(stableJson, 'utf8').digest('hex');
   } catch (error) {
     console.error('Error creating hash:', error);

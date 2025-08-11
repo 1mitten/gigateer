@@ -15,6 +15,7 @@ describe("Utils", () => {
     title: "Test Concert",
     artists: ["Artist One", "Artist Two"],
     genre: ["rock", "indie"],
+    tags: ["concert", "live"],
     dateStart: "2024-01-15T20:00:00Z",
     dateEnd: "2024-01-15T23:00:00Z",
     timezone: "Europe/Amsterdam",

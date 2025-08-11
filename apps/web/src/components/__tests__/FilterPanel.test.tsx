@@ -1,25 +1,21 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FilterPanel } from '../filters/FilterPanel';
 
 const mockFilters = {
   city: '',
-  genre: '',
+  tags: '',
   venue: '',
-  dateFrom: '',
-  dateTo: ''
+  dateFilter: 'all' as const
 };
 
-const mockOnChange = jest.fn();
-const mockOnReset = jest.fn();
+const mockOnChange = vi.fn();
+const mockOnReset = vi.fn();
 
 describe('FilterPanel', () => {
   beforeEach(() => {
-    mockOnChange.mockClear();
-    mockOnReset.mockClear();
+    vi.clearAllMocks();
   });
 
   it('renders all filter inputs', () => {
@@ -33,13 +29,11 @@ describe('FilterPanel', () => {
 
     expect(screen.getByText('Filters')).toBeInTheDocument();
     expect(screen.getByLabelText('City')).toBeInTheDocument();
-    expect(screen.getByLabelText('Genre')).toBeInTheDocument();
+    expect(screen.getByLabelText('Tags')).toBeInTheDocument();
     expect(screen.getByLabelText('Venue')).toBeInTheDocument();
-    expect(screen.getByLabelText('From Date')).toBeInTheDocument();
-    expect(screen.getByLabelText('To Date')).toBeInTheDocument();
   });
 
-  it('calls onChange when input values change', () => {
+  it('applies filters when Apply Filters button is clicked', () => {
     render(
       <FilterPanel
         filters={mockFilters}
@@ -50,17 +44,21 @@ describe('FilterPanel', () => {
 
     const cityInput = screen.getByLabelText('City');
     fireEvent.change(cityInput, { target: { value: 'New York' } });
+    
+    const applyButton = screen.getByText('Apply Filters');
+    fireEvent.click(applyButton);
 
-    expect(mockOnChange).toHaveBeenCalledWith({ city: 'New York' });
+    expect(mockOnChange).toHaveBeenCalledWith(expect.objectContaining({
+      city: 'New York'
+    }));
   });
 
-  it('shows clear button when filters are active', () => {
+  it('shows reset button when filters are active', () => {
     const activeFilters = {
       city: 'London',
-      genre: 'rock',
+      tags: 'rock',
       venue: '',
-      dateFrom: '',
-      dateTo: ''
+      dateFilter: 'all' as const
     };
 
     render(
@@ -71,20 +69,19 @@ describe('FilterPanel', () => {
       />
     );
 
-    const clearButton = screen.getByText('Clear All');
-    expect(clearButton).toBeInTheDocument();
+    const resetButton = screen.getByText('Reset Filters');
+    expect(resetButton).toBeInTheDocument();
     
-    fireEvent.click(clearButton);
+    fireEvent.click(resetButton);
     expect(mockOnReset).toHaveBeenCalled();
   });
 
   it('displays current filter values', () => {
     const filtersWithValues = {
       city: 'London',
-      genre: 'rock',
+      tags: 'rock',
       venue: 'O2 Arena',
-      dateFrom: '2024-03-01',
-      dateTo: '2024-03-31'
+      dateFilter: 'all' as const
     };
 
     render(
@@ -98,7 +95,5 @@ describe('FilterPanel', () => {
     expect(screen.getByDisplayValue('London')).toBeInTheDocument();
     expect(screen.getByDisplayValue('rock')).toBeInTheDocument();
     expect(screen.getByDisplayValue('O2 Arena')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('2024-03-01')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('2024-03-31')).toBeInTheDocument();
   });
 });

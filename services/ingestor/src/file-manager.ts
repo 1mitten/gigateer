@@ -39,15 +39,43 @@ export interface PerformanceMetrics {
 }
 
 export class FileManager {
+  private readonly rawDataDir: string;
+  private readonly normalizedDataDir: string;
+  private readonly logger: Logger | undefined;
   private readonly logDir: string;
+  private readonly sourcesDir: string;
+  private readonly catalogPath: string;
   
+  constructor(baseDir: string);
   constructor(
-    private readonly rawDataDir: string,
-    private readonly normalizedDataDir: string,
-    private readonly logger: Logger,
+    rawDataDir: string,
+    normalizedDataDir: string,
+    logger: Logger,
+    logDirOverride?: string
+  );
+  constructor(
+    rawDataDirOrBaseDir: string,
+    normalizedDataDir?: string,
+    logger?: Logger,
     logDirOverride?: string
   ) {
-    this.logDir = logDirOverride || join(dirname(this.rawDataDir), "run-logs");
+    if (arguments.length === 1) {
+      // Simple constructor for tests
+      this.rawDataDir = rawDataDirOrBaseDir;
+      this.normalizedDataDir = rawDataDirOrBaseDir;
+      this.logger = undefined as any;
+      this.logDir = join(rawDataDirOrBaseDir, "run-logs");
+      this.sourcesDir = join(rawDataDirOrBaseDir, "sources");
+      this.catalogPath = join(rawDataDirOrBaseDir, "catalog.json");
+    } else {
+      // Full constructor
+      this.rawDataDir = rawDataDirOrBaseDir;
+      this.normalizedDataDir = normalizedDataDir || rawDataDirOrBaseDir;
+      this.logger = logger;
+      this.logDir = logDirOverride || join(dirname(this.rawDataDir), "run-logs");
+      this.sourcesDir = join(this.rawDataDir, "sources");
+      this.catalogPath = join(this.rawDataDir, "catalog.json");
+    }
   }
 
   /**
@@ -59,6 +87,18 @@ export class FileManager {
     } catch {
       await fs.mkdir(dirPath, { recursive: true });
     }
+  }
+  
+  /**
+   * Ensures all required directories exist
+   */
+  async ensureDirectories(): Promise<void> {
+    await this.ensureDir(this.rawDataDir);
+    if (this.normalizedDataDir && this.normalizedDataDir !== this.rawDataDir) {
+      await this.ensureDir(this.normalizedDataDir);
+    }
+    await this.ensureDir(this.sourcesDir);
+    await this.ensureDir(this.logDir);
   }
 
   /**
@@ -76,7 +116,7 @@ export class FileManager {
     };
     
     await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), "utf8");
-    this.logger.debug({ source, count: data.length, filePath }, "Saved raw data");
+    this.logger?.debug({ source, count: data.length, filePath }, "Saved raw data");
   }
 
   /**
@@ -112,7 +152,7 @@ export class FileManager {
     };
     
     await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), "utf8");
-    this.logger.debug({ source, count: gigs.length, filePath }, "Saved normalized data");
+    this.logger?.debug({ source, count: gigs.length, filePath }, "Saved normalized data");
   }
 
   /**
@@ -138,11 +178,81 @@ export class FileManager {
    */
   async listNormalizedSources(): Promise<string[]> {
     try {
-      await this.ensureDir(this.normalizedDataDir);
-      const files = await fs.readdir(this.normalizedDataDir);
+      await this.ensureDir(this.normalizedDataDir || this.rawDataDir);
+      const files = await fs.readdir(this.normalizedDataDir || this.rawDataDir);
       return files
         .filter(file => file.endsWith(".normalized.json"))
         .map(file => file.replace(".normalized.json", ""));
+    } catch {
+      return [];
+    }
+  }
+  
+  /**
+   * Write source file (for test compatibility)
+   */
+  async writeSourceFile(sourceName: string, data: any[]): Promise<void> {
+    const filePath = join(this.sourcesDir, `${sourceName}.json`);
+    await this.ensureDir(dirname(filePath));
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
+    if (this.logger) {
+      this.logger.debug({ sourceName, count: data.length, filePath }, "Wrote source file");
+    }
+  }
+  
+  /**
+   * Read source file (for test compatibility)
+   */
+  async readSourceFile(sourceName: string): Promise<any[]> {
+    const filePath = join(this.sourcesDir, `${sourceName}.json`);
+    
+    try {
+      const content = await fs.readFile(filePath, "utf8");
+      return JSON.parse(content);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        return [];
+      }
+      throw error;
+    }
+  }
+  
+  /**
+   * Write catalog file (for test compatibility)
+   */
+  async writeCatalog(catalog: any[]): Promise<void> {
+    await this.ensureDir(dirname(this.catalogPath));
+    await fs.writeFile(this.catalogPath, JSON.stringify(catalog, null, 2), "utf8");
+    if (this.logger) {
+      this.logger.debug({ count: catalog.length, filePath: this.catalogPath }, "Wrote catalog file");
+    }
+  }
+  
+  /**
+   * Read catalog file (for test compatibility)
+   */
+  async readCatalog(): Promise<any[]> {
+    try {
+      const content = await fs.readFile(this.catalogPath, "utf8");
+      return JSON.parse(content);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        return [];
+      }
+      throw error;
+    }
+  }
+  
+  /**
+   * List sources (for test compatibility)
+   */
+  async listSources(): Promise<string[]> {
+    try {
+      await this.ensureDir(this.sourcesDir);
+      const files = await fs.readdir(this.sourcesDir);
+      return files
+        .filter(file => file.endsWith('.json') && !file.includes('catalog'))
+        .map(file => file.replace('.json', ''));
     } catch {
       return [];
     }
@@ -158,7 +268,7 @@ export class FileManager {
     const filePath = join(this.logDir, `run-${logData.type}-${timestamp}.json`);
     
     await fs.writeFile(filePath, JSON.stringify(logData, null, 2), "utf8");
-    this.logger.debug({ filePath, type: logData.type }, "Saved detailed run log");
+    this.logger?.debug({ filePath, type: logData.type }, "Saved detailed run log");
   }
   
   /**
@@ -174,7 +284,7 @@ export class FileManager {
     const line = JSON.stringify(metrics) + '\n';
     await fs.appendFile(filePath, line, "utf8");
     
-    this.logger.debug({ source: metrics.source, filePath }, "Saved performance metrics");
+    this.logger?.debug({ source: metrics.source, filePath }, "Saved performance metrics");
   }
   
   /**
@@ -201,7 +311,7 @@ export class FileManager {
     const line = JSON.stringify(snapshot) + '\n';
     await fs.appendFile(filePath, line, "utf8");
     
-    this.logger.debug({ filePath }, "Saved scheduler snapshot");
+    this.logger?.debug({ filePath }, "Saved scheduler snapshot");
   }
   
   /**
@@ -223,7 +333,7 @@ export class FileManager {
     const line = JSON.stringify(errorData) + '\n';
     await fs.appendFile(filePath, line, "utf8");
     
-    this.logger.debug({ source: errorData.source, severity: errorData.severity }, "Saved error log");
+    this.logger?.debug({ source: errorData.source, severity: errorData.severity }, "Saved error log");
   }
   
   /**
@@ -282,7 +392,7 @@ export class FileManager {
             
             metrics.push(metric);
           } catch (error) {
-            this.logger.warn({ line, error: (error as Error).message }, "Failed to parse performance metric");
+            this.logger?.warn({ line, error: (error as Error).message }, "Failed to parse performance metric");
           }
         }
       }
@@ -311,13 +421,13 @@ export class FileManager {
         if (stats.mtime < cutoffDate) {
           await fs.unlink(filePath);
           deletedCount++;
-          this.logger.debug({ file }, "Deleted old log file");
+          this.logger?.debug({ file }, "Deleted old log file");
         }
       }
       
-      this.logger.info({ deletedCount, retentionDays }, "Log cleanup completed");
+      this.logger?.info({ deletedCount, retentionDays }, "Log cleanup completed");
     } catch (error) {
-      this.logger.error({ error: (error as Error).message }, "Failed to cleanup logs");
+      this.logger?.error({ error: (error as Error).message }, "Failed to cleanup logs");
     }
   }
 }

@@ -29,7 +29,7 @@ module.exports = {
       statements: 80
     }
   },
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@gigateer/contracts$': '<rootDir>/../contracts/src/index.ts'
   },
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts']

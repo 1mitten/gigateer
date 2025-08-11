@@ -42,6 +42,27 @@ pnpm typecheck                    # TypeScript checking
 pnpm build && pnpm test          # Must pass both
 ```
 
+### After Code Modifications (MANDATORY)
+**ALWAYS verify tests pass after ANY code changes:**
+```bash
+# Run specific package tests during development
+pnpm --filter <package-name> test    # Test specific package (runs once, exits)
+pnpm --filter contracts test         # Example: contracts package
+pnpm --filter ingestor test          # Example: ingestor service
+
+# Full validation before commit/PR
+pnpm test                            # All tests must pass (runs once, exits)
+
+# Watch mode for active development (optional)
+pnpm --filter web test:watch         # Vitest watch mode for web package
+```
+
+**Test Failure Protocol:**
+1. **Never ignore failing tests** - Fix immediately
+2. **Run tests after every significant change** - Don't batch fixes  
+3. **Check all affected packages** - Changes to contracts affect everything
+4. **Validate external dependencies** - Some tests may fail due to network/DB unavailability (expected)
+
 ## 📋 Code Quality Checklist
 
 **MANDATORY - Apply to EVERY code change:**
@@ -69,6 +90,13 @@ pnpm build && pnpm test          # Must pass both
 - [ ] Business logic separated from UI
 - [ ] Error handling with user-friendly messages
 - [ ] Performance optimized (memoization, re-renders)
+
+### ✅ Testing Requirements (MANDATORY)
+- [ ] **Run tests after EVERY code change** - `pnpm test`
+- [ ] **Test specific packages during development** - `pnpm --filter <package> test`
+- [ ] **All tests must pass before commit/PR** - Zero tolerance for failing tests
+- [ ] **Fix broken tests immediately** - Don't let them accumulate
+- [ ] **Verify cross-package impacts** - Changes to `contracts` affect all packages
 
 ## 🎯 Available Agents
 
@@ -201,12 +229,37 @@ Use Playwright MCP for advanced scraper testing and validation:
 - **Minimum**: 70% overall, 80% for new code
 - **Critical paths**: 95%+ (auth, payment, data ingestion)
 
+### Test Resilience Best Practices
+**Our tests handle external dependencies gracefully:**
+- **Network failures**: Tests skip gracefully when external services unavailable
+- **Database connections**: MongoDB tests pass even when DB not running  
+- **Timeouts**: All integration tests have appropriate timeout values
+- **Error handling**: Tests catch and handle expected environmental failures
+
+### Package-Specific Testing Notes
+```bash
+# Core packages (always test after changes)
+pnpm --filter contracts test      # 31 tests - Zod schemas, utils
+pnpm --filter dedupe test         # 130 tests - Deduplication logic  
+pnpm --filter scraper test        # 80 tests - Scraping utilities
+pnpm --filter ingestor test       # 32 tests - Data ingestion (may skip external deps)
+pnpm --filter web test           # React component tests
+```
+
 ## 🚨 Common Issues & Solutions
 
 ### Build Failures
 - **TypeScript errors**: Fix before proceeding
 - **Import/export mismatches**: Check interface definitions
 - **Node.js ESM issues**: Ensure `"type": "module"` in package.json
+
+### Test Failures
+- **Schema changes**: Update `contracts` package first, then affected packages
+- **Missing fields**: Check if interfaces need new properties (e.g., `genre`, `price`)
+- **Timeout errors**: Integration tests may timeout due to external services (expected)
+- **Path resolution**: Tests change directory - verify CLI commands use correct paths
+- **Jest config warnings**: Update deprecated `moduleNameMapping` to `moduleNameMapper`
+- **Watch mode hanging**: Use `vitest run` instead of `vitest` for CI/automated testing
 
 ### React Issues  
 - **Hooks order errors**: All hooks before conditional logic

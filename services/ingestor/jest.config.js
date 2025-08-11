@@ -36,6 +36,9 @@ export default {
   },
   // Handle ES modules
   transformIgnorePatterns: [
-    'node_modules/(?!(.*\\.mjs$))'
+    'node_modules/(?!(@gigateer/contracts|.*\\.mjs$))'
   ],
+  moduleNameMapper: {
+    '^@gigateer/contracts$': '<rootDir>/../../packages/contracts/src/index.ts',
+  },
 };

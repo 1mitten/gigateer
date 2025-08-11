@@ -121,24 +121,29 @@ export function validateAndSanitizeGig(
       }
     }
 
-    // Validate and sanitize specific fields
-    sanitized.id = validateId(gig.id, errors);
-    sanitized.source = validateSource(gig.source, errors);
-    sanitized.title = validateTitle(gig.title, errors, autoFix);
-    sanitized.artists = validateArtists(gig.artists, errors, autoFix);
-    sanitized.genre = validateGenre(gig.genre, errors, autoFix);
-    sanitized.dateStart = validateDate(gig.dateStart, 'dateStart', errors, autoFix);
-    sanitized.dateEnd = validateDate(gig.dateEnd, 'dateEnd', errors, autoFix, true);
-    sanitized.timezone = validateTimezone(gig.timezone, errors, autoFix);
-    sanitized.venue = validateVenue(gig.venue, errors, autoFix);
-    sanitized.price = validatePrice(gig.price, errors, autoFix, allowMissingOptional);
-    sanitized.ageRestriction = validateAgeRestriction(gig.ageRestriction, errors, autoFix);
-    sanitized.status = validateStatus(gig.status, errors, autoFix);
-    sanitized.ticketsUrl = validateUrl(gig.ticketsUrl, 'ticketsUrl', errors, autoFix);
-    sanitized.eventUrl = validateUrl(gig.eventUrl, 'eventUrl', errors, autoFix);
-    sanitized.images = validateImages(gig.images, errors, autoFix);
-    sanitized.updatedAt = validateDate(gig.updatedAt, 'updatedAt', errors, autoFix);
-    sanitized.hash = validateHash(gig.hash, errors, autoFix);
+    // Skip individual field validation if autoFix is enabled and fields are already populated
+    // For autoFix mode, trust the default values set above
+    if (!autoFix || !sanitized.id) {
+      sanitized.id = validateId(sanitized.id || gig.id, errors);
+    }
+    if (!autoFix || !sanitized.source) {
+      sanitized.source = validateSource(sanitized.source || gig.source, errors);  
+    }
+    sanitized.title = validateTitle(sanitized.title || gig.title, errors, autoFix);
+    sanitized.artists = validateArtists(sanitized.artists || gig.artists, errors, autoFix);
+    sanitized.genre = validateGenre(sanitized.genre || gig.genre, errors, autoFix);
+    sanitized.dateStart = validateDate(sanitized.dateStart || gig.dateStart, 'dateStart', errors, autoFix);
+    sanitized.dateEnd = validateDate(sanitized.dateEnd || gig.dateEnd, 'dateEnd', errors, autoFix, true);
+    sanitized.timezone = validateTimezone(sanitized.timezone || gig.timezone, errors, autoFix);
+    sanitized.venue = validateVenue(sanitized.venue || gig.venue, errors, autoFix);
+    sanitized.price = validatePrice(sanitized.price || gig.price, errors, autoFix, allowMissingOptional);
+    sanitized.ageRestriction = validateAgeRestriction(sanitized.ageRestriction || gig.ageRestriction, errors, autoFix);
+    sanitized.status = validateStatus(sanitized.status || gig.status, errors, autoFix);
+    sanitized.ticketsUrl = validateUrl(sanitized.ticketsUrl || gig.ticketsUrl, 'ticketsUrl', errors, autoFix);
+    sanitized.eventUrl = validateUrl(sanitized.eventUrl || gig.eventUrl, 'eventUrl', errors, autoFix);
+    sanitized.images = validateImages(sanitized.images || gig.images, errors, autoFix);
+    sanitized.updatedAt = validateDate(sanitized.updatedAt || gig.updatedAt, 'updatedAt', errors, autoFix);
+    sanitized.hash = validateHash(sanitized.hash || gig.hash, errors, autoFix);
 
     // Add any extra fields (for extensibility)
     for (const [key, value] of Object.entries(gig)) {
@@ -273,10 +278,13 @@ function validateArtists(artists: any, errors: DedupeError[], autoFix: boolean):
     return [];
   }
   
-  return artists
+  const validArtists = artists
     .filter(artist => artist && typeof artist === 'string')
     .map(artist => artist.trim())
     .filter(artist => artist.length > 0);
+  
+  // Deduplicate artists
+  return [...new Set(validArtists)];
 }
 
 /**
@@ -297,10 +305,13 @@ function validateGenre(genre: any, errors: DedupeError[], autoFix: boolean): str
     return [];
   }
   
-  return genre
+  const validGenres = genre
     .filter(g => g && typeof g === 'string')
     .map(g => g.trim())
     .filter(g => g.length > 0);
+  
+  // Deduplicate genres
+  return [...new Set(validGenres)];
 }
 
 /**
@@ -612,7 +623,8 @@ function validateImages(images: any, errors: DedupeError[], autoFix: boolean): s
     }
   }
   
-  return validImages;
+  // Deduplicate images
+  return [...new Set(validImages)];
 }
 
 /**

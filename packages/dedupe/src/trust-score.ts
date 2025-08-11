@@ -187,6 +187,10 @@ function mergeGigFields(target: Partial<Gig>, source: Gig, preferSource: boolean
     target.artists = [...new Set([...(target.artists || []), ...source.artists])];
   }
   
+  if (source.genre && source.genre.length > 0) {
+    target.genre = [...new Set([...(target.genre || []), ...source.genre])];
+  }
+  
   if (source.tags && source.tags.length > 0) {
     target.tags = [...new Set([...(target.tags || []), ...source.tags])];
   }

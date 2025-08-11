@@ -31,6 +31,47 @@ export interface EnvironmentConfig {
   INGESTOR_USE_FILE_STORAGE?: string;
 }
 
+export class Config {
+  public readonly dataDir: string;
+  public readonly scheduleIntervalMinutes: number;
+  public readonly globalRateLimitPerMinute: number;
+  public readonly isDevelopment: boolean;
+
+  constructor() {
+    this.dataDir = process.env.DATA_DIR || './data';
+    this.scheduleIntervalMinutes = parseInt(process.env.SCHEDULE_INTERVAL_MINUTES || '180', 10) || 180;
+    this.globalRateLimitPerMinute = parseInt(process.env.GLOBAL_RATE_LIMIT_PER_MINUTE || '30', 10) || 30;
+    this.isDevelopment = process.env.NODE_ENV !== 'production';
+  }
+
+  getLoggerConfig() {
+    if (this.isDevelopment) {
+      return {
+        level: 'debug',
+        transport: {
+          target: 'pino-pretty'
+        }
+      };
+    } else {
+      return {
+        level: 'info'
+      };
+    }
+  }
+
+  validate() {
+    if (!this.dataDir) {
+      throw new Error('Data directory must be configured');
+    }
+    if (this.scheduleIntervalMinutes <= 0) {
+      throw new Error('Schedule interval must be positive');
+    }
+    if (this.globalRateLimitPerMinute <= 0) {
+      throw new Error('Global rate limit must be positive');
+    }
+  }
+}
+
 export class ConfigManager {
   /**
    * Loads configuration from environment variables with defaults
