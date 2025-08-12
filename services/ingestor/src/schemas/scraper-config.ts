@@ -37,7 +37,7 @@ export const ExtractConfigSchema = z.object({
     attribute: z.string().optional(), // 'text', 'href', 'src', or custom attribute
     multiple: z.boolean().default(false),
     required: z.boolean().default(true),
-    transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'exchange-bristol-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date']).optional(),
+    transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'thekla-bristol-date']).optional(),
     fallback: z.string().optional(),
     transformParams: z.record(z.any()).optional(), // For regex patterns, etc.
     followUp: z.object({
@@ -45,7 +45,7 @@ export const ExtractConfigSchema = z.object({
       fields: z.record(z.object({
         selector: z.string(),
         attribute: z.string().optional(),
-        transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'exchange-bristol-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date']).optional(),
+        transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'thekla-bristol-date']).optional(),
         transformParams: z.record(z.any()).optional()
       }))
     }).optional() // Follow-up extraction from linked pages

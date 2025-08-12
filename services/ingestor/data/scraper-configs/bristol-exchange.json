@@ -2,7 +2,7 @@
   "site": {
     "name": "Exchange Bristol",
     "baseUrl": "https://exchangebristol.com",
-    "source": "exchange-bristol",
+    "source": "bristol-exchange",
     "description": "Independent music venue in Bristol, UK",
     "maintainer": "gigateer-team",
     "lastUpdated": "2024-01-09"
@@ -41,7 +41,7 @@
     },
     {
       "type": "extract", 
-      "method": "exchange-bristol",
+      "method": "bristol-exchange",
       "containerSelector": ".hf__event-listing",
       "fields": {
         "title": {
@@ -67,14 +67,14 @@
           "selector": ".hf__event-listing--time",
           "attribute": "text",
           "required": false,
-          "transform": "exchange-bristol-datetime",
+          "transform": "bristol-exchange-datetime",
           "fallback": "TBA"
         },
         "endTime": {
           "selector": ".hf__event-listing--time",
           "attribute": "text",
           "required": false,
-          "transform": "exchange-bristol-datetime"
+          "transform": "bristol-exchange-datetime"
         },
         "venue": {
           "selector": ".hf__event-listing--stage-inner",

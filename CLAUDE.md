@@ -135,7 +135,7 @@ gigateer/
 ### Quick Scraper Creation
 ```bash
 # 1. Create JSON config in services/ingestor/data/scraper-configs/
-cp exchange-bristol.json my-venue.json
+cp bristol-exchange.json my-venue.json
 
 # 2. Edit configuration (URL, selectors, mappings)
 

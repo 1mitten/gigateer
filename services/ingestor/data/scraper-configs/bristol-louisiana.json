@@ -86,8 +86,7 @@
           "selector": ".event-date .event-time",
           "attribute": "text",
           "required": false,
-          "transform": "trim",
-          "fallback": "7:30pm"
+          "transform": "trim"
         },
         "price": {
           "selector": ".event-price",

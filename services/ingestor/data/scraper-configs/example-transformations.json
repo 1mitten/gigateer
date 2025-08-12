@@ -61,27 +61,7 @@
         "description": {
           "selector": ".event-description",
           "attribute": "text",
-          "transform": "trim",
-          "followUp": {
-            "urlField": "eventUrl",
-            "fields": {
-              "fullDescription": {
-                "selector": ".full-description",
-                "attribute": "text",
-                "transform": "trim"
-              },
-              "ticketInfo": {
-                "selector": ".ticket-info",
-                "attribute": "text",
-                "transform": "trim"
-              },
-              "venueDetails": {
-                "selector": ".venue-details",
-                "attribute": "text", 
-                "transform": "trim"
-              }
-            }
-          }
+          "transform": "trim"
         },
         
         "extractedArtist": {
@@ -104,6 +84,26 @@
             "flags": "gi"
           }
         }
+      },
+      "followUp": {
+        "urlField": "eventUrl",
+        "fields": {
+          "fullDescription": {
+            "selector": ".full-description",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "ticketInfo": {
+            "selector": ".ticket-info",
+            "attribute": "text",
+            "transform": "trim"
+          },
+          "venueDetails": {
+            "selector": ".venue-details",
+            "attribute": "text", 
+            "transform": "trim"
+          }
+        }
       }
     }
   ],
@@ -123,5 +123,17 @@
       "event": "eventUrl"
     },
     "description": "fullDescription"
+  },
+  
+  "validation": {
+    "required": [],
+    "minEventsExpected": 0,
+    "maxEventsExpected": 100
+  },
+  
+  "debug": {
+    "screenshots": false,
+    "saveHtml": false,
+    "logLevel": "info"
   }
 }

@@ -74,16 +74,6 @@
           "required": false,
           "transform": "url"
         },
-        "infoUrl": {
-          "selector": "a:contains('Info')",
-          "attribute": "href",
-          "required": false
-        },
-        "ticketsUrl": {
-          "selector": "a:contains('Tickets')",
-          "attribute": "href",
-          "required": false
-        },
         "image": {
           "selector": "img",
           "attribute": "src",
@@ -141,8 +131,7 @@
     },
     "urls": {
       "event": "eventUrl",
-      "tickets": "ticketsUrl",
-      "info": "infoUrl"
+      "tickets": "ticketsUrl"
     },
     "images": "image",
     "tags": "genres",

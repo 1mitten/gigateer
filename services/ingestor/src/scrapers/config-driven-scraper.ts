@@ -305,7 +305,7 @@ export class ConfigDrivenScraper {
     scraperLogger.info(`Found ${containers.length} containers to extract from`);
 
     // Check if this uses a special extraction method
-    if ((action as any).method === 'exchange-bristol' || this.config.site.source === 'exchange-bristol') {
+    if ((action as any).method === 'bristol-exchange' || this.config.site.source === 'bristol-exchange') {
       await this.executeExchangeBristolExtraction(action);
       return;
     }
@@ -499,7 +499,7 @@ export class ConfigDrivenScraper {
           return value.replace(regex, transformParams.replacement || '');
         }
         return value;
-      case 'exchange-bristol-datetime':
+      case 'bristol-exchange-datetime':
         // Combine date group and time range into ISO datetime
         return this.parseExchangeBristolDateTime(value, transformParams);
       case 'parse-date-group':
@@ -508,6 +508,9 @@ export class ConfigDrivenScraper {
       case 'lanes-bristol-date':
         // Parse The Lanes Bristol date format like "Friday 15th August 22:30 - 03:00"
         return this.parseLanesBristolDate(value);
+      case 'thekla-bristol-date':
+        // Parse Thekla Bristol date format like "Wed.13.Aug.25"
+        return this.parseTheklaBristolDate(value);
       default:
         return value;
     }
@@ -610,7 +613,7 @@ export class ConfigDrivenScraper {
 
         // Apply transformations
         if (fieldConfig?.transform && processedValue && typeof processedValue === 'string') {
-          if (fieldConfig.transform === 'exchange-bristol-datetime') {
+          if (fieldConfig.transform === 'bristol-exchange-datetime') {
             // Special case: pass dateGroup and field context as transform parameters
             const transformParams = { 
               dateGroup: item.dateGroup,
@@ -727,17 +730,20 @@ export class ConfigDrivenScraper {
         }
       }
       
-      // Fallback if time parsing fails
-      const date = new Date(`${dateStr}T00:00:00.000Z`);
-      if (isNaN(date.getTime())) {
-        scraperLogger.warn(`Fallback date is invalid, using current time`);
-        return new Date().toISOString();
+      // If time parsing fails but we have a valid date, return date-only
+      const date = new Date(`${dateStr}T12:00:00.000Z`);
+      if (!isNaN(date.getTime())) {
+        scraperLogger.warn(`Could not parse time from "${timeRange}", using date only with noon time`);
+        return date.toISOString();
       }
-      return date.toISOString();
+      
+      // If even the date is invalid, return the original value
+      scraperLogger.error(`Invalid date and time: date="${dateStr}", time="${timeRange}"`);
+      return timeRange;
       
     } catch (error) {
-      scraperLogger.error(`Error parsing Exchange Bristol datetime: ${error}, falling back to current time`);
-      return new Date().toISOString();
+      scraperLogger.error(`Error parsing Exchange Bristol datetime: ${error}`);
+      return timeRange;
     }
   }
 
@@ -752,6 +758,20 @@ export class ConfigDrivenScraper {
     
     return months.findIndex(month => 
       month.toLowerCase().startsWith(monthName.toLowerCase().substring(0, 3))
+    );
+  }
+
+  /**
+   * Get month index from 3-letter abbreviation like "Aug", "Sep", etc.
+   */
+  private getMonthIndexFromAbbr(monthAbbr: string): number {
+    const monthAbbreviations = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    
+    return monthAbbreviations.findIndex(abbr => 
+      abbr.toLowerCase() === monthAbbr.toLowerCase()
     );
   }
 
@@ -831,13 +851,89 @@ export class ConfigDrivenScraper {
         }
       }
       
-      // Ultimate fallback - return current time
-      scraperLogger.error(`Failed to parse Lanes Bristol date: "${dateStr}", using current time`);
-      return new Date().toISOString();
+      // Try to parse just the date part without time
+      const dateOnlyMatch = dateStr.trim().match(/(\d+)(?:st|nd|rd|th)?\s+(\w+)/);
+      if (dateOnlyMatch) {
+        const [, day, month] = dateOnlyMatch;
+        const monthIndex = this.getMonthIndex(month);
+        
+        if (monthIndex !== -1) {
+          const now = new Date();
+          let year = now.getFullYear();
+          
+          // If this month is earlier than the current month, assume next year
+          if (monthIndex < now.getMonth()) {
+            year = year + 1;
+          }
+          
+          // Create date without specific time (use noon to avoid timezone issues)
+          const parsedDate = new Date(year, monthIndex, parseInt(day), 12, 0, 0);
+          
+          if (!isNaN(parsedDate.getTime())) {
+            const isoString = parsedDate.toISOString();
+            scraperLogger.warn(`Parsed Lanes Bristol date without time "${dateStr}" to "${isoString}"`);
+            return isoString;
+          }
+        }
+      }
+      
+      // Ultimate fallback - throw error instead of returning fake time
+      scraperLogger.error(`Failed to parse Lanes Bristol date: "${dateStr}"`);
+      throw new Error(`Could not parse date: ${dateStr}`);
       
     } catch (error) {
       scraperLogger.error(`Error parsing Lanes Bristol date "${dateStr}":`, error);
-      return new Date().toISOString();
+      // Return the original string instead of a fake time
+      return dateStr;
+    }
+  }
+
+  /**
+   * Parse Thekla Bristol date format like "Wed.13.Aug.25"
+   */
+  private parseTheklaBristolDate(dateStr: string): string {
+    try {
+      scraperLogger.debug(`Parsing Thekla Bristol date: "${dateStr}"`);
+      
+      // Match pattern like "Wed.13.Aug.25" or "Thu.14.Aug.25"
+      const dateMatch = dateStr.trim().match(/^(\w{3})\.(\d{1,2})\.(\w{3})\.(\d{2})$/);
+      
+      if (dateMatch) {
+        const [, dayName, day, monthAbbr, year] = dateMatch;
+        
+        // Convert month abbreviation to index
+        const monthIndex = this.getMonthIndexFromAbbr(monthAbbr);
+        if (monthIndex === -1) {
+          throw new Error(`Unknown month abbreviation: ${monthAbbr}`);
+        }
+        
+        // Convert 2-digit year to 4-digit (assuming 20xx)
+        const fullYear = parseInt(year) < 50 ? 2000 + parseInt(year) : 1900 + parseInt(year);
+        
+        // Create date at noon to avoid timezone issues with date-only events
+        const parsedDate = new Date(fullYear, monthIndex, parseInt(day), 12, 0, 0);
+        
+        if (!isNaN(parsedDate.getTime())) {
+          const isoString = parsedDate.toISOString();
+          scraperLogger.debug(`Parsed Thekla Bristol date "${dateStr}" to "${isoString}"`);
+          return isoString;
+        }
+      }
+      
+      // Fallback - try simple parsing
+      scraperLogger.warn(`Could not parse Thekla Bristol date format: "${dateStr}", attempting fallback`);
+      const fallbackDate = new Date(dateStr);
+      if (!isNaN(fallbackDate.getTime())) {
+        return fallbackDate.toISOString();
+      }
+      
+      // Ultimate fallback - return the original string
+      scraperLogger.error(`Failed to parse Thekla Bristol date: "${dateStr}"`);
+      return dateStr;
+      
+    } catch (error) {
+      scraperLogger.error(`Error parsing Thekla Bristol date "${dateStr}":`, error);
+      return dateStr;
     }
   }
 

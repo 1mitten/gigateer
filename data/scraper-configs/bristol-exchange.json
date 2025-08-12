@@ -2,7 +2,7 @@
   "site": {
     "name": "Exchange Bristol",
     "baseUrl": "https://exchangebristol.com",
-    "source": "exchange-bristol",
+    "source": "bristol-exchange",
     "description": "Independent music venue in Bristol, UK",
     "maintainer": "gigateer-team",
     "lastUpdated": "2024-01-09"

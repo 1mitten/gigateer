@@ -90,69 +90,96 @@ export function GigListItem({ gig, className = "", priority = false }: GigListIt
   return (
     <Link 
       href={`/gig/${gig.id}`}
-      className={`block border-b border-gray-200 px-4 py-2 hover:bg-gray-50 transition-colors duration-200 ${className}`}
+      className={`block border-b border-gray-200 px-4 py-3 hover:bg-gray-50 transition-colors duration-200 ${className}`}
     >
-      <div className="grid grid-cols-12 gap-4 items-center min-w-0">
-        {/* Event title */}
-        <div className="col-span-4 min-w-0">
-          <h3 className="text-sm font-semibold text-gray-900 transition-colors truncate">
+      {/* Mobile-optimized layout: just event name and date */}
+      <div className="md:hidden">
+        <div className="flex flex-col gap-1">
+          <h3 className="text-sm font-semibold text-gray-900 leading-5">
             {gig.title}
           </h3>
-        </div>
-
-        {/* Date */}
-        <div className="col-span-2 flex items-center text-sm text-gray-600">
-          <CalendarIcon className="h-3 w-3 mr-1 flex-shrink-0" />
-          <span className="whitespace-nowrap">{formattedDate}</span>
-        </div>
-
-        {/* Time */}
-        <div className="col-span-1 flex items-center text-sm text-gray-600">
-          <ClockIcon className="h-3 w-3 mr-1 flex-shrink-0" />
-          <span className="whitespace-nowrap">{formattedTime}</span>
-        </div>
-
-        {/* Venue */}
-        <div className="col-span-3 flex items-center text-sm text-gray-600 min-w-0">
-          <MapPinIcon className="h-3 w-3 mr-1 flex-shrink-0" />
-          <span className="truncate">
-            {gig.venue.name}
-            {gig.venue.city && `, ${gig.venue.city}`}
-          </span>
-        </div>
-
-        {/* Status badge */}
-        <div className="col-span-1 flex justify-center">
-          {getStatusBadge() || <span></span>}
-        </div>
-
-        {/* Action buttons */}
-        <div className="col-span-1 flex items-center justify-end gap-1">
-          {gig.eventUrl && (
-            <a
-              href={gig.eventUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1 z-10 relative"
-              title="View original event page"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <LinkIcon className="h-3 w-3" />
-            </a>
+          <div className="flex items-center text-sm text-gray-600">
+            <CalendarIcon className="h-4 w-4 mr-1.5 flex-shrink-0" />
+            <span>{formattedDate}</span>
+            {formattedTime !== 'Time TBA' && (
+              <>
+                <span className="mx-2">•</span>
+                <span>{formattedTime}</span>
+              </>
+            )}
+          </div>
+          {getStatusBadge() && (
+            <div className="mt-1">
+              {getStatusBadge()}
+            </div>
           )}
-          
-          {gig.ticketsUrl && (
-            <a
-              href={gig.ticketsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors whitespace-nowrap z-10 relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <TicketIcon className="h-3 w-3" />
-              <span className="hidden sm:inline">Tickets</span>
-            </a>
-          )}
+        </div>
+      </div>
+
+      {/* Desktop layout: full grid with all information */}
+      <div className="hidden md:block">
+        <div className="grid grid-cols-12 gap-4 items-center min-w-0">
+          {/* Event title */}
+          <div className="col-span-4 min-w-0">
+            <h3 className="text-sm font-semibold text-gray-900 transition-colors truncate">
+              {gig.title}
+            </h3>
+          </div>
+
+          {/* Date */}
+          <div className="col-span-2 flex items-center text-sm text-gray-600">
+            <CalendarIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+            <span className="whitespace-nowrap">{formattedDate}</span>
+          </div>
+
+          {/* Time */}
+          <div className="col-span-1 flex items-center text-sm text-gray-600">
+            <ClockIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+            <span className="whitespace-nowrap">{formattedTime}</span>
+          </div>
+
+          {/* Venue */}
+          <div className="col-span-3 flex items-center text-sm text-gray-600 min-w-0">
+            <MapPinIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+            <span className="truncate">
+              {gig.venue.name}
+              {gig.venue.city && `, ${gig.venue.city}`}
+            </span>
+          </div>
+
+          {/* Status badge */}
+          <div className="col-span-1 flex justify-center">
+            {getStatusBadge() || <span></span>}
+          </div>
+
+          {/* Action buttons */}
+          <div className="col-span-1 flex items-center justify-end gap-1">
+            {gig.eventUrl && (
+              <a
+                href={gig.eventUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1 z-10 relative"
+                title="View original event page"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <LinkIcon className="h-3 w-3" />
+              </a>
+            )}
+            
+            {gig.ticketsUrl && (
+              <a
+                href={gig.ticketsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors whitespace-nowrap z-10 relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <TicketIcon className="h-3 w-3" />
+                <span className="hidden sm:inline">Tickets</span>
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </Link>

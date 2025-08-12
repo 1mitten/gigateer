@@ -58,27 +58,26 @@
     },
     {
       "type": "extract", 
-      "containerSelector": "div > div > div",
+      "containerSelector": "div.card.card--full.card--alt-layout",
       "fields": {
         "title": {
-          "selector": "a[href*='/gigs/']",
+          "selector": "a.card__heading.card__heading--last.h4",
           "attribute": "text",
           "required": false,
           "transform": "trim",
           "fallback": "Event at Thekla"
         },
         "artist": {
-          "selector": "a[href*='/gigs/']",
+          "selector": "a.card__heading.card__heading--last.h4",
           "attribute": "text",
           "required": false,
-          "transform": "trim",
-          "fallback": "TBA"
+          "transform": "trim"
         },
         "date": {
-          "selector": "h6",
+          "selector": "h6.card__strip-heading.card__strip-heading--last",
           "attribute": "text",
           "required": false,
-          "transform": "trim",
+          "transform": "thekla-bristol-date",
           "fallback": "TBA"
         },
         "support": {
@@ -88,27 +87,24 @@
           "transform": "trim"
         },
         "eventUrl": {
-          "selector": "a[href*='/gigs/']",
+          "selector": "a.card__heading.card__heading--last.h4",
           "attribute": "href",
           "required": false,
-          "transform": "url",
-          "fallback": "https://www.theklabristol.co.uk/live/"
+          "transform": "url"
         },
         "ticketsUrl": {
-          "selector": "a",
+          "selector": "a.button.button--1.card__button.js-gig-guide-tickets",
           "attribute": "href",
-          "required": false,
-          "fallback": "https://www.theklabristol.co.uk/"
+          "required": false
         },
         "moreInfoUrl": {
-          "selector": "a",
+          "selector": "a.button.card__button.js-gig-guide-more-info",
           "attribute": "href",
-          "required": false,
-          "fallback": "https://www.theklabristol.co.uk/live/"
+          "required": false
         },
         "image": {
-          "selector": "img",
-          "attribute": "src",
+          "selector": "img.img.img--bg.link__image",
+          "attribute": "data-lazy-src",
           "required": false
         },
         "status": {
