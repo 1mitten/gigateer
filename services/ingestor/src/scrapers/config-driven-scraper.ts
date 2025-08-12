@@ -511,6 +511,9 @@ export class ConfigDrivenScraper {
       case 'thekla-bristol-date':
         // Parse Thekla Bristol date format like "Wed.13.Aug.25"
         return this.parseTheklaBristolDate(value);
+      case 'fleece-bristol-datetime':
+        // Parse The Fleece Bristol date format like "Tuesday 12 Aug 2025" with doors time
+        return this.parseFleeceBristolDateTime(value, transformParams);
       default:
         return value;
     }
@@ -938,6 +941,89 @@ export class ConfigDrivenScraper {
   }
 
   /**
+   * Parse The Fleece Bristol date format like "Tuesday 12 Aug 2025" combined with doors time like "Doors: 07:00"
+   */
+  private parseFleeceBristolDateTime(dateStr: string, params?: Record<string, any>): string {
+    try {
+      scraperLogger.debug(`Parsing Fleece Bristol date: "${dateStr}"`);
+      
+      // Match pattern like "Tuesday 12 Aug 2025"
+      const dateMatch = dateStr.trim().match(/^(\w+)\s+(\d{1,2})\s+(\w+)\s+(\d{4})$/);
+      
+      if (dateMatch) {
+        const [, dayName, day, month, year] = dateMatch;
+        
+        // Get month index
+        const monthIndex = this.getMonthIndex(month);
+        if (monthIndex === -1) {
+          throw new Error(`Unknown month: ${month}`);
+        }
+        
+        // Extract doors time from params if provided
+        let hour = 12; // Default to noon
+        let minute = 0;
+        
+        if (params?.doorsTime) {
+          // Extract time from "Doors: 07:00" format
+          const timeMatch = params.doorsTime.match(/(?:doors?:?\s*)?(\d{1,2}):(\d{2})/i);
+          if (timeMatch) {
+            hour = parseInt(timeMatch[1]);
+            minute = parseInt(timeMatch[2]);
+          }
+        }
+        
+        // Create the date
+        const parsedDate = new Date(parseInt(year), monthIndex, parseInt(day), hour, minute);
+        
+        // Validate the date
+        if (isNaN(parsedDate.getTime())) {
+          throw new Error(`Invalid date created: ${year}-${monthIndex + 1}-${day} ${hour}:${minute}`);
+        }
+        
+        const isoString = parsedDate.toISOString();
+        scraperLogger.debug(`Parsed Fleece Bristol date "${dateStr}" with doors time to "${isoString}"`);
+        return isoString;
+      }
+      
+      // Try fallback without day name, just "12 Aug 2025"
+      const fallbackMatch = dateStr.trim().match(/(\d{1,2})\s+(\w+)\s+(\d{4})/);
+      if (fallbackMatch) {
+        const [, day, month, year] = fallbackMatch;
+        const monthIndex = this.getMonthIndex(month);
+        
+        if (monthIndex !== -1) {
+          let hour = 12;
+          let minute = 0;
+          
+          if (params?.doorsTime) {
+            const timeMatch = params.doorsTime.match(/(?:doors?:?\s*)?(\d{1,2}):(\d{2})/i);
+            if (timeMatch) {
+              hour = parseInt(timeMatch[1]);
+              minute = parseInt(timeMatch[2]);
+            }
+          }
+          
+          const parsedDate = new Date(parseInt(year), monthIndex, parseInt(day), hour, minute);
+          
+          if (!isNaN(parsedDate.getTime())) {
+            const isoString = parsedDate.toISOString();
+            scraperLogger.debug(`Fallback parsed Fleece Bristol date "${dateStr}" to "${isoString}"`);
+            return isoString;
+          }
+        }
+      }
+      
+      // Ultimate fallback - throw error instead of returning fake time
+      throw new Error(`Could not parse Fleece Bristol date format: "${dateStr}"`);
+      
+    } catch (error) {
+      scraperLogger.error(`Error parsing Fleece Bristol date "${dateStr}":`, error);
+      // Return a date far in the future to indicate parsing failure
+      return new Date('2099-12-31T23:59:59.000Z').toISOString();
+    }
+  }
+
+  /**
    * Transform extracted raw data into Gig objects
    */
   private transformToGigs(): Gig[] {
@@ -993,9 +1079,58 @@ export class ConfigDrivenScraper {
       gig.venue = venue;
 
       // Date mapping
-      this.mapField(item, gig, 'dateStart', this.config.mapping.date.start);
+      if (typeof this.config.mapping.date.start === 'string') {
+        // Simple field mapping
+        this.mapField(item, gig, 'dateStart', this.config.mapping.date.start);
+      } else if (typeof this.config.mapping.date.start === 'object' && this.config.mapping.date.start.field) {
+        // Complex field mapping with transformation
+        const dateConfig = this.config.mapping.date.start;
+        let value = item[dateConfig.field];
+        
+        if (value !== undefined && value !== null && dateConfig.transform) {
+          // Prepare transform parameters by resolving field references
+          const transformParams = { ...dateConfig.transformParams };
+          if (transformParams) {
+            for (const [key, paramValue] of Object.entries(transformParams)) {
+              if (typeof paramValue === 'string' && item[paramValue] !== undefined) {
+                transformParams[key] = item[paramValue];
+              }
+            }
+          }
+          
+          value = this.transformValue(value, dateConfig.transform, transformParams);
+        }
+        
+        if (value !== undefined && value !== null) {
+          gig.dateStart = value;
+        }
+      }
+      
       if (this.config.mapping.date.end) {
-        this.mapField(item, gig, 'dateEnd', this.config.mapping.date.end);
+        if (typeof this.config.mapping.date.end === 'string') {
+          this.mapField(item, gig, 'dateEnd', this.config.mapping.date.end);
+        } else if (typeof this.config.mapping.date.end === 'object' && this.config.mapping.date.end.field) {
+          // Handle complex end date mapping if needed
+          const dateConfig = this.config.mapping.date.end;
+          let value = item[dateConfig.field];
+          
+          if (value !== undefined && value !== null && dateConfig.transform) {
+            const transformParams = { ...dateConfig.transformParams };
+            if (transformParams) {
+              for (const [key, paramValue] of Object.entries(transformParams)) {
+                if (typeof paramValue === 'string' && item[paramValue] !== undefined) {
+                  transformParams[key] = item[paramValue];
+                }
+              }
+            }
+            
+            value = this.transformValue(value, dateConfig.transform, transformParams);
+          }
+          
+          if (value !== undefined && value !== null) {
+            gig.dateEnd = value;
+          }
+        }
       }
       if (this.config.mapping.date.timezone) {
         this.mapField(item, gig, 'timezone', this.config.mapping.date.timezone);

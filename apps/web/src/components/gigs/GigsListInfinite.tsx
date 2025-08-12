@@ -177,7 +177,7 @@ export function GigsGridInfinite({
           .reduce((acc, g) => acc + g.gigs.length, 0);
 
         return (
-          <div key={group.date}>
+          <div key={group.date} data-testid="date-group">
             {/* Date divider */}
             <DateDivider date={group.dateFormatted} />
             

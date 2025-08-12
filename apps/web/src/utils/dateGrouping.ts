@@ -17,7 +17,18 @@ export function groupGigsByDate(gigs: Gig[], preserveOrder: boolean = false): Gi
   // Create a map to group gigs by date
   const gigsByDate = new Map<string, Gig[]>();
   
+  // First, deduplicate gigs by ID to prevent the same event appearing multiple times
+  const uniqueGigs = new Map<string, Gig>();
   gigs.forEach(gig => {
+    // Use ID as key, keep the most recent version (latest updatedAt)
+    if (!uniqueGigs.has(gig.id) || 
+        (gig.updatedAt && uniqueGigs.get(gig.id)?.updatedAt && 
+         new Date(gig.updatedAt) > new Date(uniqueGigs.get(gig.id)!.updatedAt!))) {
+      uniqueGigs.set(gig.id, gig);
+    }
+  });
+
+  Array.from(uniqueGigs.values()).forEach(gig => {
     try {
       const date = new Date(gig.dateStart);
       // Check if date is valid
@@ -31,8 +42,12 @@ export function groupGigsByDate(gigs: Gig[], preserveOrder: boolean = false): Gi
         return;
       }
       
-      // Use ISO date string (YYYY-MM-DD) as key for consistent grouping
-      const dateKey = date.toISOString().split('T')[0];
+      // Use local date for grouping to avoid timezone issues
+      // Create a date in the local timezone and format as YYYY-MM-DD
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateKey = `${year}-${month}-${day}`;
       
       if (!gigsByDate.has(dateKey)) {
         gigsByDate.set(dateKey, []);
@@ -87,10 +102,15 @@ export function groupGigsByDate(gigs: Gig[], preserveOrder: boolean = false): Gi
     const dateOrder = new Map<string, number>();
     let orderIndex = 0;
     
-    gigs.forEach(gig => {
+    Array.from(uniqueGigs.values()).forEach(gig => {
       try {
         const date = new Date(gig.dateStart);
-        const dateKey = isNaN(date.getTime()) ? 'date-tba' : date.toISOString().split('T')[0];
+        const dateKey = isNaN(date.getTime()) ? 'date-tba' : (() => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        })();
         if (!dateOrder.has(dateKey)) {
           dateOrder.set(dateKey, orderIndex++);
         }

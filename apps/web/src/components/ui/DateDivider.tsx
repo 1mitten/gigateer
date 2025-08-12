@@ -7,7 +7,10 @@ interface DateDividerProps {
 
 export function DateDivider({ date, className = "" }: DateDividerProps) {
   return (
-    <div className={`flex items-center gap-6 mb-8 mt-12 first:mt-6 ${className}`}>
+    <div 
+      className={`flex items-center gap-6 mb-8 mt-12 first:mt-6 ${className}`}
+      data-testid="date-divider"
+    >
       <h2 className="text-sm font-medium text-gray-500 whitespace-nowrap tracking-wide uppercase">
         {date}
       </h2>

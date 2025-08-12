@@ -88,7 +88,10 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
   };
 
   return (
-    <article className={`card hover:shadow-md transition-shadow duration-200 overflow-hidden ${className} h-full`}>
+    <article 
+      className={`card hover:shadow-md transition-shadow duration-200 overflow-hidden ${className} h-full`}
+      data-testid="gig-card"
+    >
       <div className="p-6 h-full flex flex-col">
         {/* Content area that can grow */}
         <div className="flex-1">

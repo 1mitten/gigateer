@@ -1,0 +1,122 @@
+{
+  "site": {
+    "name": "The Fleece Bristol",
+    "baseUrl": "https://thefleece.co.uk",
+    "source": "bristol-fleece",
+    "description": "Independent music venue in Bristol, established 1982",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2025-08-12"
+  },
+  
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 60000
+  },
+  
+  "rateLimit": {
+    "delayBetweenRequests": 2000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+  
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://thefleece.co.uk/whats-on/"
+    },
+    {
+      "type": "wait",
+      "selector": ".grid__inner",
+      "condition": "visible",
+      "timeout": 30000
+    },
+    {
+      "type": "wait",
+      "timeout": 2000
+    },
+    {
+      "type": "extract",
+      "containerSelector": ".grid__inner > li",
+      "fields": {
+        "title": {
+          "selector": "h2 a",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "Event at The Fleece"
+        },
+        "dateText": {
+          "selector": "time",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim",
+          "fallback": "TBA"
+        },
+        "doorsText": {
+          "selector": "p.event__time",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "eventUrl": {
+          "selector": "h2 a",
+          "attribute": "href",
+          "required": false,
+          "transform": "url"
+        },
+        "image": {
+          "selector": "img",
+          "attribute": "src",
+          "required": false,
+          "transform": "url"
+        }
+      }
+    }
+  ],
+  
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "dateText"]
+    },
+    "title": "title",
+    "artist": "title",
+    "venue": {
+      "name": "The Fleece",
+      "address": "12 St Thomas Street",
+      "city": "Bristol",
+      "country": "UK"
+    },
+    "date": {
+      "start": {
+        "field": "dateText",
+        "transform": "fleece-bristol-datetime",
+        "transformParams": {
+          "doorsTime": "doorsText"
+        }
+      },
+      "timezone": "Europe/London"
+    },
+    "urls": {
+      "event": "eventUrl"
+    },
+    "images": "image"
+  },
+  
+  "validation": {
+    "required": [],
+    "minEventsExpected": 0,
+    "maxEventsExpected": 500
+  },
+  
+  "debug": {
+    "screenshots": false,
+    "saveHtml": false,
+    "logLevel": "info"
+  }
+}

@@ -128,3 +128,4 @@ apps/web/public/workbox*
 
 # Generated TypeScript declaration maps
 *.d.ts.map
+.vercel
