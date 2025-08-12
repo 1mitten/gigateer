@@ -40,7 +40,7 @@
     },
     {
       "type": "extract", 
-      "containerSelector": "div > div > div:has(img):has(a[href*='headfirstbristol'])",
+      "containerSelector": ".js_headfirst_embed_listing",
       "fields": {
         "title": {
           "selector": "a[href*='headfirstbristol.co.uk']",
@@ -56,14 +56,14 @@
           "transform": "trim"
         },
         "date": {
-          "selector": "div > div:first-child",
+          "selector": ".hf__cr__event-listing--top",
           "attribute": "text",
           "required": false,
-          "transform": "trim",
+          "transform": "lanes-bristol-date",
           "fallback": "TBA"
         },
         "timeRange": {
-          "selector": "div > div:last-child",
+          "selector": ".hf__cr__event-listing--top",
           "attribute": "text",
           "required": false,
           "transform": "trim"
@@ -79,11 +79,10 @@
           "attribute": "href",
           "required": false
         },
-        "ticketsInfo": {
-          "selector": "div:contains('Tickets')",
-          "attribute": "text",
-          "required": false,
-          "transform": "trim"
+        "ticketsUrl": {
+          "selector": "a:contains('Tickets')",
+          "attribute": "href",
+          "required": false
         },
         "image": {
           "selector": "img",

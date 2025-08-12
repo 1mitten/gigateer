@@ -2,8 +2,8 @@
   "site": {
     "name": "The Louisiana Bristol",
     "baseUrl": "https://www.thelouisiana.net",
-    "source": "bristol-louisiana",
-    "description": "Historic pub and music venue in Bristol, UK",
+    "source": "bristol-louisiana-updated",
+    "description": "Historic pub and music venue in Bristol, UK - Updated selectors based on 2025 structure",
     "maintainer": "gigateer-team",
     "lastUpdated": "2025-08-12"
   },
@@ -39,16 +39,6 @@
       "timeout": 3000
     },
     {
-      "type": "click",
-      "selector": ".load-more-btn, button:has-text(\"Load More\")",
-      "optional": true,
-      "waitAfter": 2000
-    },
-    {
-      "type": "wait",
-      "timeout": 2000
-    },
-    {
       "type": "extract", 
       "containerSelector": ".event-block.clearfix",
       "fields": {
@@ -56,18 +46,13 @@
           "selector": ".event-name a",
           "attribute": "text",
           "required": true,
-          "transform": "regex",
-          "transformParams": {
-            "pattern": "^The Louisiana presents:\\s*",
-            "replacement": "",
-            "flags": "i"
-          }
+          "transform": "trim"
         },
         "artist": {
           "selector": ".event-name",
           "attribute": "text",
           "required": false,
-          "transform": "trim",
+          "transform": "extractAfterPromoter",
           "fallback": "TBA"
         },
         "promoter": {
@@ -77,17 +62,16 @@
           "transform": "trim"
         },
         "date": {
-          "selector": ".event-date .event-date",
+          "selector": ".event-date",
           "attribute": "text",
           "required": true,
-          "transform": "trim"
+          "transform": "parseDate"
         },
         "time": {
-          "selector": ".event-date .event-time",
+          "selector": ".event-time",
           "attribute": "text",
           "required": false,
-          "transform": "trim",
-          "fallback": "7:30pm"
+          "transform": "trim"
         },
         "price": {
           "selector": ".event-price",
@@ -109,13 +93,13 @@
           "transform": "url"
         },
         "image": {
-          "selector": ".event-image",
+          "selector": ".event-image img",
           "attribute": "src",
           "required": false,
           "transform": "url"
         },
         "imageAlt": {
-          "selector": ".event-image",
+          "selector": ".event-image img",
           "attribute": "alt",
           "required": false,
           "transform": "trim"
@@ -169,6 +153,7 @@
     },
     "images": "image",
     "description": "fullDescription",
+    "price": "price",
     "tags": "genres"
   },
   

@@ -441,12 +441,22 @@ export class ConfigDrivenScraper {
         return `Exchange, ${trimmedVenue}`;
       case 'url':
         // Convert relative URLs to absolute URLs
-        if (value.startsWith('#') || value.startsWith('/')) {
-          const baseUrl = this.config.site.baseUrl || 'https://exchangebristol.com';
-          if (value.startsWith('#')) {
-            return `${baseUrl}/whats-on/${value}`;
-          } else {
+        if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
+          const baseUrl = this.config.site.baseUrl;
+          if (!baseUrl) {
+            return value; // Return as-is if no baseUrl configured
+          }
+          
+          // Handle different types of relative URLs
+          if (value.startsWith('/')) {
+            // Absolute path from root
             return `${baseUrl}${value}`;
+          } else if (value.startsWith('#')) {
+            // Fragment/anchor - append to current page
+            return `${baseUrl}/${value}`;
+          } else {
+            // Relative path without leading slash
+            return `${baseUrl}/${value}`;
           }
         }
         return value;
@@ -495,6 +505,9 @@ export class ConfigDrivenScraper {
       case 'parse-date-group':
         // Parse Exchange Bristol date groups like "Today" or "Monday 11th August"
         return this.parseExchangeBristolDateGroup(value);
+      case 'lanes-bristol-date':
+        // Parse The Lanes Bristol date format like "Friday 15th August 22:30 - 03:00"
+        return this.parseLanesBristolDate(value);
       default:
         return value;
     }
@@ -743,6 +756,92 @@ export class ConfigDrivenScraper {
   }
 
   /**
+   * Parse The Lanes Bristol date format like "Friday 15th August 22:30 - 03:00"
+   */
+  private parseLanesBristolDate(dateStr: string): string {
+    try {
+      scraperLogger.debug(`Parsing Lanes Bristol date: "${dateStr}"`);
+      
+      // Match pattern like "Friday 15th August 22:30 - 03:00"
+      const dateMatch = dateStr.trim().match(/^(\w+)\s+(\d+)(?:st|nd|rd|th)?\s+(\w+)\s+(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/);
+      
+      if (dateMatch) {
+        const [, dayName, day, month, startHour, startMin, endHour, endMin] = dateMatch;
+        
+        // Get month index
+        const monthIndex = this.getMonthIndex(month);
+        if (monthIndex === -1) {
+          throw new Error(`Unknown month: ${month}`);
+        }
+        
+        // Determine year - if month is before current month, assume next year
+        const now = new Date();
+        let year = now.getFullYear();
+        
+        // If this month is earlier than the current month, it's likely next year
+        if (monthIndex < now.getMonth()) {
+          year = year + 1;
+        }
+        
+        // Create the date
+        const parsedDate = new Date(year, monthIndex, parseInt(day), parseInt(startHour), parseInt(startMin));
+        
+        // Validate the date
+        if (isNaN(parsedDate.getTime())) {
+          throw new Error(`Invalid date created: ${year}-${monthIndex + 1}-${day} ${startHour}:${startMin}`);
+        }
+        
+        // If the date is more than a year in the future, use current year
+        const oneYearFromNow = new Date(now);
+        oneYearFromNow.setFullYear(now.getFullYear() + 1);
+        if (parsedDate > oneYearFromNow) {
+          parsedDate.setFullYear(now.getFullYear());
+        }
+        
+        const isoString = parsedDate.toISOString();
+        scraperLogger.debug(`Parsed Lanes Bristol date "${dateStr}" to "${isoString}"`);
+        return isoString;
+      }
+      
+      // If the regex doesn't match, try a simpler parse
+      scraperLogger.warn(`Could not parse Lanes Bristol date format: "${dateStr}", attempting fallback`);
+      
+      // Try to extract just the date parts without the day name
+      const fallbackMatch = dateStr.trim().match(/(\d+)(?:st|nd|rd|th)?\s+(\w+)\s+(\d{1,2}):(\d{2})/);
+      if (fallbackMatch) {
+        const [, day, month, hour, min] = fallbackMatch;
+        const monthIndex = this.getMonthIndex(month);
+        
+        if (monthIndex !== -1) {
+          const now = new Date();
+          let year = now.getFullYear();
+          
+          // If this month is earlier than the current month, assume next year
+          if (monthIndex < now.getMonth()) {
+            year = year + 1;
+          }
+          
+          const parsedDate = new Date(year, monthIndex, parseInt(day), parseInt(hour), parseInt(min));
+          
+          if (!isNaN(parsedDate.getTime())) {
+            const isoString = parsedDate.toISOString();
+            scraperLogger.debug(`Fallback parsed Lanes Bristol date "${dateStr}" to "${isoString}"`);
+            return isoString;
+          }
+        }
+      }
+      
+      // Ultimate fallback - return current time
+      scraperLogger.error(`Failed to parse Lanes Bristol date: "${dateStr}", using current time`);
+      return new Date().toISOString();
+      
+    } catch (error) {
+      scraperLogger.error(`Error parsing Lanes Bristol date "${dateStr}":`, error);
+      return new Date().toISOString();
+    }
+  }
+
+  /**
    * Transform extracted raw data into Gig objects
    */
   private transformToGigs(): Gig[] {
@@ -762,7 +861,15 @@ export class ConfigDrivenScraper {
 
       // Venue mapping
       const venue: any = {};
-      this.mapField(item, venue, 'name', this.config.mapping.venue.name);
+      // Handle venue.name - check if it's a field from extracted data or a static value
+      if (this.config.mapping.venue.name) {
+        if (item[this.config.mapping.venue.name] !== undefined) {
+          this.mapField(item, venue, 'name', this.config.mapping.venue.name);
+        } else {
+          // Static value
+          venue.name = this.config.mapping.venue.name;
+        }
+      }
       if (this.config.mapping.venue.address) {
         if (item[this.config.mapping.venue.address] !== undefined) {
           this.mapField(item, venue, 'address', this.config.mapping.venue.address);
