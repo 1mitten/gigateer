@@ -1,0 +1,137 @@
+{
+  "site": {
+    "name": "Strange Brew Bristol",
+    "baseUrl": "https://www.strangebrewbristol.com",
+    "source": "bristol-strange-brew",
+    "description": "Independent music venue and bar in Bristol",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2025-08-12"
+  },
+  
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 60000
+  },
+  
+  "rateLimit": {
+    "delayBetweenRequests": 2000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+  
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://www.headfirstbristol.co.uk/embed2/strangebrew"
+    },
+    {
+      "type": "wait",
+      "timeout": 15000
+    },
+    {
+      "type": "wait",
+      "selector": ".hf__sb__event-name",
+      "condition": "visible",
+      "timeout": 30000
+    },
+    {
+      "type": "wait",
+      "timeout": 5000
+    },
+    {
+      "type": "extract",
+      "containerSelector": ".hf__sb__event-name",
+      "fields": {
+        "title": {
+          "selector": "",
+          "attribute": "text",
+          "required": true,
+          "transform": "trim"
+        },
+        "dateText": {
+          "selector": ".hf__sb__event-date, .hf__sb__date",
+          "attribute": "text",
+          "required": true,
+          "transform": "trim"
+        },
+        "timeText": {
+          "selector": ".hf__sb__event-time, .hf__sb__time",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "priceText": {
+          "selector": ".hf__sb__event-price, .hf__sb__price",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "venueText": {
+          "selector": ".hf__sb__event-venue, .hf__sb__venue",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "eventUrl": {
+          "selector": "a",
+          "attribute": "href",
+          "required": false,
+          "transform": "url"
+        },
+        "image": {
+          "selector": "img",
+          "attribute": "src",
+          "required": false,
+          "transform": "url"
+        }
+      }
+    }
+  ],
+  
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "dateText"]
+    },
+    "title": "title",
+    "artist": "title",
+    "venue": {
+      "name": "Strange Brew",
+      "address": "38 King Street",
+      "city": "Bristol",
+      "country": "UK"
+    },
+    "date": {
+      "start": {
+        "field": "dateText",
+        "transform": "strange-brew-datetime",
+        "transformParams": {
+          "timeField": "timeText"
+        }
+      },
+      "timezone": "Europe/London"
+    },
+    "ticketPrice": "priceText",
+    "urls": {
+      "event": "eventUrl"
+    },
+    "images": "image"
+  },
+  
+  "validation": {
+    "required": ["title", "dateText"],
+    "minEventsExpected": 1,
+    "maxEventsExpected": 500
+  },
+  
+  "debug": {
+    "screenshots": false,
+    "saveHtml": false,
+    "logLevel": "info"
+  }
+}

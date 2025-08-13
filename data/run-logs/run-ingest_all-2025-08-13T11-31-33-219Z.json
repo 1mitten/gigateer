@@ -1,0 +1,83 @@
+{
+  "type": "ingest_all",
+  "timestamp": "2025-08-13T11:31:33.219Z",
+  "results": [
+    {
+      "source": "example-venue",
+      "startTime": "2025-08-13T11:30:12.945Z",
+      "endTime": "2025-08-13T11:30:13.967Z",
+      "duration": 1022,
+      "rawCount": 3,
+      "normalizedCount": 3,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-exchange",
+      "startTime": "2025-08-13T11:30:13.968Z",
+      "endTime": "2025-08-13T11:30:30.680Z",
+      "duration": 16712,
+      "rawCount": 198,
+      "normalizedCount": 198,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-fleece",
+      "startTime": "2025-08-13T11:30:30.681Z",
+      "endTime": "2025-08-13T11:30:42.185Z",
+      "duration": 11504,
+      "rawCount": 18,
+      "normalizedCount": 18,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-louisiana",
+      "startTime": "2025-08-13T11:30:42.186Z",
+      "endTime": "2025-08-13T11:31:12.758Z",
+      "duration": 30572,
+      "rawCount": 50,
+      "normalizedCount": 50,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 2,
+      "success": true,
+      "errors": [
+        "2 gigs failed validation"
+      ]
+    },
+    {
+      "source": "bristol-the-lanes",
+      "startTime": "2025-08-13T11:31:12.760Z",
+      "endTime": "2025-08-13T11:31:33.219Z",
+      "duration": 20459,
+      "rawCount": 42,
+      "normalizedCount": 42,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    }
+  ],
+  "summary": {
+    "totalSources": 5,
+    "successfulSources": 5,
+    "failedSources": 0,
+    "totalGigs": 311,
+    "totalNew": 0,
+    "totalUpdated": 0,
+    "totalErrors": 2,
+    "totalDuration": 80269
+  }
+}

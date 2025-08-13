@@ -45,28 +45,6 @@ export default function SettingsPage() {
             </h2>
             
             <div className="space-y-4">
-              {/* Show Happening Events Toggle */}
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <input
-                    id="show-happening-events"
-                    name="show-happening-events"
-                    type="checkbox"
-                    checked={settings.showHappeningEvents}
-                    onChange={(e) => updateSetting('showHappeningEvents', e.target.checked)}
-                    className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="show-happening-events" className="font-medium text-gray-700 dark:text-gray-300">
-                    Show Happening Events
-                  </label>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Display events that are currently happening at the top of the list with a "Happening now" section.
-                  </p>
-                </div>
-              </div>
-
               {/* Infinite Scroll Toggle */}
               <div className="flex items-start">
                 <div className="flex items-center h-5">

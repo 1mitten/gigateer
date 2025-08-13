@@ -1,0 +1,113 @@
+{
+  "type": "ingest_all",
+  "timestamp": "2025-08-13T10:53:55.952Z",
+  "results": [
+    {
+      "source": "example-venue",
+      "startTime": "2025-08-13T10:47:58.005Z",
+      "endTime": "2025-08-13T10:47:59.023Z",
+      "duration": 1018,
+      "rawCount": 3,
+      "normalizedCount": 3,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-exchange",
+      "startTime": "2025-08-13T10:47:59.023Z",
+      "endTime": "2025-08-13T10:48:15.060Z",
+      "duration": 16037,
+      "rawCount": 197,
+      "normalizedCount": 197,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-fleece",
+      "startTime": "2025-08-13T10:48:15.061Z",
+      "endTime": "2025-08-13T10:48:26.450Z",
+      "duration": 11389,
+      "rawCount": 18,
+      "normalizedCount": 18,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-louisiana",
+      "startTime": "2025-08-13T10:48:26.451Z",
+      "endTime": "2025-08-13T10:48:56.587Z",
+      "duration": 30136,
+      "rawCount": 50,
+      "normalizedCount": 50,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 2,
+      "success": true,
+      "errors": [
+        "2 gigs failed validation"
+      ]
+    },
+    {
+      "source": "bristol-strange-brew",
+      "startTime": "2025-08-13T10:48:56.588Z",
+      "endTime": "2025-08-13T10:52:00.362Z",
+      "duration": 183774,
+      "rawCount": 0,
+      "normalizedCount": 0,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 1,
+      "success": false,
+      "errors": [
+        "page.screenshot: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n"
+      ]
+    },
+    {
+      "source": "bristol-the-lanes",
+      "startTime": "2025-08-13T10:52:00.362Z",
+      "endTime": "2025-08-13T10:52:20.280Z",
+      "duration": 19918,
+      "rawCount": 42,
+      "normalizedCount": 42,
+      "newCount": 1,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-thekla",
+      "startTime": "2025-08-13T10:52:20.281Z",
+      "endTime": "2025-08-13T10:53:55.951Z",
+      "duration": 95670,
+      "rawCount": 0,
+      "normalizedCount": 0,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 1,
+      "success": false,
+      "errors": [
+        "Expected at least 5 events, got 0"
+      ]
+    }
+  ],
+  "summary": {
+    "totalSources": 7,
+    "successfulSources": 5,
+    "failedSources": 2,
+    "totalGigs": 310,
+    "totalNew": 1,
+    "totalUpdated": 0,
+    "totalErrors": 4,
+    "totalDuration": 357942
+  }
+}

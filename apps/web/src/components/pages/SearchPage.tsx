@@ -9,7 +9,7 @@ import { useGigsInfiniteQuery } from '../../hooks/useGigsInfiniteQuery';
 import { useViewPreference } from '../../hooks/useViewPreference';
 import { useSettings } from '../../hooks/useSettings';
 import { useToast } from '../ui/Toast';
-import { groupEventsByHappening, flattenEventGroups } from '../../utils/eventSorting';
+// Removed groupEventsByHappening and flattenEventGroups - no longer using event grouping
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { ContentTransition } from '../ui/LoadingWrapper';
 import { SearchInput } from '../search/SearchInput';
@@ -198,20 +198,20 @@ export function SearchPage({ city }: SearchPageProps = {}) {
   const loading = useInfiniteScrollMode ? infiniteLoading : clientLoading;  
   const error = useInfiniteScrollMode ? infiniteError : clientError;
 
-  // GROUP AND SORT EVENTS BASED ON SETTINGS
-  const { sortedGigs, eventGroups } = useMemo(() => {
-    if (!rawGigs || rawGigs.length === 0) {
-      return { sortedGigs: rawGigs, eventGroups: [] };
-    }
-
-    const groups = groupEventsByHappening(rawGigs, settings.showHappeningEvents);
-    const sorted = flattenEventGroups(groups);
-    
-    return { sortedGigs: sorted, eventGroups: groups };
-  }, [rawGigs, settings.showHappeningEvents]);
+  // SIMPLE GIGS DISPLAY - NO GROUPING
+  const gigs = rawGigs || [];
   
-  // Use sorted gigs for display
-  const gigs = sortedGigs;
+  // Create a simple "future" event group for compatibility with GigsGroupedList
+  const eventGroups = useMemo(() => {
+    if (!gigs || gigs.length === 0) {
+      return [];
+    }
+    
+    return [{
+      type: 'future' as const,
+      events: gigs
+    }];
+  }, [gigs]);
   
   // Show skeleton only for initial loading, not for sort/filter refetches
   // For infinite scroll mode, only show skeleton if we have no data AND we're loading

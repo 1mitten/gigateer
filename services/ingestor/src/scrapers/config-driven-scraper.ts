@@ -412,14 +412,14 @@ export class ConfigDrivenScraper {
   /**
    * Apply transformations to extracted values
    */
-  private transformValue(value: string | string[], transform: string, transformParams?: Record<string, any>): string | string[] {
+  private transformValue(value: string | string[], transform: string, transformParams?: Record<string, any>): string | string[] | null {
     if (Array.isArray(value)) {
-      return value.map(v => this.transformSingleValue(v, transform, transformParams));
+      return value.map(v => this.transformSingleValue(v, transform, transformParams)).filter(v => v !== null) as string[];
     }
     return this.transformSingleValue(value, transform, transformParams);
   }
 
-  private transformSingleValue(value: string, transform: string, transformParams?: Record<string, any>): string {
+  private transformSingleValue(value: string, transform: string, transformParams?: Record<string, any>): string | null {
     switch (transform) {
       case 'trim':
         return value.trim();
@@ -514,6 +514,15 @@ export class ConfigDrivenScraper {
       case 'fleece-bristol-datetime':
         // Parse The Fleece Bristol date format like "Tuesday 12 Aug 2025" with doors time
         return this.parseFleeceBristolDateTime(value, transformParams);
+      case 'strange-brew-datetime':
+        // Parse Strange Brew Bristol date format like "Fri, 13 Dec 2024" with time
+        return this.parseStrangeBrewDateTime(value, transformParams);
+      case 'rough-trade-datetime':
+        // Parse Rough Trade date format
+        return this.parseRoughTradeDateTime(value, transformParams);
+      case 'rough-trade-city-mapper':
+        // Map Rough Trade venue to appropriate city
+        return this.mapRoughTradeCity(value);
       default:
         return value;
     }
@@ -609,6 +618,7 @@ export class ConfigDrivenScraper {
     // Process extracted data with transformations
     for (const item of extractedData) {
       const processedItem: Record<string, any> = {};
+      let skipEvent = false;
 
       for (const [fieldName, value] of Object.entries(item)) {
         const fieldConfig = action.fields[fieldName];
@@ -623,6 +633,12 @@ export class ConfigDrivenScraper {
               isEndTime: fieldName === 'endTime'
             };
             processedValue = this.parseExchangeBristolDateTime(processedValue, transformParams);
+            // Skip event if date couldn't be parsed
+            if (processedValue === null) {
+              scraperLogger.info(`Skipping event "${item.title}" due to unparseable date group: "${item.dateGroup}"`);
+              skipEvent = true;
+              break;
+            }
           } else {
             processedValue = this.transformValue(processedValue, fieldConfig.transform, fieldConfig.transformParams);
           }
@@ -631,23 +647,32 @@ export class ConfigDrivenScraper {
         processedItem[fieldName] = processedValue;
       }
 
-      this.extractedData.push(processedItem);
+      // Only add events with parseable dates
+      if (!skipEvent) {
+        this.extractedData.push(processedItem);
+      }
     }
 
-    scraperLogger.info(`Exchange Bristol extraction completed: ${extractedData.length} events extracted with date groups`);
+    scraperLogger.info(`Exchange Bristol extraction completed: ${this.extractedData.length} of ${extractedData.length} events processed (skipped unparseable dates)`);
   }
 
   /**
    * Parse Exchange Bristol date groups like "Today" or "Monday 11th August"
    */
-  private parseExchangeBristolDateGroup(dateGroup: string): string {
+  private parseExchangeBristolDateGroup(dateGroup: string): string | null {
     const today = new Date();
     
     if (dateGroup === 'Today') {
       return today.toISOString().substring(0, 10); // Return just YYYY-MM-DD
     }
     
-    // Parse formats like "Monday 11th August", "Friday 10 January"
+    if (dateGroup === 'Tomorrow') {
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return tomorrow.toISOString().substring(0, 10); // Return just YYYY-MM-DD
+    }
+    
+    // Parse formats like "Monday 11th August", "Friday 10 January", "Sunday 17 August"
     const cleanDateStr = dateGroup.replace(/(\d+)(st|nd|rd|th)/, '$1');
     const parts = cleanDateStr.trim().split(' ');
     
@@ -660,32 +685,38 @@ export class ConfigDrivenScraper {
       
       if (monthIndex !== -1 && !isNaN(day)) {
         let year = today.getFullYear();
-        let date = new Date(year, monthIndex, day);
+        // Create date in UTC to avoid timezone conversion issues
+        let date = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0)); // Use noon to avoid edge cases
         
         // If the date is more than a few days in the past, assume it's next year
         // This handles the case where we're at the end of a year looking at next year's events
         const daysDifference = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
         if (daysDifference > 5) {
-          date.setFullYear(year + 1);
+          date = new Date(Date.UTC(year + 1, monthIndex, day, 12, 0, 0));
         }
         
         return date.toISOString().substring(0, 10); // Return just YYYY-MM-DD
       }
     }
     
-    // Fallback to today if parsing fails
-    return today.toISOString().substring(0, 10);
+    // Return null for unparseable dates like "Valentines day"
+    scraperLogger.warn(`Unable to parse date group: "${dateGroup}" - skipping events with this date`);
+    return null;
   }
 
   /**
    * Combine date group and time range into ISO datetime
    */
-  private parseExchangeBristolDateTime(timeRange: string, params?: Record<string, any>): string {
+  private parseExchangeBristolDateTime(timeRange: string, params?: Record<string, any>): string | null {
     try {
       // Extract date from params.dateGroup if provided, parse it first
-      let dateStr: string;
+      let dateStr: string | null;
       if (params?.dateGroup) {
         dateStr = this.parseExchangeBristolDateGroup(params.dateGroup);
+        // If date group couldn't be parsed, return null to skip this event
+        if (dateStr === null) {
+          return null;
+        }
       } else {
         dateStr = new Date().toISOString().substring(0, 10);
       }
@@ -1021,6 +1052,238 @@ export class ConfigDrivenScraper {
       // Return a date far in the future to indicate parsing failure
       return new Date('2099-12-31T23:59:59.000Z').toISOString();
     }
+  }
+
+  /**
+   * Parse Strange Brew Bristol date format like "Friday 7th November\n19:00" with time included
+   */
+  private parseStrangeBrewDateTime(dateStr: string, params?: Record<string, any>): string {
+    try {
+      scraperLogger.debug(`Parsing Strange Brew date: "${dateStr}"`);
+      
+      // Clean up the string - remove extra whitespace and newlines
+      const cleanDateStr = dateStr.replace(/\s+/g, ' ').trim();
+      
+      // Match pattern like "Friday 7th November 19:00" or "Friday 7th November"
+      // Extract day name, day number, month, and optional time
+      const dateMatch = cleanDateStr.match(/^(\w+)\s+(\d{1,2})(?:st|nd|rd|th)?\s+(\w+)(?:\s+(\d{1,2}):(\d{2}))?/);
+      
+      if (dateMatch) {
+        const [, dayName, day, month, hourStr, minuteStr] = dateMatch;
+        
+        // Get month index
+        const monthIndex = this.getMonthIndex(month);
+        if (monthIndex === -1) {
+          throw new Error(`Unknown month: ${month}`);
+        }
+        
+        // Determine year - assume current year if month is in future, otherwise next year
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+        
+        let year = currentYear;
+        if (monthIndex < currentMonth) {
+          year = currentYear + 1; // Event is next year
+        }
+        
+        // Extract time
+        let hour = 19; // Default to 7 PM
+        let minute = 0;
+        
+        if (hourStr && minuteStr) {
+          hour = parseInt(hourStr);
+          minute = parseInt(minuteStr);
+        } else if (params?.timeField) {
+          // Extract time from time field if no time in date string
+          const timeMatch = params.timeField.match(/(\d{1,2}):(\d{2})/);
+          if (timeMatch) {
+            hour = parseInt(timeMatch[1]);
+            minute = parseInt(timeMatch[2]);
+          }
+        }
+        
+        // Create the date
+        const parsedDate = new Date(year, monthIndex, parseInt(day), hour, minute);
+        
+        // Validate the date
+        if (isNaN(parsedDate.getTime())) {
+          throw new Error('Invalid date created');
+        }
+        
+        scraperLogger.debug(`Parsed date: ${parsedDate.toISOString()}`);
+        return parsedDate.toISOString();
+      }
+      
+      throw new Error(`Date does not match expected pattern: "${cleanDateStr}"`);
+      
+    } catch (error) {
+      scraperLogger.error(`Error parsing Strange Brew date "${dateStr}":`, error);
+      // Return a date far in the future to indicate parsing failure
+      return new Date('2099-12-31T23:59:59.000Z').toISOString();
+    }
+  }
+
+  /**
+   * Parse Rough Trade date format
+   * Handles various date formats used by Rough Trade events
+   */
+  private parseRoughTradeDateTime(dateStr: string, params?: Record<string, any>): string {
+    try {
+      const timeField = params?.timeField ? params[params.timeField] : null;
+      scraperLogger.debug(`Parsing Rough Trade date: "${dateStr}", time: "${timeField}"`);
+      
+      // Handle empty or null dateStr
+      if (!dateStr || dateStr.trim() === '') {
+        const fallbackDate = params?.fallbackDate || '2025-12-31T23:59:59.000Z';
+        scraperLogger.warn(`Empty dateStr, using fallback: ${fallbackDate}`);
+        return fallbackDate;
+      }
+      
+      // Clean the date string
+      const cleanDateStr = dateStr.replace(/\s+/g, ' ').trim();
+      
+      // Pattern 1: "Thu, 28 Aug, 7:30 pm" (the actual Rough Trade format)
+      let dateMatch = cleanDateStr.match(/^(\w{3}),\s*(\d{1,2})\s+(\w{3}),\s*(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+      if (dateMatch) {
+        const [, dayName, day, month, hour, minute, ampm] = dateMatch;
+        const monthIndex = this.getMonthIndex(month);
+        if (monthIndex !== -1) {
+          const currentYear = new Date().getFullYear();
+          let parsedDate = new Date(currentYear, monthIndex, parseInt(day));
+          
+          // Convert 12-hour to 24-hour format
+          let hour24 = parseInt(hour);
+          if (ampm.toLowerCase() === 'pm' && hour24 !== 12) {
+            hour24 += 12;
+          } else if (ampm.toLowerCase() === 'am' && hour24 === 12) {
+            hour24 = 0;
+          }
+          
+          parsedDate.setHours(hour24, parseInt(minute));
+          
+          // If the date is in the past, assume next year
+          const now = new Date();
+          if (parsedDate < now) {
+            parsedDate.setFullYear(currentYear + 1);
+          }
+          
+          return parsedDate.toISOString();
+        }
+      }
+      
+      // Pattern 2: Extract date and time from the same string if timeField is the same
+      dateMatch = cleanDateStr.match(/(\d{1,2})\s+(\w{3}).*?(\d{1,2}):(\d{2})\s*(am|pm)/i);
+      if (dateMatch) {
+        const [, day, month, hour, minute, ampm] = dateMatch;
+        const monthIndex = this.getMonthIndex(month);
+        if (monthIndex !== -1) {
+          const currentYear = new Date().getFullYear();
+          let parsedDate = new Date(currentYear, monthIndex, parseInt(day));
+          
+          // Convert 12-hour to 24-hour format
+          let hour24 = parseInt(hour);
+          if (ampm.toLowerCase() === 'pm' && hour24 !== 12) {
+            hour24 += 12;
+          } else if (ampm.toLowerCase() === 'am' && hour24 === 12) {
+            hour24 = 0;
+          }
+          
+          parsedDate.setHours(hour24, parseInt(minute));
+          
+          // If the date is in the past, assume next year
+          const now = new Date();
+          if (parsedDate < now) {
+            parsedDate.setFullYear(currentYear + 1);
+          }
+          
+          return parsedDate.toISOString();
+        }
+      }
+      
+      // Pattern 3: "Monday 12 August 2024"
+      let oldDateMatch = cleanDateStr.match(/^(\w+)\s+(\d{1,2})\s+(\w+)\s+(\d{4})$/);
+      if (oldDateMatch) {
+        const [, , day, month, year] = oldDateMatch;
+        const monthIndex = this.getMonthIndex(month);
+        if (monthIndex !== -1) {
+          let parsedDate = new Date(parseInt(year), monthIndex, parseInt(day));
+          
+          // Add time if available
+          if (timeField) {
+            const timeMatch = timeField.match(/(\d{1,2}):(\d{2})/);
+            if (timeMatch) {
+              parsedDate.setHours(parseInt(timeMatch[1]), parseInt(timeMatch[2]));
+            }
+          }
+          
+          return parsedDate.toISOString();
+        }
+      }
+      
+      // Pattern 4: "12 Aug 2024"
+      oldDateMatch = cleanDateStr.match(/^(\d{1,2})\s+(\w+)\s+(\d{4})$/);
+      if (oldDateMatch) {
+        const [, day, month, year] = oldDateMatch;
+        const monthIndex = this.getMonthIndex(month);
+        if (monthIndex !== -1) {
+          let parsedDate = new Date(parseInt(year), monthIndex, parseInt(day));
+          
+          // Add time if available
+          if (timeField) {
+            const timeMatch = timeField.match(/(\d{1,2}):(\d{2})/);
+            if (timeMatch) {
+              parsedDate.setHours(parseInt(timeMatch[1]), parseInt(timeMatch[2]));
+            }
+          }
+          
+          return parsedDate.toISOString();
+        }
+      }
+      
+      // Pattern 3: Standard date parsing as fallback
+      const fallbackDate = new Date(cleanDateStr);
+      if (!isNaN(fallbackDate.getTime())) {
+        // Add time if available
+        if (timeField) {
+          const timeMatch = timeField.match(/(\d{1,2}):(\d{2})/);
+          if (timeMatch) {
+            fallbackDate.setHours(parseInt(timeMatch[1]), parseInt(timeMatch[2]));
+          }
+        }
+        return fallbackDate.toISOString();
+      }
+      
+      throw new Error(`Date does not match expected patterns: "${cleanDateStr}"`);
+      
+    } catch (error) {
+      scraperLogger.error(`Error parsing Rough Trade date "${dateStr}":`, error);
+      // Return a date far in the future to indicate parsing failure
+      return new Date('2099-12-31T23:59:59.000Z').toISOString();
+    }
+  }
+
+  /**
+   * Map Rough Trade venue text to appropriate city
+   * Returns "Bristol" for Rough Trade Bristol events, otherwise extracts city from venue text
+   */
+  private mapRoughTradeCity(venueText: string): string {
+    if (!venueText) return 'Bristol'; // Default to Bristol
+    
+    const lowerVenue = venueText.toLowerCase();
+    
+    // Check for Bristol specifically
+    if (lowerVenue.includes('bristol') || lowerVenue.includes('rough trade bristol')) {
+      return 'Bristol';
+    }
+    
+    // Check for other common Rough Trade locations
+    if (lowerVenue.includes('nottingham')) return 'Nottingham';
+    if (lowerVenue.includes('london') || lowerVenue.includes('east')) return 'London';
+    if (lowerVenue.includes('manchester')) return 'Manchester';
+    
+    // Default to Bristol if no other city detected
+    return 'Bristol';
   }
 
   /**

@@ -1,0 +1,156 @@
+{
+  "type": "ingest_all",
+  "timestamp": "2025-08-12T21:43:50.113Z",
+  "results": [
+    {
+      "source": "example-venue",
+      "startTime": "2025-08-12T21:38:15.648Z",
+      "endTime": "2025-08-12T21:38:16.674Z",
+      "duration": 1026,
+      "rawCount": 3,
+      "normalizedCount": 3,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-exchange",
+      "startTime": "2025-08-12T21:38:16.675Z",
+      "endTime": "2025-08-12T21:38:33.467Z",
+      "duration": 16792,
+      "rawCount": 199,
+      "normalizedCount": 199,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-fleece",
+      "startTime": "2025-08-12T21:38:33.468Z",
+      "endTime": "2025-08-12T21:38:44.937Z",
+      "duration": 11469,
+      "rawCount": 18,
+      "normalizedCount": 18,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-louisiana",
+      "startTime": "2025-08-12T21:38:44.938Z",
+      "endTime": "2025-08-12T21:39:14.893Z",
+      "duration": 29955,
+      "rawCount": 50,
+      "normalizedCount": 50,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 2,
+      "success": true,
+      "errors": [
+        "2 gigs failed validation"
+      ]
+    },
+    {
+      "source": "bristol-rough-trade-backup",
+      "startTime": "2025-08-12T21:39:14.893Z",
+      "endTime": "2025-08-12T21:39:26.479Z",
+      "duration": 11586,
+      "rawCount": 18,
+      "normalizedCount": 18,
+      "newCount": 18,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-rough-trade-backup2",
+      "startTime": "2025-08-12T21:39:26.479Z",
+      "endTime": "2025-08-12T21:39:26.487Z",
+      "duration": 8,
+      "rawCount": 0,
+      "normalizedCount": 0,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 1,
+      "success": false,
+      "errors": [
+        "Invalid configuration file: /code/gigateer/services/ingestor/data/scraper-configs/bristol-rough-trade-backup2.json"
+      ]
+    },
+    {
+      "source": "bristol-strange-brew",
+      "startTime": "2025-08-12T21:39:26.488Z",
+      "endTime": "2025-08-12T21:42:46.591Z",
+      "duration": 200103,
+      "rawCount": 0,
+      "normalizedCount": 0,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 1,
+      "success": false,
+      "errors": [
+        "page.screenshot: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n"
+      ]
+    },
+    {
+      "source": "bristol-the-lanes",
+      "startTime": "2025-08-12T21:42:46.591Z",
+      "endTime": "2025-08-12T21:43:06.825Z",
+      "duration": 20234,
+      "rawCount": 41,
+      "normalizedCount": 41,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-thekla",
+      "startTime": "2025-08-12T21:43:06.826Z",
+      "endTime": "2025-08-12T21:43:50.105Z",
+      "duration": 43279,
+      "rawCount": 80,
+      "normalizedCount": 80,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 4,
+      "success": true,
+      "errors": [
+        "4 gigs failed validation"
+      ]
+    },
+    {
+      "source": "example-transformations",
+      "startTime": "2025-08-12T21:43:50.105Z",
+      "endTime": "2025-08-12T21:43:50.113Z",
+      "duration": 8,
+      "rawCount": 0,
+      "normalizedCount": 0,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 1,
+      "success": false,
+      "errors": [
+        "Invalid configuration file: /code/gigateer/services/ingestor/data/scraper-configs/example-transformations.json"
+      ]
+    }
+  ],
+  "summary": {
+    "totalSources": 10,
+    "successfulSources": 7,
+    "failedSources": 3,
+    "totalGigs": 409,
+    "totalNew": 18,
+    "totalUpdated": 0,
+    "totalErrors": 9,
+    "totalDuration": 334460
+  }
+}

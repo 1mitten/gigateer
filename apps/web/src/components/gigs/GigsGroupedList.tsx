@@ -49,8 +49,8 @@ export function GigsGroupedList({
     );
   }
 
-  // If only one group and it's not 'happening', render normally without divider
-  if (eventGroups.length === 1 && eventGroups[0].type !== 'happening') {
+  // If only one group, render normally without divider
+  if (eventGroups.length === 1) {
     const allGigs = eventGroups[0].events;
     
     if (useInfiniteScrollMode) {
@@ -83,18 +83,11 @@ export function GigsGroupedList({
 
   // For list view, render as a simple linear list without date grouping
   if (view === 'list') {
-    // Flatten all events into a single array, preserving "happening now" order
+    // Flatten all events into a single array
     const allEvents = eventGroups.flatMap(group => group.events);
-    
-    // Add "Happening now" divider at the top if there are happening events
-    const hasHappeningEvents = eventGroups.some(group => group.type === 'happening');
     
     return (
       <div className="space-y-0">
-        {hasHappeningEvents && (
-          <DateDivider date="Happening now" className="text-red-600 font-semibold" />
-        )}
-        
         {/* Render as simple list */}
         {useInfiniteScrollMode ? (
           <GigsListInfinite
@@ -121,40 +114,29 @@ export function GigsGroupedList({
   }
 
   // For grid view, render grouped events with date dividers
+  // Since we no longer use "happening" groups, just flatten all events and use date grouping
+  const allEvents = eventGroups.flatMap(group => group.events);
+  
   return (
     <div className="space-y-0">
-      {eventGroups.map((group, groupIndex) => {
-        const isLastGroup = groupIndex === eventGroups.length - 1;
-        
-        return (
-          <div key={group.type}>
-            {/* Show divider for 'happening' events */}
-            {group.type === 'happening' && (
-              <DateDivider date="Happening now" className="text-red-600 font-semibold" />
-            )}
-            
-            {/* Render events in the group */}
-            {useInfiniteScrollMode ? (
-              <GigsGridInfinite
-                gigs={group.events}
-                loading={false}
-                showCount={false}
-                hasMore={isLastGroup ? hasNextPage : false}
-                fetchMore={isLastGroup ? fetchNextPage : undefined}
-                totalCount={isLastGroup ? totalCount : undefined}
-                emptyMessage={emptyMessage}
-              />
-            ) : (
-              <GigsGrid
-                gigs={group.events}
-                loading={false}
-                showCount={false}
-                emptyMessage={emptyMessage}
-              />
-            )}
-          </div>
-        );
-      })}
+      {useInfiniteScrollMode ? (
+        <GigsGridInfinite
+          gigs={allEvents}
+          loading={false}
+          showCount={false}
+          hasMore={hasNextPage}
+          fetchMore={fetchNextPage}
+          totalCount={totalCount}
+          emptyMessage={emptyMessage}
+        />
+      ) : (
+        <GigsGrid
+          gigs={allEvents}
+          loading={false}
+          showCount={false}
+          emptyMessage={emptyMessage}
+        />
+      )}
     </div>
   );
 }

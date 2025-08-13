@@ -3,14 +3,12 @@
 import { useState, useEffect } from 'react';
 
 export interface GigateerSettings {
-  showHappeningEvents: boolean;
   useInfiniteScroll: boolean;
   defaultCity: string;
   darkMode: boolean;
 }
 
 const DEFAULT_SETTINGS: GigateerSettings = {
-  showHappeningEvents: true,
   useInfiniteScroll: true,
   defaultCity: '',
   darkMode: false,

@@ -7,7 +7,7 @@ import { useGigs } from '../../hooks/useGigs';
 import { useViewPreference } from '../../hooks/useViewPreference';
 import { useSettings } from '../../hooks/useSettings';
 import { useToast } from '../ui/Toast';
-import { groupEventsByHappening } from '../../utils/eventSorting';
+// Removed groupEventsByHappening - no longer using event grouping
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { LoadingWrapper } from '../ui/LoadingWrapper';
 import { SearchInput } from '../search/SearchInput';
@@ -87,13 +87,17 @@ export function SearchPageCached({ city }: SearchPageProps = {}) {
     );
   }, [gigs, filters.searchQuery]);
 
-  // Group events if showing happening events
+  // Create simple event groups for compatibility with GigsGroupedList
   const groupedGigs = useMemo(() => {
-    if (settings.showHappeningEvents && filteredGigs.length > 0) {
-      return groupEventsByHappening(filteredGigs, settings.showHappeningEvents);
+    if (!filteredGigs || filteredGigs.length === 0) {
+      return [];
     }
-    return null;
-  }, [filteredGigs, settings.showHappeningEvents]);
+    
+    return [{
+      type: 'future' as const,
+      events: filteredGigs
+    }];
+  }, [filteredGigs]);
 
   // Update filter handlers
   const updateSearchQuery = (query: string) => {
@@ -332,7 +336,7 @@ export function SearchPageCached({ city }: SearchPageProps = {}) {
             {/* Gigs display */}
             {filteredGigs.length > 0 ? (
               <>
-                {groupedGigs && settings.showHappeningEvents ? (
+                {groupedGigs.length > 0 ? (
                   <GigsGroupedList
                     eventGroups={groupedGigs}
                     view={view}
