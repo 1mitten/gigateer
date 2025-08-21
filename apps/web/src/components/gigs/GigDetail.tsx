@@ -183,19 +183,7 @@ export function GigDetail({ gig }: GigDetailProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Event image (if available) */}
-            {gig.images.length > 0 && (
-              <div className="card overflow-hidden">
-                <div className="relative w-full h-64 sm:h-80 bg-gray-100 dark:bg-gray-700">
-                  <img
-                    src={gig.images[0]}
-                    alt={gig.title}
-                    className="w-full h-full object-cover relative z-10"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            )}
+            {/* Event image removed to avoid hotlinking */}
 
             {/* Tags */}
             {((gig.tags && gig.tags.length > 0) || ((gig as any).genre && (gig as any).genre.length > 0)) && (
@@ -221,24 +209,7 @@ export function GigDetail({ gig }: GigDetailProps) {
               </div>
             )}
 
-            {/* Additional images */}
-            {gig.images.length > 1 && (
-              <div className="card p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  More Photos
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {gig.images.slice(1).map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`${gig.title} - Image ${index + 2}`}
-                      className="w-full h-32 object-cover rounded-md"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Additional images removed to avoid hotlinking */}
 
             {/* Source info */}
             <div className="card p-6">
