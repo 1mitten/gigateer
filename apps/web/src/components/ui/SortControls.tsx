@@ -106,9 +106,9 @@ export function CompactSortControls({
   };
 
   return (
-    <div className={`flex flex-row gap-2 ${className}`}>
+    <div className={`flex flex-col sm:flex-row gap-2 ${className}`}>
       {/* Sort Selection */}
-      <div className="relative flex-1">
+      <div className="relative flex-1 min-w-0">
         <select
           value={`${sortBy}-${sortOrder}`}
           onChange={(e) => {
@@ -119,7 +119,7 @@ export function CompactSortControls({
               onToggleSort(sortBy);
             }
           }}
-          className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+          className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
         >
           <option value="date-asc">Date (Earliest First)</option>
           <option value="date-desc">Date (Latest First)</option>
@@ -132,11 +132,11 @@ export function CompactSortControls({
 
       {/* Date Filter */}
       {onDateFilterChange && (
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <select
             value={dateFilter}
             onChange={(e) => onDateFilterChange(e.target.value as DateFilterOption)}
-            className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+            className="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
           >
             {DATE_FILTER_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>

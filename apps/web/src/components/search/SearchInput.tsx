@@ -81,11 +81,11 @@ export function SearchInput({
           <button
             type="button"
             onClick={handleSearch}
-            className="!text-black hover:!text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm p-1"
+            className="!text-gray-700 hover:!text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm p-1"
             aria-label="Search"
           >
             <MagnifyingGlassIcon 
-              className="h-6 w-6 transition-colors" 
+              className="h-6 w-6 transition-colors stroke-2" 
             />
           </button>
         </div>

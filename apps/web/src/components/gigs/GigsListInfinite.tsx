@@ -4,7 +4,6 @@ import React from 'react';
 import { Gig } from '@gigateer/contracts';
 import { GigCard, GigCardCompact } from './GigCard';
 import { GigListItem } from './GigListItem';
-import { GigListHeader } from './GigListHeader';
 import { GigCardSkeleton, GigListItemSkeleton } from '../ui/LoadingSkeleton';
 import { AnimatedItem } from '../ui/LoadingWrapper';
 import { DateDivider } from '../ui/DateDivider';
@@ -91,27 +90,24 @@ export function GigsListInfinite({
         </div>
       )}
 
-      {/* List header and table for list variant */}
+      {/* List variant without header */}
       {variant === 'list' ? (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <GigListHeader />
-          <InfiniteScrollWrapper
-            gigs={gigs}
-            hasMore={hasMore}
-            loading={loading}
-            fetchMore={fetchMore}
-            totalCount={totalCount}
-            className=""
-          >
-            {gigs.map((gig, index) => (
-              <GigComponent
-                key={gig.id}
-                gig={gig}
-                priority={index < 6} // Prioritize first 6 items for loading
-              />
-            ))}
-          </InfiniteScrollWrapper>
-        </div>
+        <InfiniteScrollWrapper
+          gigs={gigs}
+          hasMore={hasMore}
+          loading={loading}
+          fetchMore={fetchMore}
+          totalCount={totalCount}
+          className="space-y-1"
+        >
+          {gigs.map((gig, index) => (
+            <GigComponent
+              key={gig.id}
+              gig={gig}
+              priority={index < 6} // Prioritize first 6 items for loading
+            />
+          ))}
+        </InfiniteScrollWrapper>
       ) : (
         <InfiniteScrollWrapper
           gigs={gigs}

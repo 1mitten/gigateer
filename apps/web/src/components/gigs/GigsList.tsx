@@ -4,7 +4,6 @@ import React, { useMemo } from 'react';
 import { Gig } from '@gigateer/contracts';
 import { GigCard, GigCardCompact } from './GigCard';
 import { GigListItem } from './GigListItem';
-import { GigListHeader } from './GigListHeader';
 import { GigCardSkeleton, GigListItemSkeleton } from '../ui/LoadingSkeleton';
 import { LoadingWrapper, AnimatedItem } from '../ui/LoadingWrapper';
 import { DateDivider } from '../ui/DateDivider';
@@ -84,10 +83,9 @@ export function GigsList({
         </div>
       )}
 
-      {/* List header and table for list variant */}
+      {/* List variant without header */}
       {variant === 'list' ? (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <GigListHeader />
+        <div className="space-y-1">
           {gigs.map((gig, index) => (
             <GigComponent
               key={gig.id}

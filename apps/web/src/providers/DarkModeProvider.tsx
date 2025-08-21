@@ -19,19 +19,23 @@ export function DarkModeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [settings.darkMode, isLoaded]);
 
-  // Apply dark mode immediately on mount if it was previously set
+  // Apply dark mode immediately on mount - default to true if no saved settings
   useEffect(() => {
     const savedSettings = localStorage.getItem('gigateer-settings');
+    let shouldApplyDarkMode = true; // Default to dark mode
+    
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings);
-        if (parsed.darkMode) {
-          document.documentElement.classList.add('dark');
-          document.body.classList.add('dark');
-        }
+        shouldApplyDarkMode = parsed.darkMode !== false; // Use dark mode unless explicitly disabled
       } catch (e) {
         console.error('Failed to parse saved settings:', e);
       }
+    }
+    
+    if (shouldApplyDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
     }
   }, []);
 

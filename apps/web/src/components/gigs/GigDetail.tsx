@@ -83,7 +83,7 @@ export function GigDetail({ gig }: GigDetailProps) {
     if (!isUpcoming) {
       return {
         badge: (
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
             Past Event
           </span>
         ),
@@ -107,10 +107,10 @@ export function GigDetail({ gig }: GigDetailProps) {
             <div className="mb-6">
               <button
                 onClick={handleBack}
-                className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="mr-4 p-2 -ml-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Go back"
               >
-                <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Back to search
+                <ArrowLeftIcon className="h-6 w-6" />
               </button>
             </div>
 
@@ -315,8 +315,8 @@ export function GigDetail({ gig }: GigDetailProps) {
               </div>
             </div>
 
-            {/* Venue details */}
-            <div className="card p-6">
+            {/* Venue details - Hidden on mobile */}
+            <div className="hidden sm:block card p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Venue
               </h2>

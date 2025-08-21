@@ -233,37 +233,39 @@ export function SearchPage({ city }: SearchPageProps = {}) {
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
-            <div className="flex flex-col space-y-4">
-              {/* Title */}
+          <div className="py-4">
+            <div className="flex flex-col space-y-3">
+              {/* Title and Settings - Single Row */}
               <div className="max-w-2xl mx-auto w-full">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <h1 className={`text-3xl sm:text-4xl ${city ? 'font-extrabold font-public-sans' : 'font-bold'} text-gray-900 dark:text-gray-100`}>
-                      {city ? (
-                        <>
-                          {city.charAt(0).toUpperCase() + city.slice(1)}
-                          <span className="text-4xl sm:text-5xl text-primary-600 dark:text-primary-400"> ..</span>
-                        </>
-                      ) : 'Discover Live Music'}
-                    </h1>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">
-                      {city ? `Find gigs near ${city.charAt(0).toUpperCase() + city.slice(1)}` : 'Find gigs, concerts, and festivals near you'}
-                      {!isOnline && (
-                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                          Offline Mode
-                        </span>
-                      )}
-                    </p>
+                    <div className="flex items-baseline gap-3 flex-wrap">
+                      <h1 className={`text-2xl sm:text-3xl ${city ? 'font-extrabold font-public-sans' : 'font-bold'} text-gray-900 dark:text-gray-100`}>
+                        {city ? (
+                          <>
+                            {city.charAt(0).toUpperCase() + city.slice(1)}
+                            <span className="text-3xl sm:text-4xl text-primary-600 dark:text-primary-400"> ..</span>
+                          </>
+                        ) : 'Discover Live Music'}
+                      </h1>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Find Live Music & Venues
+                        {!isOnline && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Offline Mode
+                          </span>
+                        )}
+                      </span>
+                    </div>
                   </div>
-                  <div className="mt-4 sm:mt-0 flex justify-end">
+                  <div className="ml-4 flex-shrink-0">
                     {/* Settings Gear Icon */}
                     <Link 
                       href="/settings"
-                      className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       aria-label="Settings"
                     >
                       <CogIcon className="h-6 w-6" />
@@ -334,7 +336,7 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                   onToggleSort={handleToggleSort}
                   dateFilter={filters.dateFilter}
                   onDateFilterChange={handleDateFilterChange}
-                  className="sm:w-48"
+                  className="w-full"
                 />
               </div>
               

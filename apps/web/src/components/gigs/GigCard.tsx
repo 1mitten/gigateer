@@ -78,7 +78,7 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
     
     if (!isUpcoming) {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
           Past Event
         </span>
       );

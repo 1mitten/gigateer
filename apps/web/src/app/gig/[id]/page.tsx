@@ -4,7 +4,6 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { useGigDetail } from '../../../hooks/useGigsApi';
 import { GigDetail } from '../../../components/gigs/GigDetail';
-import { LoadingSkeleton } from '../../../components/ui/LoadingSkeleton';
 import { ErrorBoundary } from '../../../components/ui/ErrorBoundary';
 
 interface GigPageProps {
@@ -13,72 +12,6 @@ interface GigPageProps {
   };
 }
 
-function GigDetailSkeleton() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header skeleton */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <LoadingSkeleton className="h-4 w-24 mb-6" />
-          
-          <div className="space-y-4">
-            <LoadingSkeleton className="h-10 w-3/4" />
-            <LoadingSkeleton className="h-6 w-1/2" />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div className="space-y-3">
-                <LoadingSkeleton className="h-5 w-full" />
-                <LoadingSkeleton className="h-5 w-3/4" />
-              </div>
-              <div className="space-y-3">
-                <LoadingSkeleton className="h-5 w-full" />
-                <LoadingSkeleton className="h-5 w-4/5" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content skeleton */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main content */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="card p-6 space-y-4">
-              <LoadingSkeleton className="h-64 w-full" />
-            </div>
-            
-            <div className="card p-6 space-y-4">
-              <LoadingSkeleton className="h-6 w-24" />
-              <div className="flex gap-2">
-                <LoadingSkeleton className="h-8 w-16" />
-                <LoadingSkeleton className="h-8 w-20" />
-                <LoadingSkeleton className="h-8 w-18" />
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <div className="card p-6 space-y-4">
-              <LoadingSkeleton className="h-6 w-32" />
-              <LoadingSkeleton className="h-5 w-24" />
-              <LoadingSkeleton className="h-10 w-full" />
-              <LoadingSkeleton className="h-10 w-full" />
-            </div>
-            
-            <div className="card p-6 space-y-4">
-              <LoadingSkeleton className="h-6 w-20" />
-              <LoadingSkeleton className="h-5 w-full" />
-              <LoadingSkeleton className="h-4 w-3/4" />
-              <LoadingSkeleton className="h-32 w-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function ErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
   return (
@@ -123,13 +56,8 @@ function ErrorFallback({ error, resetError }: { error: Error; resetError: () => 
 export default function GigPage({ params }: GigPageProps) {
   const { data: gig, loading, error } = useGigDetail(params.id);
 
-  // Loading state
-  if (loading) {
-    return <GigDetailSkeleton />;
-  }
-
-  // Error state
-  if (error) {
+  // Only show errors after loading is complete and we have no gig
+  if (!loading && error) {
     if (error.includes('not found')) {
       notFound();
     }
@@ -166,10 +94,11 @@ export default function GigPage({ params }: GigPageProps) {
     );
   }
 
-  // Gig not found
-  if (!gig) {
+  // Gig not found (only check when not loading)
+  if (!loading && !gig) {
     notFound();
   }
 
-  return <GigDetail gig={gig} />;
+  // Show gig when ready, or blank gray screen while loading (no text at all)
+  return gig ? <GigDetail gig={gig} /> : <div className="min-h-screen bg-gray-50" />;
 }

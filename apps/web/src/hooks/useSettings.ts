@@ -11,7 +11,7 @@ export interface GigateerSettings {
 const DEFAULT_SETTINGS: GigateerSettings = {
   useInfiniteScroll: true,
   defaultCity: '',
-  darkMode: false,
+  darkMode: true,
 };
 
 export function useSettings() {
