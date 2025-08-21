@@ -99,6 +99,10 @@ export default function GigPage({ params }: GigPageProps) {
     notFound();
   }
 
-  // Show gig when ready, or blank gray screen while loading (no text at all)
-  return gig ? <GigDetail gig={gig} /> : <div className="min-h-screen bg-gray-50" />;
+  // Only render when gig is loaded to prevent flicker
+  if (!gig) {
+    return null;
+  }
+
+  return <GigDetail gig={gig} />;
 }

@@ -147,13 +147,9 @@ export function GigListItem({ gig, className = "", priority = false }: GigListIt
             </span>
           </div>
 
-          {/* Status badge */}
-          <div className="col-span-1 flex justify-center">
-            {getStatusBadge() || <span></span>}
-          </div>
-
-          {/* Action buttons */}
-          <div className="col-span-1 flex items-center justify-end gap-1">
+          {/* Status badge and Action buttons */}
+          <div className="col-span-2 flex items-center justify-end gap-2">
+            {getStatusBadge()}
             {gig.eventUrl && (
               <a
                 href={gig.eventUrl}
