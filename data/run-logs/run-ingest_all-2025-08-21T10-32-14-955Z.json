@@ -1,0 +1,83 @@
+{
+  "type": "ingest_all",
+  "timestamp": "2025-08-21T10:32:14.955Z",
+  "results": [
+    {
+      "source": "example-venue",
+      "startTime": "2025-08-21T10:30:43.212Z",
+      "endTime": "2025-08-21T10:30:44.254Z",
+      "duration": 1042,
+      "rawCount": 3,
+      "normalizedCount": 3,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-exchange",
+      "startTime": "2025-08-21T10:30:44.265Z",
+      "endTime": "2025-08-21T10:31:02.404Z",
+      "duration": 18139,
+      "rawCount": 201,
+      "normalizedCount": 201,
+      "newCount": 17,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-fleece",
+      "startTime": "2025-08-21T10:31:02.405Z",
+      "endTime": "2025-08-21T10:31:14.553Z",
+      "duration": 12148,
+      "rawCount": 18,
+      "normalizedCount": 18,
+      "newCount": 8,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-louisiana",
+      "startTime": "2025-08-21T10:31:14.554Z",
+      "endTime": "2025-08-21T10:31:53.594Z",
+      "duration": 39040,
+      "rawCount": 50,
+      "normalizedCount": 50,
+      "newCount": 8,
+      "updatedCount": 0,
+      "errorCount": 1,
+      "success": true,
+      "errors": [
+        "1 gigs failed validation"
+      ]
+    },
+    {
+      "source": "bristol-the-lanes",
+      "startTime": "2025-08-21T10:31:53.595Z",
+      "endTime": "2025-08-21T10:32:14.954Z",
+      "duration": 21359,
+      "rawCount": 42,
+      "normalizedCount": 42,
+      "newCount": 7,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    }
+  ],
+  "summary": {
+    "totalSources": 5,
+    "successfulSources": 5,
+    "failedSources": 0,
+    "totalGigs": 314,
+    "totalNew": 40,
+    "totalUpdated": 0,
+    "totalErrors": 1,
+    "totalDuration": 91728
+  }
+}

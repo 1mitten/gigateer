@@ -508,6 +508,9 @@ export class ConfigDrivenScraper {
       case 'lanes-bristol-date':
         // Parse The Lanes Bristol date format like "Friday 15th August 22:30 - 03:00"
         return this.parseLanesBristolDate(value);
+      case 'croft-bristol-date':
+        // Parse The Croft Bristol date format like "Friday 12th September"
+        return this.parseCroftBristolDate(value);
       case 'thekla-bristol-date':
         // Parse Thekla Bristol date format like "Wed.13.Aug.25"
         return this.parseTheklaBristolDate(value);
@@ -919,6 +922,64 @@ export class ConfigDrivenScraper {
       scraperLogger.error(`Error parsing Lanes Bristol date "${dateStr}":`, error);
       // Return the original string instead of a fake time
       return dateStr;
+    }
+  }
+
+  /**
+   * Parse The Croft Bristol date format like "Friday 12th September"
+   */
+  private parseCroftBristolDate(dateStr: string): string {
+    try {
+      scraperLogger.debug(`Parsing Croft Bristol date: "${dateStr}"`);
+      
+      // Match pattern like "Friday 12th September" or "Saturday 13th September"
+      const dateMatch = dateStr.trim().match(/^(\w+)\s+(\d+)(?:st|nd|rd|th)?\s+(\w+)$/);
+      
+      if (dateMatch) {
+        const [, dayName, day, month] = dateMatch;
+        
+        // Get month index
+        const monthIndex = this.getMonthIndex(month);
+        if (monthIndex === -1) {
+          throw new Error(`Unknown month: ${month}`);
+        }
+        
+        // Determine year - if month is before current month, assume next year
+        const now = new Date();
+        let year = now.getFullYear();
+        
+        // If this month is earlier than the current month, it's likely next year
+        if (monthIndex < now.getMonth()) {
+          year = year + 1;
+        } else if (monthIndex === now.getMonth() && parseInt(day) < now.getDate()) {
+          // If same month but day has passed, also next year
+          year = year + 1;
+        }
+        
+        // Create the date (default to evening time since these are gigs)
+        const parsedDate = new Date(year, monthIndex, parseInt(day), 19, 0);
+        
+        // Validate the date
+        if (isNaN(parsedDate.getTime())) {
+          throw new Error(`Invalid date created: ${year}-${monthIndex + 1}-${day}`);
+        }
+        
+        // If the date is more than a year in the future, use current year
+        const oneYearFromNow = new Date(now);
+        oneYearFromNow.setFullYear(now.getFullYear() + 1);
+        if (parsedDate > oneYearFromNow) {
+          parsedDate.setFullYear(now.getFullYear());
+        }
+        
+        const isoString = parsedDate.toISOString();
+        scraperLogger.debug(`Parsed Croft Bristol date: "${dateStr}" -> "${isoString}"`);
+        return isoString;
+      } else {
+        throw new Error(`Failed to match Croft Bristol date pattern: ${dateStr}`);
+      }
+    } catch (error) {
+      scraperLogger.error(`Error parsing Croft Bristol date "${dateStr}":`, error);
+      return new Date().toISOString(); // Fallback to today
     }
   }
 
