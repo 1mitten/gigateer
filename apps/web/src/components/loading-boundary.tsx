@@ -11,7 +11,7 @@ interface LoadingBoundaryProps {
 // Loading skeletons
 export function CardSkeleton() {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 animate-pulse">
+    <div className="bg-white rounded-lg border border-gray-200 p-6 animate-fade-in">
       <div className="h-4 bg-gray-200 rounded mb-4"></div>
       <div className="h-3 bg-gray-200 rounded mb-2"></div>
       <div className="h-3 bg-gray-200 rounded w-2/3"></div>
@@ -23,7 +23,7 @@ export function ListSkeleton({ count = 5 }: { count?: number }) {
   return (
     <div className="space-y-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="bg-white rounded-lg border border-gray-200 p-4 animate-pulse">
+        <div key={i} className="bg-white rounded-lg border border-gray-200 p-4 animate-fade-in">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0"></div>
             <div className="flex-1 space-y-2">
@@ -40,7 +40,7 @@ export function ListSkeleton({ count = 5 }: { count?: number }) {
 
 export function GigCardSkeleton() {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden animate-pulse">
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden animate-fade-in">
       {/* Image placeholder */}
       <div className="h-48 bg-gray-200"></div>
       
@@ -62,7 +62,7 @@ export function GigCardSkeleton() {
 
 export function FiltersSkeleton() {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 animate-pulse">
+    <div className="bg-white rounded-lg border border-gray-200 p-4 animate-fade-in">
       <div className="space-y-4">
         <div className="h-4 bg-gray-200 rounded w-24"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -77,7 +77,7 @@ export function FiltersSkeleton() {
 
 export function DetailsSkeleton() {
   return (
-    <div className="max-w-4xl mx-auto animate-pulse">
+    <div className="max-w-4xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
         <div className="h-8 bg-gray-200 rounded mb-4"></div>

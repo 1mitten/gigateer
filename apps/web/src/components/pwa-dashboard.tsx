@@ -81,7 +81,7 @@ export function PWADashboard() {
                 <p className="text-sm font-medium text-gray-900">{test.test}</p>
                 <p className="text-xs text-gray-500">{test.message}</p>
                 {test.recommendation && (
-                  <p className="text-xs text-blue-600 mt-1">💡 {test.recommendation}</p>
+                  <p className="text-xs text-primary-600 mt-1">💡 {test.recommendation}</p>
                 )}
               </div>
             </div>
@@ -157,8 +157,8 @@ export function PWADashboard() {
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Performance Metrics</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">
+          <div className="text-center p-4 bg-primary-50 rounded-lg">
+            <div className="text-2xl font-bold text-primary-600">
               {performance.metrics.fcp ? `${Math.round(performance.metrics.fcp)}ms` : 'N/A'}
             </div>
             <div className="text-sm text-gray-600">First Contentful Paint</div>

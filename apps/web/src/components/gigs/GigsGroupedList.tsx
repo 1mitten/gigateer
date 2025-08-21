@@ -27,8 +27,8 @@ export function GigsGroupedList({
 }: GigsGroupedListProps) {
   // Debug log to see what view is being passed
   console.log('GigsGroupedList received view:', view);
-  // If no groups, show empty state
-  if (eventGroups.length === 0) {
+  // If no groups, show empty state (but not during loading)
+  if (eventGroups.length === 0 && !loading) {
     const EmptyComponent = useInfiniteScrollMode 
       ? (view === 'grid' ? GigsGridInfinite : GigsListInfinite)
       : (view === 'grid' ? GigsGrid : GigsList);

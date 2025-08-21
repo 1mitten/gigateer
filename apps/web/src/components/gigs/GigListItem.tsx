@@ -99,7 +99,7 @@ export function GigListItem({ gig, className = "", priority = false }: GigListIt
             {gig.title}
           </h3>
           <div className="flex items-center text-sm text-gray-600">
-            <CalendarIcon className="h-4 w-4 mr-1.5 flex-shrink-0" />
+            <CalendarIcon className="h-4 w-4 mr-1.5 flex-shrink-0 text-[#A855F7]" />
             <span>{formattedDate}</span>
             {formattedTime !== 'Time TBA' && (
               <>
@@ -128,19 +128,19 @@ export function GigListItem({ gig, className = "", priority = false }: GigListIt
 
           {/* Date */}
           <div className="col-span-2 flex items-center text-sm text-gray-600">
-            <CalendarIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+            <CalendarIcon className="h-3 w-3 mr-1 flex-shrink-0 text-[#A855F7]" />
             <span className="whitespace-nowrap">{formattedDate}</span>
           </div>
 
           {/* Time */}
           <div className="col-span-1 flex items-center text-sm text-gray-600">
-            <ClockIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+            <ClockIcon className="h-3 w-3 mr-1 flex-shrink-0 text-[#A855F7]" />
             <span className="whitespace-nowrap">{formattedTime}</span>
           </div>
 
           {/* Venue */}
           <div className="col-span-3 flex items-center text-sm text-gray-600 min-w-0">
-            <MapPinIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+            <MapPinIcon className="h-3 w-3 mr-1 flex-shrink-0 text-[#A855F7]" />
             <span className="truncate">
               {gig.venue.name}
               {gig.venue.city && `, ${gig.venue.city}`}

@@ -252,9 +252,11 @@ export function SearchPageCached({ city }: SearchPageProps = {}) {
               {/* Settings link */}
               <Link
                 href="/settings"
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                className="p-3 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm border border-gray-200 dark:border-gray-600 flex items-center"
+                aria-label="Settings"
+                title="Settings"
               >
-                <CogIcon className="h-6 w-6" />
+                <CogIcon className="h-7 w-7" />
               </Link>
             </div>
           </div>

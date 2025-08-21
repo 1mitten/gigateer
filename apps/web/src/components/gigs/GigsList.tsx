@@ -112,14 +112,13 @@ export function GigsList({
     </div>
   );
 
+  // Never show skeleton loading during search/filter operations
+  // Just use fade-in transition for smooth content updates
+  // Don't show empty state when actively loading
   return (
-    <LoadingWrapper 
-      isLoading={loading} 
-      loadingComponent={LoadingContent}
-      className={className}
-    >
-      {gigs.length === 0 ? EmptyContent : ContentWithResults}
-    </LoadingWrapper>
+    <div className={`animate-fade-in ${className}`}>
+      {gigs.length === 0 && !loading ? EmptyContent : ContentWithResults}
+    </div>
   );
 }
 
@@ -190,13 +189,12 @@ export function GigsGrid({ gigs, loading, className = "", ...props }: GigsListPr
     </div>
   );
 
+  // Never show skeleton loading during search/filter operations
+  // Just use fade-in transition for smooth content updates
+  // Don't show empty state when actively loading
   return (
-    <LoadingWrapper 
-      isLoading={loading || false} 
-      loadingComponent={LoadingContent}
-      className=""
-    >
-      {gigs.length === 0 ? EmptyContent : ContentWithResults}
-    </LoadingWrapper>
+    <div className="animate-fade-in">
+      {gigs.length === 0 && !loading ? EmptyContent : ContentWithResults}
+    </div>
   );
 }

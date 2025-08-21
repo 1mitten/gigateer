@@ -208,17 +208,16 @@ export function SearchPage({ city }: SearchPageProps = {}) {
     }];
   }, [gigs]);
   
-  // Show skeleton only for initial loading, not for sort/filter refetches
-  // For infinite scroll mode, only show skeleton if we have no data AND we're loading
-  // For pagination mode, wait for hydration + client fetch
+  // Only show skeleton on initial page load when there's no data at all
+  // Never show skeleton during search/filter operations when data already exists
   const hasData = gigs && gigs.length > 0;
   const isInitialLoading = useInfiniteScrollMode ? 
-    (Boolean(loading) && !hasData) : 
-    (Boolean(loading) || !hasMounted);
+    (Boolean(loading) && !hasData && !hasMounted) : 
+    (Boolean(loading) && !hasMounted);
   
-  // Use isInitialLoading instead of loading for skeleton display
-  // Never show skeleton if we already have data (for smooth transitions)
-  const isLoading = isInitialLoading && !hasData;
+  // Never show skeleton if we already have data or if the page has mounted
+  // This prevents skeleton from showing during search operations
+  const isLoading = isInitialLoading && !hasData && !hasMounted;
   
   console.log('RENDER: gigs.length =', gigs.length, 'loading =', loading, 'hasData =', hasData, 'isInitialLoading =', isInitialLoading, 'hasMounted =', hasMounted, 'infiniteMode =', useInfiniteScrollMode);
 
@@ -256,14 +255,15 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                       </span>
                     </div>
                   </div>
-                  <div className="ml-4 flex-shrink-0">
+                  <div className="ml-4 flex-shrink-0 flex items-center">
                     {/* Settings Gear Icon */}
                     <Link 
                       href="/settings"
-                      className="p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="p-3 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
                       aria-label="Settings"
+                      title="Settings"
                     >
-                      <CogIcon className="h-6 w-6" />
+                      <CogIcon className="h-7 w-7" />
                     </Link>
                   </div>
                 </div>
@@ -435,15 +435,15 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {Array.from({ length: 6 }).map((_, index) => (
                         <div key={index} className="card p-6 space-y-4">
-                          <div className="animate-pulse bg-gray-200 h-6 w-3/4 rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-5 w-1/2 rounded"></div>
+                          <div className="animate-fade-in bg-gray-200 h-6 w-3/4 rounded"></div>
+                          <div className="animate-fade-in bg-gray-200 h-5 w-1/2 rounded"></div>
                           <div className="flex justify-between items-center">
-                            <div className="animate-pulse bg-gray-200 h-4 w-1/3 rounded"></div>
-                            <div className="animate-pulse bg-gray-200 h-4 w-1/4 rounded"></div>
+                            <div className="animate-fade-in bg-gray-200 h-4 w-1/3 rounded"></div>
+                            <div className="animate-fade-in bg-gray-200 h-4 w-1/4 rounded"></div>
                           </div>
                           <div className="space-y-2">
-                            <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
-                            <div className="animate-pulse bg-gray-200 h-4 w-2/3 rounded"></div>
+                            <div className="animate-fade-in bg-gray-200 h-4 w-full rounded"></div>
+                            <div className="animate-fade-in bg-gray-200 h-4 w-2/3 rounded"></div>
                           </div>
                         </div>
                       ))}
@@ -454,12 +454,12 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                         <div key={index} className="card p-6 space-y-3">
                           <div className="flex justify-between items-start">
                             <div className="space-y-2 flex-1">
-                              <div className="animate-pulse bg-gray-200 h-6 w-2/3 rounded"></div>
-                              <div className="animate-pulse bg-gray-200 h-5 w-1/2 rounded"></div>
+                              <div className="animate-fade-in bg-gray-200 h-6 w-2/3 rounded"></div>
+                              <div className="animate-fade-in bg-gray-200 h-5 w-1/2 rounded"></div>
                             </div>
-                            <div className="animate-pulse bg-gray-200 h-4 w-20 rounded"></div>
+                            <div className="animate-fade-in bg-gray-200 h-4 w-20 rounded"></div>
                           </div>
-                          <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
+                          <div className="animate-fade-in bg-gray-200 h-4 w-full rounded"></div>
                         </div>
                       ))}
                     </div>
@@ -472,7 +472,7 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                     hasNextPage={hasNextPage}
                     fetchNextPage={fetchNextPage}
                     totalCount={totalCount}
-                    loading={loading && hasData}
+                    loading={loading}
                     emptyMessage={hasActiveFilters ? 
                       "No gigs match your current filters. Try adjusting your search criteria." : 
                       "No gigs available at the moment."

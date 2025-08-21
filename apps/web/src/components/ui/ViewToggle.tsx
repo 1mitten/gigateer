@@ -19,7 +19,7 @@ export function ViewToggle({ currentView, onViewChange, className = '' }: ViewTo
         onClick={() => onViewChange('grid')}
         className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
           currentView === 'grid'
-            ? 'bg-primary-600 text-white shadow-sm'
+            ? 'bg-[#640D5F] text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
         }`}
         aria-label="Grid view"
@@ -34,7 +34,7 @@ export function ViewToggle({ currentView, onViewChange, className = '' }: ViewTo
         onClick={() => onViewChange('list')}
         className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
           currentView === 'list'
-            ? 'bg-primary-600 text-white shadow-sm'
+            ? 'bg-[#640D5F] text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
         }`}
         aria-label="List view"

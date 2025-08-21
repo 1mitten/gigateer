@@ -115,15 +115,15 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
 
           {/* Date and time */}
           <div className="flex items-center text-sm text-gray-600 mb-2">
-            <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+            <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0 text-[#A855F7]" />
             <span>{formattedDate}</span>
-            <ClockIcon className="h-4 w-4 ml-4 mr-2 flex-shrink-0" />
+            <ClockIcon className="h-4 w-4 ml-4 mr-2 flex-shrink-0 text-[#A855F7]" />
             <span>{formattedTime}</span>
           </div>
 
           {/* Venue */}
           <div className="flex items-center text-sm text-gray-600 mb-2">
-            <MapPinIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+            <MapPinIcon className="h-4 w-4 mr-2 flex-shrink-0 text-[#A855F7]" />
             <span className="truncate">
               {gig.venue.name}
               {gig.venue.city && `, ${gig.venue.city}`}

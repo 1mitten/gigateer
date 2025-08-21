@@ -107,7 +107,7 @@ export function GigDetail({ gig }: GigDetailProps) {
             <div className="mb-6">
               <button
                 onClick={handleBack}
-                className="mr-4 p-2 -ml-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="mr-4 p-2 -ml-2 rounded-md text-white hover:text-white/80 hover:bg-white/10 transition-colors"
                 aria-label="Go back"
               >
                 <ArrowLeftIcon className="h-6 w-6" />
@@ -132,12 +132,12 @@ export function GigDetail({ gig }: GigDetailProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <div className="flex items-center text-gray-700 mb-2">
-                    <CalendarIcon className="h-5 w-5 mr-3 flex-shrink-0 text-primary-500" />
+                    <CalendarIcon className="h-5 w-5 mr-3 flex-shrink-0 text-[#A855F7]" />
                     <span className="font-medium">{formattedDate}</span>
                   </div>
                   
                   <div className="flex items-center text-gray-700 mb-2">
-                    <ClockIcon className="h-5 w-5 mr-3 flex-shrink-0 text-primary-500" />
+                    <ClockIcon className="h-5 w-5 mr-3 flex-shrink-0 text-[#A855F7]" />
                     <span>
                       {formattedTime}
                       {formattedEndTime && ` - ${formattedEndTime}`}
@@ -152,13 +152,13 @@ export function GigDetail({ gig }: GigDetailProps) {
 
                 <div>
                   <div className="flex items-center text-gray-700 mb-2">
-                    <BuildingOfficeIcon className="h-5 w-5 mr-3 flex-shrink-0 text-primary-500" />
+                    <BuildingOfficeIcon className="h-5 w-5 mr-3 flex-shrink-0 text-[#A855F7]" />
                     <span className="font-medium">{gig.venue.name}</span>
                   </div>
                   
                   {(gig.venue.address || gig.venue.city) && (
                     <div className="flex items-start text-gray-700">
-                      <MapPinIcon className="h-5 w-5 mr-3 flex-shrink-0 text-primary-500 mt-0.5" />
+                      <MapPinIcon className="h-5 w-5 mr-3 flex-shrink-0 text-[#A855F7] mt-0.5" />
                       <span>
                         {gig.venue.address && (
                           <>

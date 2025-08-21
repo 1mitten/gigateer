@@ -17,7 +17,7 @@ export default function SettingsPage() {
             <div className="flex items-center">
               <button
                 onClick={() => router.back()}
-                className="mr-4 p-2 -ml-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="mr-4 p-2 -ml-2 rounded-md text-white hover:text-white/80 hover:bg-white/10 transition-colors"
                 aria-label="Go back"
               >
                 <ArrowLeftIcon className="h-6 w-6" />

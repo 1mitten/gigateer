@@ -17,12 +17,12 @@ module.exports = {
       },
       colors: {
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
+          50: '#fef1f5',
+          100: '#fde4eb',
+          200: '#fbc9d8',
+          500: '#ea3a73',
+          600: '#EA2264',
+          700: '#d11b56',
         },
       },
       animation: {

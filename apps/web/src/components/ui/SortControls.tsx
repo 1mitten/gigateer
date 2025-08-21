@@ -35,7 +35,7 @@ export function SortControls({
       onClick={() => onToggleSort(value)}
       className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 ${
         active
-          ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
+          ? 'bg-[#640D5F] text-white hover:bg-[#640D5F]/90'
           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
       }`}
     >

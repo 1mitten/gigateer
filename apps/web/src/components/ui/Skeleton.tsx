@@ -15,7 +15,7 @@ export function Skeleton({
   height, 
   variant = 'rectangular' 
 }: SkeletonProps) {
-  const baseStyles = 'animate-pulse bg-gray-200';
+  const baseStyles = 'animate-fade-in bg-gray-200';
   
   const variantStyles = {
     text: 'rounded',

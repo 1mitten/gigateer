@@ -83,7 +83,7 @@ export function LazyImage({
       {/* Placeholder */}
       {!isInView && (
         <div 
-          className="absolute inset-0 bg-gray-200 animate-pulse"
+          className="absolute inset-0 bg-gray-200 animate-fade-in"
           style={{
             backgroundImage: `url("${placeholder}")`,
             backgroundSize: 'cover',

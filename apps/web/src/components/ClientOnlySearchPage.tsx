@@ -37,7 +37,7 @@ const SearchPage = dynamic(() => import('./pages/SearchPage').then(mod => ({ def
               </p>
             </div>
             <div className="mt-4 max-w-2xl mx-auto w-full sm:mx-0">
-              <div className="animate-pulse bg-gray-200 h-12 rounded-lg"></div>
+              <div className="animate-fade-in bg-gray-200 h-12 rounded-lg"></div>
             </div>
           </div>
         </div>
@@ -47,11 +47,11 @@ const SearchPage = dynamic(() => import('./pages/SearchPage').then(mod => ({ def
           <div className="hidden lg:block lg:col-span-1">
             <div className="sticky top-32">
               <div className="card p-6 space-y-4">
-                <div className="animate-pulse bg-gray-200 h-6 w-20 rounded"></div>
+                <div className="animate-fade-in bg-gray-200 h-6 w-20 rounded"></div>
                 <div className="space-y-3">
-                  <div className="animate-pulse bg-gray-200 h-10 rounded-md"></div>
-                  <div className="animate-pulse bg-gray-200 h-10 rounded-md"></div>
-                  <div className="animate-pulse bg-gray-200 h-10 rounded-md"></div>
+                  <div className="animate-fade-in bg-gray-200 h-10 rounded-md"></div>
+                  <div className="animate-fade-in bg-gray-200 h-10 rounded-md"></div>
+                  <div className="animate-fade-in bg-gray-200 h-10 rounded-md"></div>
                 </div>
               </div>
             </div>
