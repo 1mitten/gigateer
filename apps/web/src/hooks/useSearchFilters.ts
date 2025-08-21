@@ -16,7 +16,7 @@ interface FilterValues {
   q: string;
   page: number;
   limit: number;
-  sortBy: 'date' | 'name' | 'venue';
+  sortBy: 'date';
   sortOrder: 'asc' | 'desc';
 }
 
@@ -76,9 +76,9 @@ export function useSearchFilters() {
     initialFilters.page = parseInt(searchParams.get('page') || '1', 10);
     initialFilters.limit = parseInt(searchParams.get('limit') || '20', 10);
     
-    // Initialize sort parameters
-    const sortBy = searchParams.get('sortBy') as 'date' | 'name' | 'venue' | null;
-    initialFilters.sortBy = (sortBy && ['date', 'name', 'venue'].includes(sortBy)) ? sortBy : 'date';
+    // Initialize sort parameters - now only date is supported
+    const sortBy = searchParams.get('sortBy') as 'date' | null;
+    initialFilters.sortBy = 'date'; // Always use date sorting
     
     const sortOrder = searchParams.get('sortOrder') as 'asc' | 'desc' | null;
     initialFilters.sortOrder = (sortOrder && ['asc', 'desc'].includes(sortOrder)) ? sortOrder : 'asc';

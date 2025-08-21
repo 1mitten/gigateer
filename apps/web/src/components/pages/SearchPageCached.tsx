@@ -26,7 +26,7 @@ interface SearchPageProps {
 interface Filters {
   searchQuery: string;
   timeRange: TimeRange;
-  sortBy: 'date' | 'name' | 'venue';
+  sortBy: 'date';
   sortOrder: 'asc' | 'desc';
   genre: string[];
   venue: string[];
@@ -108,11 +108,11 @@ export function SearchPageCached({ city }: SearchPageProps = {}) {
     setFilters(prev => ({ ...prev, timeRange }));
   };
 
-  const handleToggleSort = (sortBy: 'date' | 'name' | 'venue') => {
+  const handleToggleSort = (sortBy: 'date') => {
     setFilters(prev => ({
       ...prev,
       sortBy,
-      sortOrder: prev.sortBy === sortBy && prev.sortOrder === 'asc' ? 'desc' : 'asc'
+      sortOrder: prev.sortOrder === 'asc' ? 'desc' : 'asc'
     }));
   };
 
@@ -156,9 +156,7 @@ export function SearchPageCached({ city }: SearchPageProps = {}) {
     if (filters.timeRange !== 'week') {
       active.push({ key: 'timeRange', label: 'Time Range', value: filters.timeRange });
     }
-    if (filters.sortBy !== 'date') {
-      active.push({ key: 'sortBy', label: 'Sort By', value: filters.sortBy });
-    }
+    // Sort is always by date now, no need to show as active filter
 
     return active;
   }, [filters]);
