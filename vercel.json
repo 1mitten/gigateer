@@ -1,6 +1,5 @@
 {
   "buildCommand": "pnpm --filter @gigateer/contracts build && pnpm --filter @gigateer/web build",
   "installCommand": "pnpm install --frozen-lockfile",
-  "framework": "nextjs",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- apps/web packages/contracts"
+  "framework": "nextjs"
 }
