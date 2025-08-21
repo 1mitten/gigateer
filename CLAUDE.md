@@ -28,7 +28,7 @@ pnpm --filter web dev             # Just Next.js app
 # Data ingestion (most common)
 pnpm ingest:all                   # Run all scrapers
 pnpm ingest:source <name>         # Run specific scraper  
-pnpm merge                        # Create catalog.json
+node packages/dedupe/dist/cli.js generate  # Create catalog.json
 pnpm validate                     # Check data integrity
 
 # Testing & Quality
@@ -319,6 +319,33 @@ External Sources → Scraper Plugins → Raw JSON → Validation → catalog.jso
 - **Caching**: API responses with appropriate TTLs
 - **Database indexing**: For frequently queried fields
 - **Rate limiting**: Respect external service limits
+
+## 🚨 Common Issues & Solutions
+
+### Catalog Generation Issues
+- **`pnpm merge` fails**: The `merge` command doesn't exist in the current CLI
+- **Correct approach**: Use `node packages/dedupe/dist/cli.js generate` to create catalog.json
+- **ESM module errors**: The dedupe CLI requires ESM imports with .js extensions
+- **Missing data in catalog**: Run `pnpm build` first, then scrape sources, then generate catalog
+
+### Data Not Appearing in Frontend
+**Problem**: Scraped data exists but doesn't show in web app
+**Solution**: 
+```bash
+# 1. Verify scraped data exists
+ls data/sources/bristol-thekla.*
+
+# 2. Generate catalog (includes deduplication)
+node packages/dedupe/dist/cli.js generate --verbose
+
+# 3. Start frontend (reads from catalog.json)
+pnpm --filter web dev
+```
+
+### Scraper Issues
+- **Only finding 1 event**: Check if selectors match current website structure
+- **No events found**: Website may have changed - use Playwright MCP to inspect live page
+- **Permission errors**: Remove problematic scrapers like bandsintown-rss-scraper.ts
 
 ## 🎯 Success Metrics
 

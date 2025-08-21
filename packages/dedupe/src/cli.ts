@@ -6,9 +6,9 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { generateCatalog, updateCatalog, compareCatalogs, CatalogGenerationOptions } from './catalog-generator';
-import { batchValidateGigs } from './error-handling';
-import { DEFAULT_TRUST_SCORES } from './trust-score';
+import { generateCatalog, updateCatalog, compareCatalogs, CatalogGenerationOptions } from './catalog-generator.js';
+import { batchValidateGigs } from './error-handling.js';
+import { DEFAULT_TRUST_SCORES } from './trust-score.js';
 
 interface CLIOptions {
   command: 'generate' | 'update' | 'validate' | 'compare' | 'help';

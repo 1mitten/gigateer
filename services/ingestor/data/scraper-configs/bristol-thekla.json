@@ -5,7 +5,7 @@
     "source": "bristol-thekla",
     "description": "Floating venue and nightclub on the River Avon in Bristol, UK",
     "maintainer": "gigateer-team",
-    "lastUpdated": "2025-01-10"
+    "lastUpdated": "2025-08-21"
   },
   
   "browser": {
@@ -36,19 +36,13 @@
     {
       "type": "scroll",
       "direction": "down",
-      "amount": 2000,
+      "amount": 3000,
       "waitAfter": 2000
     },
     {
       "type": "scroll",
       "direction": "down",
-      "amount": 2000,
-      "waitAfter": 2000
-    },
-    {
-      "type": "scroll",
-      "direction": "down",
-      "amount": 2000,
+      "amount": 3000,
       "waitAfter": 2000
     },
     {
@@ -58,27 +52,25 @@
     },
     {
       "type": "extract", 
-      "containerSelector": "div.card.card--full.card--alt-layout",
+      "containerSelector": ".grid__col.guide__grid-col:has(a[href*='/gigs/'].card__heading)",
       "fields": {
         "title": {
-          "selector": "a.card__heading.card__heading--last.h4",
+          "selector": "a[href*='/gigs/'].card__heading",
           "attribute": "text",
-          "required": false,
-          "transform": "trim",
-          "fallback": "Event at Thekla"
+          "required": true,
+          "transform": "trim"
         },
         "artist": {
-          "selector": "a.card__heading.card__heading--last.h4",
+          "selector": "a[href*='/gigs/'].card__heading",
           "attribute": "text",
-          "required": false,
+          "required": true,
           "transform": "trim"
         },
         "date": {
-          "selector": "h6.card__strip-heading.card__strip-heading--last",
+          "selector": "h6:nth-of-type(2)",
           "attribute": "text",
-          "required": false,
-          "transform": "thekla-bristol-date",
-          "fallback": "TBA"
+          "required": true,
+          "transform": "thekla-bristol-date"
         },
         "support": {
           "selector": "p",
@@ -87,28 +79,28 @@
           "transform": "trim"
         },
         "eventUrl": {
-          "selector": "a.card__heading.card__heading--last.h4",
+          "selector": "a[href*='/gigs/'].card__heading",
           "attribute": "href",
           "required": false,
           "transform": "url"
         },
         "ticketsUrl": {
-          "selector": "a.button.button--1.card__button.js-gig-guide-tickets",
+          "selector": "a[href*='ticket'], a[href*='alttickets']",
           "attribute": "href",
           "required": false
         },
         "moreInfoUrl": {
-          "selector": "a.button.card__button.js-gig-guide-more-info",
+          "selector": "a[href*='/gigs/'].card__heading",
           "attribute": "href",
           "required": false
         },
         "image": {
-          "selector": "img.img.img--bg.link__image",
-          "attribute": "data-lazy-src",
+          "selector": "img",
+          "attribute": "src",
           "required": false
         },
-        "status": {
-          "selector": "mark h4, mark a",
+        "eventType": {
+          "selector": "h6:first-of-type",
           "attribute": "text",
           "required": false,
           "transform": "trim"
@@ -118,34 +110,23 @@
         "urlField": "eventUrl",
         "fields": {
           "fullDescription": {
-            "selector": ".content p, .gig-details, .event-description",
-            "attribute": "text",
-            "transform": "trim"
-          },
-          "venue": {
-            "selector": ".venue-info, .location",
+            "selector": ".content p, .gig-details, .event-description, .entry-content p",
             "attribute": "text",
             "transform": "trim"
           },
           "time": {
-            "selector": ".event-time, .doors-time, .time",
+            "selector": ".single-article__meta-bar-items li:nth-child(2) .single-article__meta-bar-text",
             "attribute": "text",
             "transform": "trim"
           },
           "price": {
-            "selector": ".price, .ticket-price, .admission",
+            "selector": ".single-article__meta-bar-items li:nth-child(3) .single-article__meta-bar-text",
             "attribute": "text",
             "transform": "trim"
           },
           "ageRestriction": {
-            "selector": ".age-restriction, .over-18, .all-ages",
+            "selector": ".age-restriction, .over-18, .all-ages, .entry-content",
             "attribute": "text",
-            "transform": "trim"
-          },
-          "genres": {
-            "selector": ".genre, .tag, .music-style",
-            "attribute": "text",
-            "multiple": true,
             "transform": "trim"
           }
         }
@@ -180,13 +161,15 @@
     "supportAct": "support",
     "tags": "genres",
     "ageRestriction": "ageRestriction",
-    "status": "status"
+    "status": "status",
+    "time": "time",
+    "price": "price"
   },
   
   "validation": {
     "required": [],
-    "minEventsExpected": 5,
-    "maxEventsExpected": 300
+    "minEventsExpected": 1,
+    "maxEventsExpected": 100
   },
   
   "debug": {

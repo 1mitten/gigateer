@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
 const withPWA = require('next-pwa')({
   dest: 'public',
-  disable: true, // Force disable PWA during debugging
-  register: false,
+  disable: process.env.NODE_ENV === 'development', // Enable PWA in production
+  register: true,
   skipWaiting: true,
   reloadOnOnline: true,
-  disableDevLogs: true,
+  disableDevLogs: process.env.NODE_ENV === 'production',
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,
@@ -117,13 +117,28 @@ const withPWA = require('next-pwa')({
 });
 
 const nextConfig = {
+  // Production optimizations
+  productionBrowserSourceMaps: false,
+  poweredByHeader: false,
+  compress: true,
+  
+  // Build optimizations
+  swcMinify: true,
+  
   experimental: {
     serverComponentsExternalPackages: [],
   },
   transpilePackages: ['@gigateer/contracts'],
+  
+  // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
+    domains: [], // Add external image domains if needed
+    unoptimized: false,
   },
+  
+  // Output configuration for standalone deployment
+  output: process.env.NEXT_OUTPUT === 'standalone' ? 'standalone' : undefined,
   webpack: (config, { isServer }) => {
     // Exclude test files and vitest config from builds
     config.module.rules.push({

@@ -49,7 +49,17 @@ export const ExtractConfigSchema = z.object({
         transformParams: z.record(z.any()).optional()
       }))
     }).optional() // Follow-up extraction from linked pages
-  }))
+  })),
+  // Action-level follow-up extraction (applies to all extracted items)
+  followUp: z.object({
+    urlField: z.string(), // Field that contains the URL to follow
+    fields: z.record(z.object({
+      selector: z.string(),
+      attribute: z.string().optional(),
+      transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper']).optional(),
+      transformParams: z.record(z.any()).optional()
+    }))
+  }).optional()
 });
 
 export const ActionSchema = z.union([
