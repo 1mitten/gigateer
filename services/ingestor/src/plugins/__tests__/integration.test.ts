@@ -1,6 +1,6 @@
 import { RSSiCalScraper } from "../rss-ical-scraper";
 import { HTMLPlaywrightScraper } from "../html-playwright-scraper";
-import { bandsintownAmsterdamScraper } from "../bandsintown-rss-scraper";
+// Note: bandsintown-rss-scraper was removed from codebase
 import { blueNoteNYCScraper } from "../venue-website-scraper";
 
 // Mock validateGig function since we can't easily import it in Jest
@@ -240,9 +240,10 @@ describe("Scraper Integration Tests", () => {
   describe("Real Scraper Configurations", () => {
     test("should have valid configurations for example scrapers", () => {
       // Test that example scrapers are properly configured
-      expect(bandsintownAmsterdamScraper.upstreamMeta.name).toContain("Bandsintown");
-      expect(bandsintownAmsterdamScraper.upstreamMeta.rateLimitPerMin).toBeGreaterThan(0);
-      expect(bandsintownAmsterdamScraper.upstreamMeta.defaultSchedule).toMatch(/^[0-9*\s\/,-]+$/);
+      // Note: bandsintownAmsterdamScraper was removed from codebase
+      // expect(bandsintownAmsterdamScraper.upstreamMeta.name).toContain("Bandsintown");
+      // expect(bandsintownAmsterdamScraper.upstreamMeta.rateLimitPerMin).toBeGreaterThan(0);
+      // expect(bandsintownAmsterdamScraper.upstreamMeta.defaultSchedule).toMatch(/^[0-9*\s\/,-]+$/);
 
       expect(blueNoteNYCScraper.upstreamMeta.name).toContain("Blue Note");
       expect(blueNoteNYCScraper.upstreamMeta.rateLimitPerMin).toBeGreaterThan(0);
@@ -250,7 +251,8 @@ describe("Scraper Integration Tests", () => {
     });
 
     test("should implement required scraper interface methods", async () => {
-      const scrapers = [bandsintownAmsterdamScraper, blueNoteNYCScraper];
+      // Note: bandsintownAmsterdamScraper was removed from codebase
+      const scrapers = [blueNoteNYCScraper];
 
       for (const scraper of scrapers) {
         expect(typeof scraper.fetchRaw).toBe('function');

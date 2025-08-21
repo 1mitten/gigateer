@@ -243,7 +243,7 @@ export function SearchPage({ city }: SearchPageProps = {}) {
                       {city ? (
                         <>
                           {city.charAt(0).toUpperCase() + city.slice(1)}
-                          <span className="text-4xl sm:text-5xl text-primary-600 dark:text-primary-400">.</span>
+                          <span className="text-4xl sm:text-5xl text-primary-600 dark:text-primary-400"> ..</span>
                         </>
                       ) : 'Discover Live Music'}
                     </h1>

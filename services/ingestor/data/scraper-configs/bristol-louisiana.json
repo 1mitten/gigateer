@@ -86,7 +86,8 @@
           "selector": ".event-date .event-time",
           "attribute": "text",
           "required": false,
-          "transform": "trim"
+          "transform": "trim",
+          "fallback": "7:30pm"
         },
         "price": {
           "selector": ".event-price",
@@ -131,7 +132,8 @@
           "detailedTime": {
             "selector": "span.event-time",
             "attribute": "text",
-            "transform": "trim"
+            "transform": "trim",
+            "fallback": "7:30pm"
           },
           "genres": {
             "selector": ".event-tags .tag, .genre, .music-style",
@@ -158,8 +160,16 @@
       "country": "UK"
     },
     "date": {
-      "start": "date",
-      "time": "detailedTime",
+      "start": {
+        "field": "date",
+        "transform": "louisiana-bristol-datetime",
+        "transformParams": {
+          "timeField": "detailedTime",
+          "fallbackTimeField": "time",
+          "fallbackTime": "7:30pm",
+          "timezone": "Europe/London"
+        }
+      },
       "timezone": "Europe/London"
     },
     "urls": {
@@ -178,8 +188,8 @@
   },
   
   "debug": {
-    "screenshots": true,
-    "saveHtml": true,
-    "logLevel": "debug"
+    "screenshots": false,
+    "saveHtml": false,
+    "logLevel": "info"
   }
 }
