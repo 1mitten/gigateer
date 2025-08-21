@@ -106,9 +106,9 @@ export function CompactSortControls({
   };
 
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
+    <div className={`flex flex-row gap-2 ${className}`}>
       {/* Sort Selection */}
-      <div className="relative">
+      <div className="relative flex-1">
         <select
           value={`${sortBy}-${sortOrder}`}
           onChange={(e) => {
@@ -132,7 +132,7 @@ export function CompactSortControls({
 
       {/* Date Filter */}
       {onDateFilterChange && (
-        <div className="relative">
+        <div className="relative flex-1">
           <select
             value={dateFilter}
             onChange={(e) => onDateFilterChange(e.target.value as DateFilterOption)}

@@ -210,7 +210,25 @@ export function filterGigs(
   // Date range filters
   if (filters.dateFrom) {
     const fromDate = new Date(filters.dateFrom);
-    filtered = filtered.filter(gig => new Date(gig.dateStart) >= fromDate);
+    
+    filtered = filtered.filter(gig => {
+      const gigDate = new Date(gig.dateStart);
+      
+      // For date-only filtering, we need to be careful about midnight/early morning gigs
+      if (filters.dateFrom && !filters.dateFrom.includes('T')) {
+        const gigHour = gigDate.getHours();
+        
+        // If the gig is between midnight and 6 AM, check if it's actually on or after the filtered date
+        if (gigHour >= 0 && gigHour < 6) {
+          const gigDateOnly = gigDate.toISOString().split('T')[0];
+          const filterDateOnly = filters.dateFrom;
+          // Include if the gig's date is on or after the filter date
+          return gigDateOnly >= filterDateOnly;
+        }
+      }
+      
+      return gigDate >= fromDate;
+    });
   }
   
   if (filters.dateTo) {
@@ -219,7 +237,25 @@ export function filterGigs(
     if (!filters.dateTo.includes('T')) {
       toDate.setHours(23, 59, 59, 999);
     }
-    filtered = filtered.filter(gig => new Date(gig.dateStart) <= toDate);
+    
+    filtered = filtered.filter(gig => {
+      const gigDate = new Date(gig.dateStart);
+      
+      // For date-only filtering, we need to be careful about midnight/early morning gigs
+      if (filters.dateTo && !filters.dateTo.includes('T')) {
+        const gigHour = gigDate.getHours();
+        
+        // If the gig is between midnight and 6 AM, check if it's actually on the filtered date
+        if (gigHour >= 0 && gigHour < 6) {
+          const gigDateOnly = gigDate.toISOString().split('T')[0];
+          const filterDateOnly = filters.dateTo;
+          // Only include if the gig's date matches the filter date exactly
+          return gigDateOnly === filterDateOnly;
+        }
+      }
+      
+      return gigDate <= toDate;
+    });
   }
   
   // Venue filter (case-insensitive includes)

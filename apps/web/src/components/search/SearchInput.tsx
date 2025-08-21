@@ -56,17 +56,6 @@ export function SearchInput({
   return (
     <div className={`relative ${className}`}>
       <div className="relative">
-        <button
-          type="button"
-          onClick={handleSearch}
-          className="absolute inset-y-0 left-0 pl-3 flex items-center hover:text-gray-600 focus:outline-none"
-          aria-label="Search"
-        >
-          <MagnifyingGlassIcon 
-            className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" 
-          />
-        </button>
-        
         <input
           ref={inputRef}
           type="text"
@@ -74,22 +63,32 @@ export function SearchInput({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder-gray-500 text-gray-900 text-sm"
+          className="block w-full pl-4 pr-16 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder-gray-500 !text-black text-sm !bg-white"
           aria-label="Search"
         />
         
-        {displayValue && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+        <div className="absolute inset-y-0 right-0 pr-3 flex items-center space-x-1">
+          {displayValue && (
             <button
               type="button"
               onClick={handleClear}
-              className="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm p-1"
+              className="!text-black hover:!text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm p-1"
               aria-label="Clear search"
             >
               <XMarkIcon className="h-4 w-4" />
             </button>
-          </div>
-        )}
+          )}
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="!text-black hover:!text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm p-1"
+            aria-label="Search"
+          >
+            <MagnifyingGlassIcon 
+              className="h-6 w-6 transition-colors" 
+            />
+          </button>
+        </div>
       </div>
     </div>
   );
