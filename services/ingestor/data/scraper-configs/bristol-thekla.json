@@ -52,34 +52,34 @@
     },
     {
       "type": "extract", 
-      "containerSelector": ".grid__col.guide__grid-col:has(a[href*='/gigs/'].card__heading)",
+      "containerSelector": ".card.card--full",
       "fields": {
         "title": {
-          "selector": "a[href*='/gigs/'].card__heading",
+          "selector": ".card__grid-content a.card__heading",
           "attribute": "text",
           "required": true,
           "transform": "trim"
         },
         "artist": {
-          "selector": "a[href*='/gigs/'].card__heading",
+          "selector": ".card__grid-content a.card__heading",
           "attribute": "text",
           "required": true,
           "transform": "trim"
         },
         "date": {
-          "selector": "h6:nth-of-type(2)",
+          "selector": ".card__strip-heading.card__strip-heading--last",
           "attribute": "text",
           "required": true,
           "transform": "thekla-bristol-date"
         },
         "support": {
-          "selector": "p",
+          "selector": ".card__grid-content p.card__description",
           "attribute": "text",
           "required": false,
           "transform": "trim"
         },
         "eventUrl": {
-          "selector": "a[href*='/gigs/'].card__heading",
+          "selector": ".card__grid-content a.card__heading",
           "attribute": "href",
           "required": false,
           "transform": "url"
@@ -90,17 +90,17 @@
           "required": false
         },
         "moreInfoUrl": {
-          "selector": "a[href*='/gigs/'].card__heading",
+          "selector": ".card__grid-content a.card__heading",
           "attribute": "href",
           "required": false
         },
         "image": {
-          "selector": "img",
+          "selector": ".card__grid-media img",
           "attribute": "src",
           "required": false
         },
         "eventType": {
-          "selector": "h6:first-of-type",
+          "selector": ".card__strip-heading:first-child",
           "attribute": "text",
           "required": false,
           "transform": "trim"
@@ -110,22 +110,22 @@
         "urlField": "eventUrl",
         "fields": {
           "fullDescription": {
-            "selector": ".content p, .gig-details, .event-description, .entry-content p",
+            "selector": "article p",
             "attribute": "text",
             "transform": "trim"
           },
           "time": {
-            "selector": ".single-article__meta-bar-items li:nth-child(2) .single-article__meta-bar-text",
+            "selector": ".single-article__meta-bar li:nth-child(2)",
             "attribute": "text",
             "transform": "trim"
           },
           "price": {
-            "selector": ".single-article__meta-bar-items li:nth-child(3) .single-article__meta-bar-text",
+            "selector": ".single-article__meta-bar li:nth-child(3)",
             "attribute": "text",
             "transform": "trim"
           },
           "ageRestriction": {
-            "selector": ".age-restriction, .over-18, .all-ages, .entry-content",
+            "selector": "article p",
             "attribute": "text",
             "transform": "trim"
           }
