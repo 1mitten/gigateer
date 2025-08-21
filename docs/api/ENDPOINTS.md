@@ -179,6 +179,116 @@ GET /api/meta
 }
 ```
 
+### GET `/api/scrapers/health`
+Retrieve health status for all scrapers or a specific scraper. This endpoint provides monitoring information for data ingestion systems.
+
+#### Query Parameters
+| Parameter | Type | Required | Description | Example |
+|-----------|------|----------|-------------|---------|
+| `scraper` | string | No | Check specific scraper only | `?scraper=bristol-louisiana` |
+
+#### Example Requests
+```bash
+# Get full health report for all scrapers
+GET /api/scrapers/health
+
+# Check specific scraper health
+GET /api/scrapers/health?scraper=bristol-louisiana
+```
+
+#### Response Format (Full Report)
+```json
+{
+  "totalScrapers": 7,
+  "healthyScrapers": 5,
+  "degradedScrapers": 1,
+  "failedScrapers": 1,
+  "overallStatus": "degraded",
+  "testRunTime": 45000,
+  "generatedAt": "2024-03-01T12:00:00.000Z",
+  "results": [
+    {
+      "scraper": "bristol-louisiana",
+      "status": "healthy",
+      "recordsFound": 15,
+      "responseTime": 3500,
+      "lastTested": "2024-03-01T12:00:00.000Z",
+      "details": {
+        "sampleTitles": ["Jazz Night", "Rock Concert", "Folk Festival"],
+        "venueInfo": "Louisiana",
+        "dateRange": "2024-03-15 to 2024-04-20"
+      }
+    },
+    {
+      "scraper": "bristol-thekla",
+      "status": "failed",
+      "recordsFound": 0,
+      "responseTime": 90000,
+      "lastTested": "2024-03-01T12:00:00.000Z",
+      "errorMessage": "Timeout after 90s"
+    }
+  ]
+}
+```
+
+#### Response Format (Single Scraper)
+```json
+{
+  "scraper": "bristol-louisiana",
+  "status": "healthy",
+  "recordsFound": 15,
+  "responseTime": 3500,
+  "lastTested": "2024-03-01T12:00:00.000Z",
+  "details": {
+    "sampleTitles": ["Jazz Night", "Rock Concert", "Folk Festival"],
+    "venueInfo": "Louisiana",
+    "dateRange": "2024-03-15 to 2024-04-20"
+  }
+}
+```
+
+### POST `/api/scrapers/health`
+Run health checks for specified scrapers. Useful for selective monitoring or troubleshooting.
+
+#### Request Body
+```json
+{
+  "scrapers": ["bristol-louisiana", "bristol-thekla", "bristol-exchange"]
+}
+```
+
+#### Example Request
+```bash
+curl -X POST /api/scrapers/health \
+  -H "Content-Type: application/json" \
+  -d '{"scrapers": ["bristol-louisiana", "bristol-thekla"]}'
+```
+
+#### Response Format
+```json
+{
+  "scrapers": 2,
+  "testedAt": "2024-03-01T12:00:00.000Z",
+  "results": [
+    {
+      "scraper": "bristol-louisiana",
+      "status": "healthy",
+      "recordsFound": 15,
+      "responseTime": 3500,
+      "lastTested": "2024-03-01T12:00:00.000Z"
+    },
+    {
+      "scraper": "bristol-thekla",
+      "status": "degraded",
+      "recordsFound": 1,
+      "responseTime": 8500,
+      "lastTested": "2024-03-01T12:00:00.000Z",
+      "errorMessage": "Only found 1 record"
+    }
+  ]
+}
+```
+
 ## Data Schema
 
 ### Gig Object
@@ -218,6 +328,34 @@ interface SourceStats {
   lastRun: string;         // Last scrape time (ISO 8601)
   gigCount: number;        // Number of gigs from this source
   status: 'success' | 'error' | 'running';  // Current status
+}
+```
+
+### Scraper Health Objects
+```typescript
+interface ScraperHealthResult {
+  scraper: string;         // Scraper identifier
+  status: 'healthy' | 'degraded' | 'failed';  // Health status
+  recordsFound: number;    // Number of records extracted
+  errorMessage?: string;   // Error description (if failed)
+  responseTime: number;    // Response time in milliseconds
+  lastTested: string;      // Test execution time (ISO 8601)
+  details?: {              // Additional metadata (optional)
+    sampleTitles?: string[];  // Sample event titles
+    venueInfo?: string;       // Venue name
+    dateRange?: string;       // Date range of events found
+  };
+}
+
+interface HealthCheckReport {
+  totalScrapers: number;       // Total scrapers tested
+  healthyScrapers: number;     // Number with healthy status
+  degradedScrapers: number;    // Number with degraded status
+  failedScrapers: number;      // Number with failed status
+  overallStatus: 'healthy' | 'degraded' | 'critical';  // Overall system health
+  testRunTime: number;         // Total test execution time (ms)
+  results: ScraperHealthResult[];  // Individual scraper results
+  generatedAt: string;         // Report generation time (ISO 8601)
 }
 ```
 

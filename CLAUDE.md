@@ -200,8 +200,57 @@ mongoimport --db gigateer --collection gigs --file ./data/catalog.json --jsonArr
 ```bash
 pnpm test                         # All tests across monorepo
 pnpm --filter web test           # React component tests  
-pnpm --filter ingestor test      # Business logic tests
+pnpm --filter ingestor test      # Business logic & scraper health tests
 pnpm test --coverage             # With coverage report
+```
+
+### 🏥 Scraper Health Monitoring
+**New Feature (Aug 2025)**: Comprehensive health check system for monitoring scraper reliability.
+
+#### Health Check System Features
+- **Automated Testing**: Individual tests for all 7 Bristol scrapers
+- **Health Classification**: Healthy (≥2 records), Degraded (≥1 record), Failed (0 records)
+- **Performance Monitoring**: Response time tracking and timeout detection
+- **UI-Ready API**: RESTful endpoints for dashboard integration
+- **Error Categorization**: Network errors, timeouts, parsing failures
+- **Sample Data Preview**: Shows actual scraped event titles and venue info
+
+#### Running Health Checks
+```bash
+# Run all scraper health checks via Jest tests
+pnpm --filter ingestor test --testPathPattern=health-check
+
+# Test specific scrapers via API (requires Next.js server running)
+curl "http://localhost:3000/api/scrapers/health?scraper=bristol-louisiana"
+
+# Get comprehensive health report
+curl "http://localhost:3000/api/scrapers/health"
+
+# Test multiple specific scrapers
+curl -X POST "http://localhost:3000/api/scrapers/health" \
+  -H "Content-Type: application/json" \
+  -d '{"scrapers": ["bristol-louisiana", "bristol-thekla"]}'
+```
+
+#### Health Status Interpretation
+- **Healthy**: ≥2 records extracted, scraper working normally
+- **Degraded**: 1 record extracted, may indicate site changes or issues
+- **Failed**: 0 records extracted, scraper needs attention
+- **Overall System Status**: 
+  - Healthy: 0 failures, ≤1 degraded
+  - Degraded: ≤2 failures 
+  - Critical: >2 failures
+
+#### Integration with Development Workflow
+```bash
+# Check scraper health before data updates
+curl "http://localhost:3000/api/scrapers/health" | jq '.overallStatus'
+
+# Run health check tests in CI/CD pipeline  
+pnpm --filter ingestor test --testPathPattern=health-check --verbose
+
+# Monitor individual scraper performance
+curl "http://localhost:3000/api/scrapers/health?scraper=bristol-louisiana" | jq '.responseTime'
 ```
 
 ### 🎭 Playwright-Enhanced Testing
@@ -224,6 +273,7 @@ Use Playwright MCP for advanced scraper testing and validation:
 - [ ] Error handling & edge cases
 - [ ] **Scraper selectors** - Use Playwright to verify elements exist and data extracts correctly
 - [ ] **Dynamic content** - Test with Playwright on JS-heavy sites to ensure proper waiting
+- [ ] **Scraper health** - Run health checks after scraper changes to ensure they still extract data
 
 ### Coverage Requirements
 - **Minimum**: 70% overall, 80% for new code

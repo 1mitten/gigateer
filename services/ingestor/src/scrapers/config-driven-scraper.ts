@@ -1143,24 +1143,60 @@ export class ConfigDrivenScraper {
    */
   private parseLanesBristolDate(dateStr: string): string {
     try {
-      scraperLogger.debug(`Parsing Lanes Bristol date: "${dateStr}"`);
+      scraperLogger.info(`🔍 PARSING LANES BRISTOL DATE: "${dateStr}"`);
       
-      const result = DateTimeParser.parseDate(dateStr, undefined, { 
+      // Preprocess the date string to handle "Tomorrow"
+      let processedDateStr = dateStr.trim();
+      
+      if (processedDateStr.toLowerCase().includes('tomorrow')) {
+        scraperLogger.info(`✅ DETECTED "TOMORROW" in date string: "${dateStr}"`);
+        
+        // Extract time if present (e.g., "Tomorrow 19:00 - 22:00")
+        const timeMatch = processedDateStr.match(/(\d{1,2}):(\d{2})/);
+        let timeStr = '';
+        if (timeMatch) {
+          timeStr = ` ${timeMatch[0]}`;
+          scraperLogger.info(`⏰ EXTRACTED TIME from Tomorrow string: "${timeMatch[0]}"`);
+        }
+        
+        // Get tomorrow's date and format it
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        // Format as day name and date (e.g., "Friday 15th November")
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        const dayName = dayNames[tomorrow.getDay()];
+        const date = tomorrow.getDate();
+        const ordinalSuffix = date === 1 || date === 21 || date === 31 ? 'st' :
+                             date === 2 || date === 22 ? 'nd' :
+                             date === 3 || date === 23 ? 'rd' : 'th';
+        const monthName = monthNames[tomorrow.getMonth()];
+        
+        processedDateStr = `${dayName} ${date}${ordinalSuffix} ${monthName}${timeStr}`;
+        scraperLogger.info(`🔄 CONVERTED "Tomorrow" to: "${processedDateStr}"`);
+      }
+      
+      const result = DateTimeParser.parseDate(processedDateStr, undefined, { 
         format: 'bristol-standard',
         defaultHour: 22 // Most Lanes events are in the evening
       });
       
       if (result.success) {
         const isoString = result.date.toISOString();
-        scraperLogger.debug(`Parsed Lanes Bristol date "${dateStr}" to "${isoString}"`);
+        scraperLogger.info(`✅ SUCCESSFULLY PARSED Lanes Bristol date "${dateStr}" to "${isoString}"`);
         return isoString;
       } else {
-        scraperLogger.error(`Failed to parse Lanes Bristol date: "${dateStr}" - ${result.error}`);
-        throw new Error(`Could not parse date: ${dateStr}`);
+        scraperLogger.error(`❌ FAILED TO PARSE Lanes Bristol date: "${dateStr}" - ${result.error}`);
+        // Instead of throwing, return the preprocessed date string
+        scraperLogger.error(`🔄 RETURNING PROCESSED DATE STRING: "${processedDateStr}"`);
+        return processedDateStr;
       }
       
     } catch (error) {
-      scraperLogger.error(`Error parsing Lanes Bristol date "${dateStr}":`, error);
+      scraperLogger.error(`💥 ERROR parsing Lanes Bristol date "${dateStr}":`, error);
       return dateStr;
     }
   }

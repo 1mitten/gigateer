@@ -1,0 +1,1015 @@
+{
+  "source": "bristol-the-lanes",
+  "fetchedAt": "2025-08-21T17:31:43.928Z",
+  "count": 42,
+  "data": [
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-0",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "SLOWSKI + BONZEE + CUSTARD",
+      "artists": [
+        "SLOWSKI + BONZEE + CUSTARD"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "\n                Tomorrow 19:00 - 22:00\n            ",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-22-aug-slowski-bonzee-custard-131112",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1311/e131112_i263634_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-slowski-bonzee-custard-tomorrow-1900-2200-bristol",
+      "hash": "2e0d31fc10c9daf18075657d5f231e6ef6186cbc3be94824c2b242ecff39c562",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-1",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "Saved By The 90s - Bristol",
+      "artists": [
+        "Saved By The 90s - Bristol"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "\n                Tomorrow 22:30 - 03:00\n            ",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-22-aug-saved-by-the-90s-bristol-133035",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1330/e133035_i269516_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-saved-by-the-90s-bristol-tomorrow-2230-0300-bristol",
+      "hash": "35e08e268cdbcb158324281e160786a5bc7b6ef68237f29e23b3cbdb9424b437",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-2",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "CHASING DOLLS + COMFORT + FUNERAL",
+      "artists": [
+        "CHASING DOLLS + COMFORT + FUNERAL"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-08-23T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-23-aug-chasing-dolls-comfort-funeral-134957",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1349/e134957_i276338_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-chasing-dolls-comfort-funeral-2025-08-23t180000000z-bristol",
+      "hash": "2b0e68bb6597376b9cbd90f3ed82c2732a92571e6dea041268b2be2de7ee0149",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-3",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "Summer Strikes - Vengaboys Beach Party",
+      "artists": [
+        "Summer Strikes - Vengaboys Beach Party"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-08-23T21:30:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-23-aug-summer-strikes-vengaboys-beach-party-132621",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1326/e132621_i268293_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-summer-strikes-vengaboys-beach-party-2025-08-23t213000000z-bristol",
+      "hash": "a3cf440171d46877797f81d1945ed3023658bd3d38fe766802c443ed6f27e139",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-4",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "Wasteman Weeklies #519",
+      "artists": [
+        "Wasteman Weeklies #519"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-08-24T11:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sun-24-aug-wasteman-weeklies-519-135154",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1351/e135154_i275809_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-wasteman-weeklies-519-2025-08-24t110000000z-bristol",
+      "hash": "83e248f990b7dc69cc8f92b8ad69a1568415c761b6bc1b447f809da9fe44292f",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-5",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "KASSIE KRUT + THE ITCH",
+      "artists": [
+        "KASSIE KRUT + THE ITCH"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-08-25T18:30:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/mon-25-aug-kassie-krut-the-itch-131836",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1318/e131836_i265883_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-kassie-krut-the-itch-2025-08-25t183000000z-bristol",
+      "hash": "87985def20b78cc3c6a950997e3d8dbab2b4941c8516dfb7499cc0e4bc75e600",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-6",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "ENABLING BEHAVIOUR + AFTER LONDON",
+      "artists": [
+        "ENABLING BEHAVIOUR + AFTER LONDON"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-08-29T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-29-aug-enabling-behaviour-after-london-132010",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132010_i275136_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-enabling-behaviour-after-london-2025-08-29t180000000z-bristol",
+      "hash": "66476f33abf24aac06b738109f69fc712136bf87ce3c79e5234223efcd34708e",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-7",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "Motorcity - Motown, Soul, Funk, Disco, Rock & Roll",
+      "artists": [
+        "Motorcity - Motown, Soul, Funk, Disco, Rock & Roll"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-08-29T21:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-29-aug-motorcity-motown-soul-funk-disco-rock-roll-129515",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1295/e129515_i258757_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-motorcity-motown-soul-funk-disco-rock-roll-2025-08-29t210000000z-bristol",
+      "hash": "0b0d1e93add5f63b858ecc825c834d3dfc0eae3427c3ee2d76542ac8cfffb987",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-8",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "NOBODY'S DAD + CUBICLES.",
+      "artists": [
+        "NOBODY'S DAD + CUBICLES."
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-08-30T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-30-aug-nobody-s-dad-cubicles--132009",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132009_i272953_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-nobodys-dad-cubicles-2025-08-30t180000000z-bristol",
+      "hash": "5c2c98bc2773b70e378f3b7be722bc011355fff4c87fc938032a99a17247b48b",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-9",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "★ FAT LIP ★ That's That Me DEPRESSO Party! Girly Pop vs Emo!",
+      "artists": [
+        "★ FAT LIP ★ That's That Me DEPRESSO Party! Girly Pop vs Emo!"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-08-30T21:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-30-aug--fat-lip-that-s-that-me-depresso-party-girly-pop-vs-emo--135240",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1352/e135240_i276057_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-fat-lip-thats-that-me-depresso-party-girly-pop-vs-emo-2025-08-30t210000000z-bristol",
+      "hash": "78ffdeb2ecf58b9619bb9daaf18937a496abfc96bdcd02b92ae2a9bac9067ffa",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-10",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "Wasteman Weeklies #520 TWT 2025",
+      "artists": [
+        "Wasteman Weeklies #520 TWT 2025"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-08-31T11:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sun-31-aug-wasteman-weeklies-520-twt-2025-135155",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1351/e135155_i275811_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-wasteman-weeklies-520-twt-2025-2025-08-31t110000000z-bristol",
+      "hash": "75031884e7b4703cfce0c9c3241267177909162dcf8aafd82af38eee78588577",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-11",
+      "updatedAt": "2025-08-21T17:31:43.872Z",
+      "title": "THE SOPHS + YESTERDAY'S GIRL",
+      "artists": [
+        "THE SOPHS + YESTERDAY'S GIRL"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-01T19:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/mon-1-sep-the-sophs-yesterday-s-girl-130678",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1306/e130678_i262164_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-the-sophs-yesterdays-girl-2025-09-01t190000000z-bristol",
+      "hash": "fee8a6e50814b84c72634c7c4cd5715adc2cac85eee78883ba4f2c350cc72a4e",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-12",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "GAG SALON + SHOCK HORROR + TAIPAN",
+      "artists": [
+        "GAG SALON + SHOCK HORROR + TAIPAN"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-05T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-5-sep-gag-salon-shock-horror-taipan-128335",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1283/e128335_i268119_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-gag-salon-shock-horror-taipan-2025-09-05t180000000z-bristol",
+      "hash": "f2df4286659790918556467be5aae8e02a11075376292a0f126aeb03e6a65819",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-13",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "THE BRACKISH + THE FLAG FEN PROJECT",
+      "artists": [
+        "THE BRACKISH + THE FLAG FEN PROJECT"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-06T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-6-sep-the-brackish-the-flag-fen-project-134054",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1340/e134054_i272621_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-the-brackish-the-flag-fen-project-2025-09-06t180000000z-bristol",
+      "hash": "d113245e9273938dce9a42b772e8129582498bc4b881ec087dadbc4adba591d4",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-14",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "SHEARLING + HAAL + ALLARME",
+      "artists": [
+        "SHEARLING + HAAL + ALLARME"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-09T18:30:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/tue-9-sep-shearling-haal-allarme-132057",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132057_i266591_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-shearling-haal-allarme-2025-09-09t183000000z-bristol",
+      "hash": "b3da9d8a5777c47ef53d48b76020a2a919b42acdf0b78958349d505f74fda6dc",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-15",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "PHUCT - Bristol's Rock & Metal Alternative",
+      "artists": [
+        "PHUCT - Bristol's Rock & Metal Alternative"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-12T21:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-12-sep-phuct-bristol-s-rock-metal-alternative-135916",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1359/e135916_i278046_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-phuct-bristols-rock-metal-alternative-2025-09-12t210000000z-bristol",
+      "hash": "2ce1a5a9e09724023101c0af0ed4cc90cb4d2607cc7c4279f358a160fb5d1e11",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-16",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "WITCH HOOK + INDIGO + INDECISION",
+      "artists": [
+        "WITCH HOOK + INDIGO + INDECISION"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-13T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-13-sep-witch-hook-indigo-indecision-134558",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1345/e134558_i274322_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-witch-hook-indigo-indecision-2025-09-13t180000000z-bristol",
+      "hash": "2dd6d734311ec8abda747d8f46e4c67453a50038820cf491dc3665b25dd8e840",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-17",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "Late Night Funk Club DJs",
+      "artists": [
+        "Late Night Funk Club DJs"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-13T22:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-13-sep-late-night-funk-club-djs-134935",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/_s.jpg"
+      ],
+      "id": "the-lanes-bristol-late-night-funk-club-djs-2025-09-13t220000000z-bristol",
+      "hash": "d4540fbae9dbef41b7c35a8bf4c68b2756748a48b6b04ae083e72d38b53bbd76",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-18",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "MORN + THE SCUTTLERS",
+      "artists": [
+        "MORN + THE SCUTTLERS"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-16T18:30:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/tue-16-sep-morn-the-scuttlers-135420",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1354/e135420_i276836_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-morn-the-scuttlers-2025-09-16t183000000z-bristol",
+      "hash": "7db0979ed6623db8d72c4d3fa7a177b1887136533f0d3b5efb9b0b6b960285bd",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-19",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "PEBBLE DAISY + GENEVIEVE MILES + COMFORT",
+      "artists": [
+        "PEBBLE DAISY + GENEVIEVE MILES + COMFORT"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-17T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/wed-17-sep-pebble-daisy-genevieve-miles-comfort-135419",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1354/e135419_i276571_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-pebble-daisy-genevieve-miles-comfort-2025-09-17t180000000z-bristol",
+      "hash": "09f948765745e7b3e55f321383c0f2cdb0582eba969386ba7ae3f2415e6831c7",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-20",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "REUBEN'S DAUGHTERS",
+      "artists": [
+        "REUBEN'S DAUGHTERS"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-19T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-19-sep-reuben-s-daughters-126004",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1260/e126004_i268466_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-reubens-daughters-2025-09-19t180000000z-bristol",
+      "hash": "1234e2a197a93701147714f9c74b63da2cc77ab64171361d1ffb4a38b78a1cb7",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-21",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "LAWN CHAIR + SPACE CULT CAROUSEL",
+      "artists": [
+        "LAWN CHAIR + SPACE CULT CAROUSEL"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-20T18:30:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-20-sep-lawn-chair-space-cult-carousel-130672",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1306/e130672_i262146_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-lawn-chair-space-cult-carousel-2025-09-20t183000000z-bristol",
+      "hash": "53efe5791d976a7f5531e46f4e84e802f48a788462963f3efbd5a9a04fcbab01",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-22",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "The Better Land - Indie Club Night",
+      "artists": [
+        "The Better Land - Indie Club Night"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-20T22:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-20-sep-the-better-land-indie-club-night-134473",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1344/e134473_i278603_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-the-better-land-indie-club-night-2025-09-20t220000000z-bristol",
+      "hash": "c83fc587ee5f791a120293ebcb1335a5378f513082267f7b0f111b6f4ccfd656",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-23",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "MIN TAKA",
+      "artists": [
+        "MIN TAKA"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-24T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/wed-24-sep-min-taka-134583",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1345/e134583_i274373_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-min-taka-2025-09-24t180000000z-bristol",
+      "hash": "394b2619c4489aa1f613d2a98c2fab855596b3f535d1f428279e30ba5bbc2a3f",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-24",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "Motorcity - Motown, Soul, Funk, Disco, Rock & Roll",
+      "artists": [
+        "Motorcity - Motown, Soul, Funk, Disco, Rock & Roll"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-09-26T21:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-26-sep-motorcity-motown-soul-funk-disco-rock-roll-129516",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1295/e129516_i258760_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-motorcity-motown-soul-funk-disco-rock-roll-2025-09-26t210000000z-bristol",
+      "hash": "978e48a7b29793e2a9be55c47585c05be75bf7c756010cf4930fccce13c3faf4",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-25",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "YOUTH SECTOR",
+      "artists": [
+        "YOUTH SECTOR"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-03T18:30:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-3-oct-youth-sector-125625",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1256/e125625_i256538_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-youth-sector-2025-10-03t183000000z-bristol",
+      "hash": "be4d877e945dabac08b4fed3508f1b4f22d6d6008f4f82132f4a389fe8811966",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-26",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "AKA KELZZ",
+      "artists": [
+        "AKA KELZZ"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-04T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-4-oct-aka-kelzz-131045",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1310/e131045_i263312_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-aka-kelzz-2025-10-04t180000000z-bristol",
+      "hash": "312309d76dade510cb89552c7d8e6d823b2e475c95f333b71ba64455057a7c39",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-27",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "BRITISH BIRDS + WATERPISTOL",
+      "artists": [
+        "BRITISH BIRDS + WATERPISTOL"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-10T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-10-oct-british-birds-waterpistol-129425",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1294/e129425_i258489_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-british-birds-waterpistol-2025-10-10t180000000z-bristol",
+      "hash": "a61ce76d184bfb2f4a19b0fb3dcf1002bc90e7f9e130192ed230ccff2260b56e",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-28",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "M/X + BIG FRIGHT",
+      "artists": [
+        "M/X + BIG FRIGHT"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-11T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-11-oct-m-x-big-fright-133932",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1339/e133932_i272239_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-mx-big-fright-2025-10-11t180000000z-bristol",
+      "hash": "9d797293e917bd68c8085f15ad53419ccb693aeae38fb00cf8db0cd75157d204",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-29",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "Late Night Funk Club: Big Boss Man + DJs",
+      "artists": [
+        "Late Night Funk Club: Big Boss Man + DJs"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-11T21:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-11-oct-late-night-funk-club-big-boss-man-djs-134931",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1349/e134931_i275198_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-late-night-funk-club-big-boss-man-djs-2025-10-11t210000000z-bristol",
+      "hash": "df633e922853cb18f07c41499bd7912223b3beba1d6293af23f99ae6378fe4ee",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-30",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "THE EMPTY THREATS + GAVEL",
+      "artists": [
+        "THE EMPTY THREATS + GAVEL"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-13T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/mon-13-oct-the-empty-threats-gavel-134800",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1348/e134800_i274735_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-the-empty-threats-gavel-2025-10-13t180000000z-bristol",
+      "hash": "dc7ede76837a6539058318aa95036e3346e3030b8b1144c07ad0e4467edeb6a7",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-31",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "OGIVES BIG BAND + POHL + SLEEMO",
+      "artists": [
+        "OGIVES BIG BAND + POHL + SLEEMO"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-15T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/wed-15-oct-ogives-big-band-pohl-sleemo-132012",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132012_i274274_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-ogives-big-band-pohl-sleemo-2025-10-15t180000000z-bristol",
+      "hash": "83c37a0fb83506f343526f0cabbbb02a97be9ea03314d198c393df3cdf1d6ca8",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-32",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "TRIP WESTERNS",
+      "artists": [
+        "TRIP WESTERNS"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-17T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-17-oct-trip-westerns-132008",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132008_i271901_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-trip-westerns-2025-10-17t180000000z-bristol",
+      "hash": "ffb3688ab6b9b2869dabf45a6231f8856863aa39d9a0b801375c8d31575cf629",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-33",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "PAPA JUPE'S T.C. + PACK OF ANIMALS",
+      "artists": [
+        "PAPA JUPE'S T.C. + PACK OF ANIMALS"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-25T18:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-25-oct-papa-jupe-s-t-c-pack-of-animals-132006",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132006_i277509_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-papa-jupes-tc-pack-of-animals-2025-10-25t180000000z-bristol",
+      "hash": "8b2fa93a9aba98e47b2ece0acfea8f564a8a55de6cc235f2300d15849c9b71b2",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-34",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "TULPA",
+      "artists": [
+        "TULPA"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-29T19:30:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/wed-29-oct-tulpa-132005",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132005_i277743_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-tulpa-2025-10-29t193000000z-bristol",
+      "hash": "9934b1bf3066e02e588ff1c5aa145c21fdf4c81dbd26526e0417bf0ba0e0cae9",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-35",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "THE DHARMA CHAIN",
+      "artists": [
+        "THE DHARMA CHAIN"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-10-31T19:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-31-oct-the-dharma-chain-132003",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132003_i272582_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-the-dharma-chain-2025-10-31t190000000z-bristol",
+      "hash": "887f167d6d3226be66c2bf78fc85e6f5ccd01d41de7b4cd899fd3e61e1777b45",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-36",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "BLOOD CLUB",
+      "artists": [
+        "BLOOD CLUB"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-11-03T19:30:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/mon-3-nov-blood-club-135176",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1351/e135176_i275866_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-blood-club-2025-11-03t193000000z-bristol",
+      "hash": "4833df0774b2d9a99f0fddda4d36c933a4a4c4f7a832e4a178792f13bd87850a",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-37",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "COLATURA",
+      "artists": [
+        "COLATURA"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-11-05T19:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/wed-5-nov-colatura-132041",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132041_i266516_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-colatura-2025-11-05t190000000z-bristol",
+      "hash": "802294c78fd1c59dcb06caea0995704186aa97c3658e4bc02de83057351e3f6d",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-38",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "Late Night Funk Club: Brass Junkies + DJs",
+      "artists": [
+        "Late Night Funk Club: Brass Junkies + DJs"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-11-08T22:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/sat-8-nov-late-night-funk-club-brass-junkies-djs-132093",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1320/e132093_i269573_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-late-night-funk-club-brass-junkies-djs-2025-11-08t220000000z-bristol",
+      "hash": "6bf081e3c3d68de38bfd150214df7ffed01d9034a6a0b6ded4a7a3320caaedaa",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-39",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "CHARTREUSE + MOREISH IDOLS",
+      "artists": [
+        "CHARTREUSE + MOREISH IDOLS"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-11-10T19:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/mon-10-nov-chartreuse-moreish-idols-132367",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1323/e132367_i268182_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-chartreuse-moreish-idols-2025-11-10t190000000z-bristol",
+      "hash": "99f75fa89b23fedf527e150cdceb227f4754999f7acf2ae171249e526c278250",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-40",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "Motorcity - Motown, Soul, Funk, Disco, Rock & Roll",
+      "artists": [
+        "Motorcity - Motown, Soul, Funk, Disco, Rock & Roll"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-11-28T22:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/fri-28-nov-motorcity-motown-soul-funk-disco-rock-roll-129518",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1295/e129518_i258766_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-motorcity-motown-soul-funk-disco-rock-roll-2025-11-28t220000000z-bristol",
+      "hash": "fb69d90ff9b033c1b96df7fe837714d7f39d8dc9634656e3ba75c659a76bbb7e",
+      "status": "scheduled"
+    },
+    {
+      "source": "bristol-the-lanes",
+      "sourceId": "bristol-the-lanes-41",
+      "updatedAt": "2025-08-21T17:31:43.873Z",
+      "title": "MO DOTTI",
+      "artists": [
+        "MO DOTTI"
+      ],
+      "venue": {
+        "name": "The Lanes Bristol",
+        "address": "22 Nelson Street",
+        "city": "Bristol",
+        "country": "UK"
+      },
+      "dateStart": "2025-12-03T19:00:00.000Z",
+      "eventUrl": "https://www.headfirstbristol.co.uk/whats-on/the-lanes/wed-3-dec-mo-dotti-134642",
+      "ticketsUrl": "https://www.headfirstbristol.co.uk/ticket-shop",
+      "images": [
+        "https://www.headfirstbristol.co.uk/images/events/1346/e134642_i274572_s3.jpg"
+      ],
+      "id": "the-lanes-bristol-mo-dotti-2025-12-03t190000000z-bristol",
+      "hash": "6ce8a6b91aa88e9173836e1a5a66df1ac5a7f7720442bdc2fd166a922eaaae0e",
+      "status": "scheduled"
+    }
+  ]
+}

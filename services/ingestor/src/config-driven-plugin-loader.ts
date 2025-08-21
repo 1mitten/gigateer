@@ -157,6 +157,60 @@ export class ConfigDrivenPluginLoader {
             normalizedGig.venue = config.defaults.venue;
           }
 
+          // Handle "Tomorrow" dates that weren't processed during extraction
+          if (normalizedGig.dateStart && typeof normalizedGig.dateStart === 'string') {
+            const dateStr = normalizedGig.dateStart.trim();
+            if (dateStr.toLowerCase().includes('tomorrow')) {
+              logger?.info(`🔧 POST-PROCESSING Tomorrow date for ${sourceName}: "${dateStr}"`);
+              
+              try {
+                // Extract time if present (e.g., "Tomorrow 19:00 - 22:00")
+                const timeMatch = dateStr.match(/(\d{1,2}):(\d{2})/);
+                let timeStr = '';
+                if (timeMatch) {
+                  timeStr = ` ${timeMatch[0]}`;
+                }
+                
+                // Get tomorrow's date and format it
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                // Format as day name and date (e.g., "Friday 15th November")
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                   'July', 'August', 'September', 'October', 'November', 'December'];
+                
+                const dayName = dayNames[tomorrow.getDay()];
+                const date = tomorrow.getDate();
+                const ordinalSuffix = date === 1 || date === 21 || date === 31 ? 'st' :
+                                     date === 2 || date === 22 ? 'nd' :
+                                     date === 3 || date === 23 ? 'rd' : 'th';
+                const monthName = monthNames[tomorrow.getMonth()];
+                
+                const processedDateStr = `${dayName} ${date}${ordinalSuffix} ${monthName}${timeStr}`;
+                logger?.info(`✅ CONVERTED Tomorrow to: "${processedDateStr}"`);
+                
+                // Try to parse as ISO date for better compatibility
+                const tomorrowISO = new Date();
+                tomorrowISO.setDate(tomorrowISO.getDate() + 1);
+                if (timeMatch) {
+                  const [hours, minutes] = timeMatch[1].split(':');
+                  tomorrowISO.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                } else {
+                  // Default to evening time for gigs
+                  tomorrowISO.setHours(19, 0, 0, 0);
+                }
+                
+                normalizedGig.dateStart = tomorrowISO.toISOString();
+                logger?.info(`🎯 FINAL ISO DATE: "${normalizedGig.dateStart}"`);
+                
+              } catch (error) {
+                logger?.error(`❌ Error processing Tomorrow date "${dateStr}":`, error);
+                // Leave the original date if processing fails
+              }
+            }
+          }
+
           return normalizedGig;
         });
       },
