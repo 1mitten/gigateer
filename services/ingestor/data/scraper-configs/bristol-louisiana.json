@@ -129,7 +129,7 @@
             "transform": "trim"
           },
           "detailedTime": {
-            "selector": ".event-time, .doors-time, .time",
+            "selector": "span.event-time",
             "attribute": "text",
             "transform": "trim"
           },
@@ -159,7 +159,7 @@
     },
     "date": {
       "start": "date",
-      "time": "time",
+      "time": "detailedTime",
       "timezone": "Europe/London"
     },
     "urls": {

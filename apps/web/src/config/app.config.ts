@@ -103,7 +103,7 @@ export const ENV_CONFIG = {
   apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
   
   // External services
-  mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/gigateer',
+  mongoUrl: process.env.MONGODB_CONNECTION_STRING || 'mongodb://localhost:27017/gigateer',
   
   // Feature toggles
   enablePWA: process.env.NEXT_PUBLIC_ENABLE_PWA === 'true',

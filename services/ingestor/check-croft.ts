@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 async function checkCroftData() {
-  const client = new MongoClient('mongodb://localhost:27017');
+  const client = new MongoClient(process.env.MONGODB_CONNECTION_STRING || 'mongodb://localhost:27017');
   
   try {
     await client.connect();

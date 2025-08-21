@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// Load environment variables
+require('dotenv').config({ path: './.env' });
+
 // Script to import test data with proper MongoDB format
 const { MongoClient } = require('mongodb');
 
@@ -172,7 +175,7 @@ const testGigs = [
 ];
 
 async function importTestData() {
-  const client = new MongoClient('mongodb://localhost:27017');
+  const client = new MongoClient(process.env.MONGODB_CONNECTION_STRING || 'mongodb://localhost:27017');
   
   try {
     await client.connect();

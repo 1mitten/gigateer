@@ -1,0 +1,61 @@
+# Dependencies
+node_modules
+npm-debug.log
+pnpm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+
+# Build outputs
+.next
+out
+dist
+build
+
+# IDE and OS
+.vscode
+.idea
+.DS_Store
+*.swp
+*.swo
+
+# Testing
+coverage
+.nyc_output
+
+# Logs
+*.log
+logs
+
+# Cache
+.cache
+.turbo
+
+# Git
+.git
+.gitignore
+
+# CI/CD
+.github
+
+# Development files
+*.test.*
+*.spec.*
+vitest.config.*
+jest.config.*
+jest.setup.*
+
+# Documentation
+*.md
+docs
+
+# Temporary files
+*.tmp
+*.temp

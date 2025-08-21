@@ -389,6 +389,28 @@ export class ConfigDrivenScraper {
         this.extractedData.push(item);
       }
     }
+
+    // Handle action-level follow-up extraction if configured
+    if (action.followUp && action.followUp.urlField) {
+      scraperLogger.debug(`Processing action-level followUp for ${this.extractedData.length} items`);
+      
+      // Create a copy of the items to avoid modifying while iterating
+      const itemsToProcess = [...this.extractedData];
+      
+      for (const item of itemsToProcess) {
+        const followUpUrl = item[action.followUp.urlField];
+        if (followUpUrl) {
+          try {
+            scraperLogger.debug(`Following up on URL: ${followUpUrl}`);
+            const followUpData = await this.executeFollowUp(followUpUrl, action.followUp.fields);
+            // Merge follow-up data into the item
+            Object.assign(item, followUpData);
+          } catch (error) {
+            scraperLogger.warn(`Action-level follow-up extraction failed for URL ${followUpUrl}:`, error);
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -818,6 +840,32 @@ export class ConfigDrivenScraper {
   private parseLanesBristolDate(dateStr: string): string {
     try {
       scraperLogger.debug(`Parsing Lanes Bristol date: "${dateStr}"`);
+      
+      // Clean up the string - remove extra whitespace and newlines
+      const cleanDateStr = dateStr.replace(/\s+/g, ' ').trim();
+      
+      // Handle "Tomorrow" case specifically
+      const tomorrowMatch = cleanDateStr.match(/^Tomorrow\s+(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/i);
+      if (tomorrowMatch) {
+        const [, startHour, startMin, endHour, endMin] = tomorrowMatch;
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(parseInt(startHour), parseInt(startMin), 0, 0);
+        
+        scraperLogger.debug(`Parsed "Tomorrow" date: ${tomorrow.toISOString()}`);
+        return tomorrow.toISOString();
+      }
+      
+      // Handle "Today" case
+      const todayMatch = cleanDateStr.match(/^Today\s+(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/i);
+      if (todayMatch) {
+        const [, startHour, startMin, endHour, endMin] = todayMatch;
+        const today = new Date();
+        today.setHours(parseInt(startHour), parseInt(startMin), 0, 0);
+        
+        scraperLogger.debug(`Parsed "Today" date: ${today.toISOString()}`);
+        return today.toISOString();
+      }
       
       // Match pattern like "Friday 15th August 22:30 - 03:00"
       const dateMatch = dateStr.trim().match(/^(\w+)\s+(\d+)(?:st|nd|rd|th)?\s+(\w+)\s+(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/);

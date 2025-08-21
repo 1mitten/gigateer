@@ -97,7 +97,7 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
         <div className="flex-1">
           {/* Header with title and status */}
           <div className="flex items-start justify-between mb-4">
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 min-h-[3rem]">
               <Link 
                 href={`/gig/${gig.id}`}
                 className="group"
