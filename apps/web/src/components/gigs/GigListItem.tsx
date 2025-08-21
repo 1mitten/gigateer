@@ -159,11 +159,12 @@ export function GigListItem({ gig, className = "", priority = false }: GigListIt
                 href={gig.eventUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1 z-10 relative"
+                className="inline-flex items-center justify-center gap-1.5 px-2 py-1.5 bg-gray-600 text-white text-xs font-medium rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors whitespace-nowrap z-10 relative min-h-[24px]"
                 title="View original event page"
                 onClick={(e) => e.stopPropagation()}
               >
-                <LinkIcon className="h-3 w-3" />
+                <LinkIcon className="h-3 w-3 flex-shrink-0" />
+                <span className="hidden sm:inline">Source</span>
               </a>
             )}
             
@@ -172,10 +173,10 @@ export function GigListItem({ gig, className = "", priority = false }: GigListIt
                 href={gig.ticketsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors whitespace-nowrap z-10 relative"
+                className="inline-flex items-center justify-center gap-1.5 px-2 py-1.5 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors whitespace-nowrap z-10 relative min-h-[24px]"
                 onClick={(e) => e.stopPropagation()}
               >
-                <TicketIcon className="h-3 w-3" />
+                <TicketIcon className="h-3 w-3 flex-shrink-0" />
                 <span className="hidden sm:inline">Tickets</span>
               </a>
             )}

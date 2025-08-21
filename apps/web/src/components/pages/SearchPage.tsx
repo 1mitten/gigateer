@@ -178,14 +178,9 @@ export function SearchPage({ city }: SearchPageProps = {}) {
   }, [useInfiniteScrollMode, refreshInfinite, refetch]);
   
   // Sort controls - now managed by filters
-  const handleToggleSort = (newSortBy: 'date' | 'name' | 'venue') => {
-    if (newSortBy === filters.sortBy) {
-      // Toggle sort order
-      updateFilters({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' });
-    } else {
-      // Change sort field and reset to ascending
-      updateFilters({ sortBy: newSortBy, sortOrder: 'asc' });
-    }
+  const handleToggleSort = (newSortBy: 'date') => {
+    // Since we only have date sorting now, just toggle the sort order
+    updateFilters({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' });
   };
 
   // Handle date filter changes

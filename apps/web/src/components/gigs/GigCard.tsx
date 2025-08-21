@@ -166,29 +166,29 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
 
         {/* Action buttons - always at bottom */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-200 mt-auto">
-          {gig.eventUrl && (
-            <a
-              href={gig.eventUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-sm px-1"
-              title="View original event page"
-            >
-              <LinkIcon className="h-3 w-3 inline mr-1" />
-              Source
-            </a>
-          )}
-          
           <div className="flex items-center gap-2">
+            {gig.eventUrl && (
+              <a
+                href={gig.eventUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-600 text-white text-xs font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors min-h-[28px]"
+                title="View original event page"
+              >
+                <LinkIcon className="h-3 w-3 flex-shrink-0" />
+                <span>Source</span>
+              </a>
+            )}
+            
             {gig.ticketsUrl && (
               <a
                 href={gig.ticketsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary-600 text-white text-xs font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-primary-600 text-white text-xs font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors min-h-[28px]"
               >
-                <TicketIcon className="h-3 w-3" />
-                Tickets
+                <TicketIcon className="h-3 w-3 flex-shrink-0" />
+                <span>Tickets</span>
               </a>
             )}
           </div>

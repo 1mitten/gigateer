@@ -5,9 +5,9 @@ import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import { DATE_FILTER_OPTIONS, DateFilterOption } from '../../utils/dateFilters';
 
 interface SortControlsProps {
-  sortBy: 'date' | 'name' | 'venue';
+  sortBy: 'date';
   sortOrder: 'asc' | 'desc';
-  onToggleSort: (sortBy: 'date' | 'name' | 'venue') => void;
+  onToggleSort: (sortBy: 'date') => void;
   dateFilter?: DateFilterOption;
   onDateFilterChange?: (dateFilter: DateFilterOption) => void;
   className?: string;
@@ -26,7 +26,7 @@ export function SortControls({
     children, 
     active 
   }: { 
-    value: 'date' | 'name' | 'venue'; 
+    value: 'date'; 
     children: React.ReactNode; 
     active: boolean; 
   }) => (
@@ -58,14 +58,6 @@ export function SortControls({
         
         <SortButton value="date" active={sortBy === 'date'}>
           Date
-        </SortButton>
-        
-        <SortButton value="name" active={sortBy === 'name'}>
-          Event
-        </SortButton>
-        
-        <SortButton value="venue" active={sortBy === 'venue'}>
-          Venue
         </SortButton>
       </div>
 
@@ -100,7 +92,7 @@ export function CompactSortControls({
   className = "" 
 }: SortControlsProps) {
   const getSortLabel = () => {
-    const labels = { date: 'Date', name: 'Event', venue: 'Venue' };
+    const labels = { date: 'Date' };
     const orderLabel = sortOrder === 'asc' ? '↑' : '↓';
     return `${labels[sortBy]} ${orderLabel}`;
   };
@@ -112,10 +104,8 @@ export function CompactSortControls({
         <select
           value={`${sortBy}-${sortOrder}`}
           onChange={(e) => {
-            const [newSortBy, newSortOrder] = e.target.value.split('-') as ['date' | 'name' | 'venue', 'asc' | 'desc'];
-            if (newSortBy !== sortBy) {
-              onToggleSort(newSortBy);
-            } else if (newSortOrder !== sortOrder) {
+            const [newSortBy, newSortOrder] = e.target.value.split('-') as ['date', 'asc' | 'desc'];
+            if (newSortOrder !== sortOrder) {
               onToggleSort(sortBy);
             }
           }}
@@ -123,10 +113,6 @@ export function CompactSortControls({
         >
           <option value="date-asc">Date (Earliest First)</option>
           <option value="date-desc">Date (Latest First)</option>
-          <option value="name-asc">Event (A-Z)</option>
-          <option value="name-desc">Event (Z-A)</option>
-          <option value="venue-asc">Venue (A-Z)</option>
-          <option value="venue-desc">Venue (Z-A)</option>
         </select>
       </div>
 
