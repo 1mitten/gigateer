@@ -1,0 +1,109 @@
+{
+  "type": "ingest_all",
+  "timestamp": "2025-08-21T11:52:05.136Z",
+  "results": [
+    {
+      "source": "example-venue",
+      "startTime": "2025-08-21T11:49:14.599Z",
+      "endTime": "2025-08-21T11:49:15.653Z",
+      "duration": 1054,
+      "rawCount": 3,
+      "normalizedCount": 3,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-exchange",
+      "startTime": "2025-08-21T11:49:15.656Z",
+      "endTime": "2025-08-21T11:49:37.403Z",
+      "duration": 21747,
+      "rawCount": 202,
+      "normalizedCount": 202,
+      "newCount": 1,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-fleece",
+      "startTime": "2025-08-21T11:49:37.407Z",
+      "endTime": "2025-08-21T11:49:52.028Z",
+      "duration": 14621,
+      "rawCount": 18,
+      "normalizedCount": 18,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-louisiana",
+      "startTime": "2025-08-21T11:49:52.030Z",
+      "endTime": "2025-08-21T11:50:52.226Z",
+      "duration": 60196,
+      "rawCount": 50,
+      "normalizedCount": 50,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 1,
+      "success": true,
+      "errors": [
+        "1 gigs failed validation"
+      ]
+    },
+    {
+      "source": "bristol-strange-brew",
+      "startTime": "2025-08-21T11:50:52.230Z",
+      "endTime": "2025-08-21T11:51:19.354Z",
+      "duration": 27124,
+      "rawCount": 92,
+      "normalizedCount": 92,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-the-croft",
+      "startTime": "2025-08-21T11:51:19.356Z",
+      "endTime": "2025-08-21T11:51:38.907Z",
+      "duration": 19551,
+      "rawCount": 26,
+      "normalizedCount": 26,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    },
+    {
+      "source": "bristol-the-lanes",
+      "startTime": "2025-08-21T11:51:38.909Z",
+      "endTime": "2025-08-21T11:52:05.134Z",
+      "duration": 26225,
+      "rawCount": 42,
+      "normalizedCount": 42,
+      "newCount": 0,
+      "updatedCount": 0,
+      "errorCount": 0,
+      "success": true,
+      "errors": []
+    }
+  ],
+  "summary": {
+    "totalSources": 7,
+    "successfulSources": 7,
+    "failedSources": 0,
+    "totalGigs": 433,
+    "totalNew": 1,
+    "totalUpdated": 0,
+    "totalErrors": 1,
+    "totalDuration": 170518
+  }
+}

@@ -511,15 +511,15 @@ export class ConfigDrivenScraper {
       case 'croft-bristol-date':
         // Parse The Croft Bristol date format like "Friday 12th September"
         return this.parseCroftBristolDate(value);
+      case 'strange-brew-datetime':
+        // Parse Strange Brew date format like "Tomorrow 22:30" or "Saturday 23rd August 22:30"
+        return this.parseStrangeBrewDateTime(value, transformParams);
       case 'thekla-bristol-date':
         // Parse Thekla Bristol date format like "Wed.13.Aug.25"
         return this.parseTheklaBristolDate(value);
       case 'fleece-bristol-datetime':
         // Parse The Fleece Bristol date format like "Tuesday 12 Aug 2025" with doors time
         return this.parseFleeceBristolDateTime(value, transformParams);
-      case 'strange-brew-datetime':
-        // Parse Strange Brew Bristol date format like "Fri, 13 Dec 2024" with time
-        return this.parseStrangeBrewDateTime(value, transformParams);
       case 'rough-trade-datetime':
         // Parse Rough Trade date format
         return this.parseRoughTradeDateTime(value, transformParams);
@@ -1125,12 +1125,35 @@ export class ConfigDrivenScraper {
       // Clean up the string - remove extra whitespace and newlines
       const cleanDateStr = dateStr.replace(/\s+/g, ' ').trim();
       
-      // Match pattern like "Friday 7th November 19:00" or "Friday 7th November"
-      // Extract day name, day number, month, and optional time
-      const dateMatch = cleanDateStr.match(/^(\w+)\s+(\d{1,2})(?:st|nd|rd|th)?\s+(\w+)(?:\s+(\d{1,2}):(\d{2}))?/);
+      // Handle "Tomorrow" case specifically
+      const tomorrowMatch = cleanDateStr.match(/^Tomorrow\s+(\d{1,2}):(\d{2})$/i);
+      if (tomorrowMatch) {
+        const [, hourStr, minuteStr] = tomorrowMatch;
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(parseInt(hourStr), parseInt(minuteStr), 0, 0);
+        
+        scraperLogger.debug(`Parsed "Tomorrow" date: ${tomorrow.toISOString()}`);
+        return tomorrow.toISOString();
+      }
       
-      if (dateMatch) {
-        const [, dayName, day, month, hourStr, minuteStr] = dateMatch;
+      // Handle "Today" case
+      const todayMatch = cleanDateStr.match(/^Today\s+(\d{1,2}):(\d{2})$/i);
+      if (todayMatch) {
+        const [, hourStr, minuteStr] = todayMatch;
+        const today = new Date();
+        today.setHours(parseInt(hourStr), parseInt(minuteStr), 0, 0);
+        
+        scraperLogger.debug(`Parsed "Today" date: ${today.toISOString()}`);
+        return today.toISOString();
+      }
+      
+      // Match pattern like "Saturday 23rd August 22:30" or "Friday 7th November"
+      // Extract day name, day number, month, and optional time
+      const fullDateMatch = cleanDateStr.match(/^(\w+)\s+(\d{1,2})(?:st|nd|rd|th)\s+(\w+)(?:\s+(\d{1,2}):(\d{2}))?/);
+      
+      if (fullDateMatch) {
+        const [, dayName, day, month, hourStr, minuteStr] = fullDateMatch;
         
         // Get month index
         const monthIndex = this.getMonthIndex(month);
@@ -1155,13 +1178,6 @@ export class ConfigDrivenScraper {
         if (hourStr && minuteStr) {
           hour = parseInt(hourStr);
           minute = parseInt(minuteStr);
-        } else if (params?.timeField) {
-          // Extract time from time field if no time in date string
-          const timeMatch = params.timeField.match(/(\d{1,2}):(\d{2})/);
-          if (timeMatch) {
-            hour = parseInt(timeMatch[1]);
-            minute = parseInt(timeMatch[2]);
-          }
         }
         
         // Create the date
