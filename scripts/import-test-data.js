@@ -5,7 +5,6 @@ require('dotenv').config({ path: './.env' });
 
 // Script to import test data with proper MongoDB format
 const { MongoClient } = require('mongodb');
-
 const testGigs = [
   {
     gigId: "london-coldplay-2025-08-10-o2-arena",
