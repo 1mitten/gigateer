@@ -184,10 +184,15 @@ export function filterGigs(
 ): Gig[] {
   let filtered = [...gigs];
   
-  // Filter out past events by default (only show future/upcoming gigs)
+  // Filter out past events by default (only show today's and future gigs)
   if (!filters.showPastEvents) {
     const now = new Date();
-    filtered = filtered.filter(gig => new Date(gig.dateStart) >= now);
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    filtered = filtered.filter(gig => {
+      const gigDate = new Date(gig.dateStart);
+      // Include events from today onwards (even if they started earlier today)
+      return gigDate >= todayStart;
+    });
   }
   
   // City filter (case-insensitive includes)

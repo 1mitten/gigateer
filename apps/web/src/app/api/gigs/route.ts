@@ -62,8 +62,9 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
         }
         if (validatedQuery.venue) filters.venue = validatedQuery.venue;
         if (validatedQuery.q) filters.search = validatedQuery.q;
-        // Show past events only if no date filters are applied (i.e., "All dates" is selected)
-        filters.showPastEvents = !validatedQuery.dateFrom && !validatedQuery.dateTo;
+        // For "All dates", show events from today onwards (not past events)
+        // Only show past events if explicitly filtered by date range
+        filters.showPastEvents = false;
         
         // Convert sort parameters
         const getSortField = (sortBy: string): 'dateStart' | 'updatedAt' | 'title' | 'createdAt' => {
@@ -107,8 +108,9 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
           dateTo: validatedQuery.dateTo,
           venue: validatedQuery.venue,
           q: validatedQuery.q,
-          // Show past events only if no date filters are applied (i.e., "All dates" is selected)
-          showPastEvents: !validatedQuery.dateFrom && !validatedQuery.dateTo
+          // For "All dates", show events from today onwards (not past events)
+          // Only show past events if explicitly filtered by date range
+          showPastEvents: false
         });
         
         // Sort gigs based on query parameters
@@ -152,8 +154,9 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
         dateTo: validatedQuery.dateTo,
         venue: validatedQuery.venue,
         q: validatedQuery.q,
-        // Show past events only if no date filters are applied (i.e., "All dates" is selected)
-        showPastEvents: !validatedQuery.dateFrom && !validatedQuery.dateTo
+        // For "All dates", show events from today onwards (not past events)
+        // Only show past events if explicitly filtered by date range
+        showPastEvents: false
       });
       
       // Sort gigs based on query parameters

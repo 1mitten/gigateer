@@ -212,9 +212,11 @@ export class WebDatabaseService {
       const showPastEvents = options.filters.showPastEvents ?? false;
       let dateFilter: any = {};
       
-      // Filter out past events by default (only show future/upcoming gigs)
+      // Filter out past events by default (only show today's and future gigs)
       if (!showPastEvents) {
-        dateFilter.$gte = new Date();
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        dateFilter.$gte = todayStart;
       }
       
       // Apply additional date range filters
