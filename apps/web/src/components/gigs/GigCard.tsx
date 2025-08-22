@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Gig } from '@gigateer/contracts';
+import { useScrollRestoration } from '../../hooks/useScrollRestoration';
 import { 
   MapPinIcon, 
   CalendarIcon, 
@@ -17,6 +18,7 @@ interface GigCardProps {
 }
 
 export function GigCard({ gig, className = "", priority = false }: GigCardProps) {
+  const { navigateWithScrollSave } = useScrollRestoration();
   
   // Color palette for tags
   const tagColors = ['#A3DC9A', '#DEE791', '#FFF9BD', '#FFD6BA'];
@@ -98,14 +100,14 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
           {/* Header with title and status */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1 min-w-0 min-h-[3rem]">
-              <Link 
-                href={`/gig/${gig.id}`}
-                className="group"
+              <button
+                onClick={() => navigateWithScrollSave(`/gig/${gig.id}`)}
+                className="group text-left w-full"
               >
                 <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">
                   {gig.title}
                 </h3>
-              </Link>
+              </button>
             </div>
             
             <div className="ml-4 flex-shrink-0">
@@ -200,6 +202,7 @@ export function GigCard({ gig, className = "", priority = false }: GigCardProps)
 
 // Compact version for list views
 export function GigCardCompact({ gig, className = "" }: GigCardProps) {
+  const { navigateWithScrollSave } = useScrollRestoration();
   const gigDate = new Date(gig.dateStart);
   const formattedDate = format(gigDate, 'MMM d');
   const formattedTime = format(gigDate, 'h:mm a');
@@ -220,11 +223,14 @@ export function GigCardCompact({ gig, className = "" }: GigCardProps) {
           
           {/* Event details */}
           <div className="flex-1 min-w-0">
-            <Link href={`/gig/${gig.id}`} className="group">
+            <button 
+              onClick={() => navigateWithScrollSave(`/gig/${gig.id}`)}
+              className="group text-left w-full"
+            >
               <h3 className="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition-colors truncate">
                 {gig.title}
               </h3>
-            </Link>
+            </button>
             <p className="text-xs text-gray-600 truncate">
               {gig.venue.name}{gig.venue.city && `, ${gig.venue.city}`}
             </p>

@@ -1,0 +1,142 @@
+{
+  "site": {
+    "name": "Rough Trade Bristol",
+    "baseUrl": "https://www.roughtrade.com",
+    "source": "bristol-rough-trade",
+    "description": "Independent record store and music venue in Bristol, UK",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2025-01-22"
+  },
+  
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 60000
+  },
+  
+  "rateLimit": {
+    "delayBetweenRequests": 2000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+  
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://www.roughtrade.com/events/bristol"
+    },
+    {
+      "type": "wait",
+      "selector": "main",
+      "timeout": 15000
+    },
+    {
+      "type": "click", 
+      "selector": "button:has-text('Allow all cookies'), #CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll, .CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll",
+      "optional": true
+    },
+    {
+      "type": "wait",
+      "timeout": 5000
+    },
+    {
+      "type": "wait",
+      "selector": "main article",
+      "timeout": 15000
+    },
+    {
+      "type": "extract",
+      "containerSelector": "main article:has(a[href*='dice.fm'])",
+      "fields": {
+        "combinedText": {
+          "selector": "h3, p, div[class*='text'], .event-title, .event-details, [class*='content']",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "title": {
+          "selector": "img",
+          "attribute": "alt", 
+          "required": true,
+          "transform": "trim"
+        },
+        "eventUrl": {
+          "selector": "a[href*='dice.fm']",
+          "attribute": "href",
+          "required": false,
+          "transform": "url"
+        },
+        "dateText": {
+          "selector": "p, div, span, [class*='date'], [class*='time']",
+          "attribute": "text",
+          "required": false,
+          "transform": "rough-trade-datetime"
+        },
+        "price": {
+          "selector": "p, div, span, [class*='price']",
+          "attribute": "text",
+          "required": false,
+          "transform": "rough-trade-price"
+        },
+        "image": {
+          "selector": "img",
+          "attribute": "src",
+          "required": false,
+          "transform": "url"
+        },
+        "venue": {
+          "selector": "nonexistent",
+          "attribute": "text",
+          "required": false,
+          "fallback": "Rough Trade Bristol"
+        }
+      }
+    }
+  ],
+  
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "dateText", "venue"]
+    },
+    "title": "title",
+    "artist": "title",
+    "venue": {
+      "name": "Rough Trade Bristol",
+      "address": "20 Nelson Street",
+      "city": "Bristol",
+      "country": "UK"
+    },
+    "date": {
+      "start": {
+        "field": "dateText",
+        "transform": "rough-trade-datetime",
+        "transformParams": {
+          "fallbackTime": "7:00pm"
+        }
+      },
+      "timezone": "Europe/London"
+    },
+    "urls": {
+      "event": "eventUrl",
+      "tickets": "eventUrl"
+    },
+    "images": "image"
+  },
+  
+  "validation": {
+    "required": ["title"],
+    "minEventsExpected": 2,
+    "maxEventsExpected": 100
+  },
+  
+  "debug": {
+    "screenshots": true,
+    "saveHtml": true,
+    "logLevel": "debug"
+  }
+}

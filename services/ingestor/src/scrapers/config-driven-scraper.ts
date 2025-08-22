@@ -198,7 +198,7 @@ class DateTimeParser {
    */
   static parseDate(dateStr: string, timeStr?: string, options: {
     defaultHour?: number;
-    format?: 'bristol-standard' | 'thekla' | 'fleece';
+    format?: 'bristol-standard' | 'thekla' | 'fleece' | 'rough-trade';
     fallbackYear?: number;
   } = {}): DateParsingResult {
     const defaultHour = options.defaultHour || 19; // Default to 7 PM for gigs
@@ -235,6 +235,9 @@ class DateTimeParser {
         return this.parseFleeceFormat(cleanDateStr, timeStr);
       }
       
+      if (options.format === 'rough-trade') {
+        return this.parseRoughTradeFormat(cleanDateStr, timeStr);
+      }
 
       // Generic patterns
       return this.parseGenericDateFormat(cleanDateStr, timeStr, defaultHour);
@@ -304,6 +307,42 @@ class DateTimeParser {
       success: false, 
       error: `Invalid Fleece format: ${dateStr}` 
     };
+  }
+
+  private static parseRoughTradeFormat(dateStr: string, timeStr?: string): DateParsingResult {
+    // "Thu, 28 Aug, 7:30 pm" format or "Thu 4 Sep 2025, 7pm"
+    let match = dateStr.match(/^(\w{3}),?\s*(\d{1,2})\s+(\w{3}),?\s*(?:(\d{4}),?\s*)?(?:(\d{1,2}):?(\d{2})?\s*(am|pm))?$/i);
+    if (match) {
+      const [, dayName, day, month, year, hour, minute, period] = match;
+      const monthIndex = this.getMonthIndex(month);
+      
+      if (monthIndex !== -1) {
+        const eventYear = year ? parseInt(year) : new Date().getFullYear();
+        
+        if (hour && period) {
+          const timeResult = this.convertTo24Hour(parseInt(hour), parseInt(minute || '0'), period);
+          if (timeResult.success) {
+            const date = new Date(eventYear, monthIndex, parseInt(day), timeResult.hours, timeResult.minutes);
+            return { date, success: true };
+          }
+        } else {
+          // No time in date string, use default 7pm
+          const date = new Date(eventYear, monthIndex, parseInt(day), 19, 0);
+          return { date, success: true };
+        }
+      }
+    }
+    
+    // Try ISO format: 2025-09-04T19:00:00Z
+    if (dateStr.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        return { date, success: true };
+      }
+    }
+    
+    // Fallback to generic parsing
+    return this.parseGenericDateFormat(dateStr, timeStr, 19);
   }
 
   private static parseGenericDateFormat(dateStr: string, timeStr?: string, defaultHour: number = 19): DateParsingResult {
@@ -953,7 +992,11 @@ export class ConfigDrivenScraper {
       'thekla-bristol-date': (val, params) => this.parseTheklaBristolDate(val),
       'fleece-bristol-datetime': (val, params) => this.parseFleeceBristolDateTime(val, params),
       'louisiana-bristol-datetime': (val, params) => this.parseLouisianaBristolDateTime(val, params),
-      'electric-bristol-datetime': (val, params) => this.parseElectricBristolDateTime(val, params)
+      'electric-bristol-datetime': (val, params) => this.parseElectricBristolDateTime(val, params),
+      'rough-trade-datetime': (val, params) => this.parseRoughTradeDateTime(val, params),
+      'rough-trade-city-mapper': (val) => this.mapRoughTradeCity(val),
+      'rough-trade-title': (val) => this.extractRoughTradeTitle(val),
+      'rough-trade-price': (val) => this.extractRoughTradePrice(val)
     };
     
     const transformer = transformRegistry[transform];
@@ -1399,6 +1442,120 @@ export class ConfigDrivenScraper {
       scraperLogger.error(`Error parsing Electric Bristol date "${dateStr}":`, error);
       return new Date().toISOString();
     }
+  }
+
+  /**
+   * Parse Rough Trade date format
+   * Handles various date formats used by Rough Trade events
+   */
+  private parseRoughTradeDateTime(dateStr: string, params?: Record<string, any>): string {
+    try {
+      const timeField = params?.timeField ? params[params.timeField] : null;
+      
+      // Extract just the date portion if the string contains all event data
+      // Look for pattern like "Thu, 28 Aug, 7:30 pm" or "Fri, 29 Aug, 7:00 pm"
+      const dateMatch = dateStr.match(/(\w{3},?\s*\d{1,2}\s+\w{3},?\s*(?:\d{4},?\s*)?(?:\d{1,2}:\d{2}\s*(?:am|pm))?)/i);
+      if (dateMatch) {
+        dateStr = dateMatch[1];
+      }
+      
+      scraperLogger.debug(`Parsing Rough Trade date: "${dateStr}", time: "${timeField}"`);
+      
+      // Handle empty or null dateStr
+      if (!dateStr || dateStr.trim() === '') {
+        const fallbackDate = params?.fallbackDate || '2025-12-31T23:59:59.000Z';
+        scraperLogger.warn(`Empty dateStr, using fallback: ${fallbackDate}`);
+        return fallbackDate;
+      }
+      
+      const result = DateTimeParser.parseDate(dateStr, timeField, {
+        format: 'rough-trade',
+        defaultHour: 19
+      });
+      
+      if (result.success) {
+        return result.date.toISOString();
+      } else {
+        throw new Error(`Date does not match expected patterns: ${result.error}`);
+      }
+      
+    } catch (error) {
+      scraperLogger.error(`Error parsing Rough Trade date "${dateStr}":`, error);
+      // Return a date far in the future to indicate parsing failure
+      return new Date('2099-12-31T23:59:59.000Z').toISOString();
+    }
+  }
+
+  /**
+   * Extract title from Rough Trade combined text
+   * The text contains title, date, price, and venue all concatenated
+   */
+  private extractRoughTradeTitle(combinedText: string): string {
+    try {
+      // The title appears before the date pattern
+      // Split at the date pattern (e.g., "Thu, 28 Aug" or "Fri, 29 Aug")
+      const datePatternMatch = combinedText.match(/(\w{3},?\s*\d{1,2}\s+\w{3})/);
+      if (datePatternMatch) {
+        const dateStartIndex = combinedText.indexOf(datePatternMatch[0]);
+        const title = combinedText.substring(0, dateStartIndex).trim();
+        return title || 'Event';
+      }
+      
+      // Fallback: return first part before any date-like text
+      const parts = combinedText.split(/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/i);
+      if (parts.length > 0) {
+        return parts[0].trim() || 'Event';
+      }
+      
+      return 'Event';
+    } catch (error) {
+      scraperLogger.error(`Error extracting Rough Trade title from "${combinedText}":`, error);
+      return 'Event';
+    }
+  }
+
+  /**
+   * Extract price from Rough Trade combined text
+   */
+  private extractRoughTradePrice(combinedText: string): string {
+    try {
+      // Look for price pattern like "£15.87 - £15.87" or "£12.50 - £32.00"
+      const priceMatch = combinedText.match(/£[\d.,]+(?: - £[\d.,]+)?/);
+      if (priceMatch) {
+        return priceMatch[0];
+      }
+      return '';
+    } catch (error) {
+      scraperLogger.error(`Error extracting Rough Trade price from "${combinedText}":`, error);
+      return '';
+    }
+  }
+
+  /**
+   * Map Rough Trade venue text to appropriate city
+   * Returns "Bristol" for Rough Trade Bristol events, otherwise extracts city from venue text
+   */
+  private mapRoughTradeCity(venueText: string): string {
+    if (!venueText) return 'Bristol'; // Default to Bristol
+    
+    const lowerVenue = venueText.toLowerCase();
+    
+    // City mapping registry for easier maintenance
+    const cityMappings = [
+      { keywords: ['bristol', 'rough trade bristol'], city: 'Bristol' },
+      { keywords: ['nottingham'], city: 'Nottingham' },
+      { keywords: ['london', 'east'], city: 'London' },
+      { keywords: ['manchester'], city: 'Manchester' }
+    ];
+    
+    for (const mapping of cityMappings) {
+      if (mapping.keywords.some(keyword => lowerVenue.includes(keyword))) {
+        return mapping.city;
+      }
+    }
+    
+    // Default to Bristol if no other city detected
+    return 'Bristol';
   }
 
   /**

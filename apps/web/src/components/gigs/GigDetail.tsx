@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { useScrollRestoration } from '../../hooks/useScrollRestoration';
 import { Gig } from '@gigateer/contracts';
 import { 
   MapPinIcon, 
@@ -22,17 +23,22 @@ interface GigDetailProps {
 
 export function GigDetail({ gig }: GigDetailProps) {
   const router = useRouter();
+  const { navigateBack, restoreScrollPosition } = useScrollRestoration();
   
-  // Handle back navigation - go back to where user came from
+  // Handle back navigation - go back to where user came from and restore scroll position
   const handleBack = React.useCallback(() => {
-    // Check if we can go back in history
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back();
-    } else {
-      // Fallback to home page if no history
-      router.push('/');
-    }
-  }, [router]);
+    navigateBack();
+  }, [navigateBack]);
+
+  // Restore scroll position when component mounts (if user navigated here with scroll save)
+  React.useEffect(() => {
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      restoreScrollPosition(window.location.pathname);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [restoreScrollPosition]);
   // Color palette for tags
   const tagColors = ['#A3DC9A', '#DEE791', '#FFF9BD', '#FFD6BA'];
   
