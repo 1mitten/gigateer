@@ -112,6 +112,20 @@ export function GigsList({
     </div>
   );
 
+  // Show loading spinner during initial load
+  if (loading && gigs.length === 0) {
+    return (
+      <div className={`animate-fade-in ${className}`}>
+        <div className="flex items-center justify-center py-12">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <p className="text-sm text-gray-600">Loading gigs...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Never show skeleton loading during search/filter operations
   // Just use fade-in transition for smooth content updates
   // Don't show empty state when actively loading
@@ -188,6 +202,20 @@ export function GigsGrid({ gigs, loading, className = "", ...props }: GigsListPr
       })}
     </div>
   );
+
+  // Show loading spinner during initial load
+  if (loading && gigs.length === 0) {
+    return (
+      <div className="animate-fade-in">
+        <div className="flex items-center justify-center py-12">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <p className="text-sm text-gray-600">Loading gigs...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Never show skeleton loading during search/filter operations
   // Just use fade-in transition for smooth content updates

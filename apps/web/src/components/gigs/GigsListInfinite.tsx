@@ -45,6 +45,18 @@ export function GigsListInfinite({
   const SkeletonComponent = variant === 'list' ? GigListItemSkeleton : GigCardSkeleton;
   const spacingClass = variant === 'compact' ? 'space-y-2' : variant === 'list' ? 'space-y-1' : 'space-y-4';
 
+  // Show loading spinner during initial load
+  if (loading && gigs.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <p className="text-sm text-gray-600">Loading gigs...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Empty state content
   if (gigs.length === 0 && !loading) {
     return (
@@ -147,6 +159,20 @@ export function GigsGridInfinite({
   const groupedGigs = React.useMemo(() => {
     return groupGigsByDate(gigs, true); // preserveOrder = true
   }, [gigs]);
+
+  // Show loading spinner during initial load
+  if (loading && gigs.length === 0) {
+    return (
+      <div className="col-span-full">
+        <div className="flex items-center justify-center py-12">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <p className="text-sm text-gray-600">Loading gigs...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Empty state
   if (gigs.length === 0 && !loading) {

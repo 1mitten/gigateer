@@ -198,7 +198,7 @@ class DateTimeParser {
    */
   static parseDate(dateStr: string, timeStr?: string, options: {
     defaultHour?: number;
-    format?: 'bristol-standard' | 'thekla' | 'fleece' | 'rough-trade';
+    format?: 'bristol-standard' | 'thekla' | 'fleece';
     fallbackYear?: number;
   } = {}): DateParsingResult {
     const defaultHour = options.defaultHour || 19; // Default to 7 PM for gigs
@@ -235,9 +235,6 @@ class DateTimeParser {
         return this.parseFleeceFormat(cleanDateStr, timeStr);
       }
       
-      if (options.format === 'rough-trade') {
-        return this.parseRoughTradeFormat(cleanDateStr, timeStr);
-      }
 
       // Generic patterns
       return this.parseGenericDateFormat(cleanDateStr, timeStr, defaultHour);
@@ -307,27 +304,6 @@ class DateTimeParser {
       success: false, 
       error: `Invalid Fleece format: ${dateStr}` 
     };
-  }
-
-  private static parseRoughTradeFormat(dateStr: string, timeStr?: string): DateParsingResult {
-    // "Thu, 28 Aug, 7:30 pm" format
-    let match = dateStr.match(/^(\w{3}),\s*(\d{1,2})\s+(\w{3}),\s*(\d{1,2}):(\d{2})\s*(am|pm)$/i);
-    if (match) {
-      const [, dayName, day, month, hour, minute, period] = match;
-      const monthIndex = this.getMonthIndex(month);
-      
-      if (monthIndex !== -1) {
-        const timeResult = this.convertTo24Hour(parseInt(hour), parseInt(minute), period);
-        if (timeResult.success) {
-          const date = this.createDateWithYearInference(monthIndex, parseInt(day), timeResult.hours);
-          date.setMinutes(timeResult.minutes);
-          return { date, success: true };
-        }
-      }
-    }
-    
-    // Fallback to generic parsing
-    return this.parseGenericDateFormat(dateStr, timeStr, 19);
   }
 
   private static parseGenericDateFormat(dateStr: string, timeStr?: string, defaultHour: number = 19): DateParsingResult {
@@ -951,7 +927,6 @@ export class ConfigDrivenScraper {
         return `Exchange, ${trimmed}`;
       },
       'static-louisiana-name': () => 'The Louisiana Bristol',
-      'rough-trade-city-mapper': (val) => this.mapRoughTradeCity(val),
       
       // Regex-based transforms
       'extract-text': (val, params) => {
@@ -977,7 +952,6 @@ export class ConfigDrivenScraper {
       'strange-brew-datetime': (val, params) => this.parseStrangeBrewDateTime(val, params),
       'thekla-bristol-date': (val, params) => this.parseTheklaBristolDate(val),
       'fleece-bristol-datetime': (val, params) => this.parseFleeceBristolDateTime(val, params),
-      'rough-trade-datetime': (val, params) => this.parseRoughTradeDateTime(val, params),
       'louisiana-bristol-datetime': (val, params) => this.parseLouisianaBristolDateTime(val, params),
       'electric-bristol-datetime': (val, params) => this.parseElectricBristolDateTime(val, params)
     };
@@ -1316,39 +1290,6 @@ export class ConfigDrivenScraper {
     }
   }
 
-  /**
-   * Parse Rough Trade date format
-   * Handles various date formats used by Rough Trade events
-   */
-  private parseRoughTradeDateTime(dateStr: string, params?: Record<string, any>): string {
-    try {
-      const timeField = params?.timeField ? params[params.timeField] : null;
-      scraperLogger.debug(`Parsing Rough Trade date: "${dateStr}", time: "${timeField}"`);
-      
-      // Handle empty or null dateStr
-      if (!dateStr || dateStr.trim() === '') {
-        const fallbackDate = params?.fallbackDate || '2025-12-31T23:59:59.000Z';
-        scraperLogger.warn(`Empty dateStr, using fallback: ${fallbackDate}`);
-        return fallbackDate;
-      }
-      
-      const result = DateTimeParser.parseDate(dateStr, timeField, {
-        format: 'rough-trade',
-        defaultHour: 19
-      });
-      
-      if (result.success) {
-        return result.date.toISOString();
-      } else {
-        throw new Error(`Date does not match expected patterns: ${result.error}`);
-      }
-      
-    } catch (error) {
-      scraperLogger.error(`Error parsing Rough Trade date "${dateStr}":`, error);
-      // Return a date far in the future to indicate parsing failure
-      return new Date('2099-12-31T23:59:59.000Z').toISOString();
-    }
-  }
 
   /**
    * Helper method for URL transformation - consolidates URL logic
@@ -1375,32 +1316,6 @@ export class ConfigDrivenScraper {
     }
   }
   
-  /**
-   * Map Rough Trade venue text to appropriate city
-   * Returns "Bristol" for Rough Trade Bristol events, otherwise extracts city from venue text
-   */
-  private mapRoughTradeCity(venueText: string): string {
-    if (!venueText) return 'Bristol'; // Default to Bristol
-    
-    const lowerVenue = venueText.toLowerCase();
-    
-    // City mapping registry for easier maintenance
-    const cityMappings = [
-      { keywords: ['bristol', 'rough trade bristol'], city: 'Bristol' },
-      { keywords: ['nottingham'], city: 'Nottingham' },
-      { keywords: ['london', 'east'], city: 'London' },
-      { keywords: ['manchester'], city: 'Manchester' }
-    ];
-    
-    for (const mapping of cityMappings) {
-      if (mapping.keywords.some(keyword => lowerVenue.includes(keyword))) {
-        return mapping.city;
-      }
-    }
-    
-    // Default to Bristol if no other city detected
-    return 'Bristol';
-  }
 
   /**
    * Parse Louisiana Bristol date and combine with time from detail page

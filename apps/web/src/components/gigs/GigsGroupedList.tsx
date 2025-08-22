@@ -27,6 +27,19 @@ export function GigsGroupedList({
 }: GigsGroupedListProps) {
   // Debug log to see what view is being passed
   console.log('GigsGroupedList received view:', view);
+  
+  // Show loading spinner when actively loading and no data
+  if (loading && eventGroups.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <p className="text-sm text-gray-600">Loading gigs...</p>
+        </div>
+      </div>
+    );
+  }
+  
   // If no groups, show empty state (but not during loading)
   if (eventGroups.length === 0 && !loading) {
     const EmptyComponent = useInfiniteScrollMode 

@@ -178,6 +178,7 @@ export function filterGigs(
     dateFrom?: string;
     dateTo?: string;
     venue?: string;
+    source?: string;
     q?: string;
     showPastEvents?: boolean;
   }
@@ -201,6 +202,11 @@ export function filterGigs(
     filtered = filtered.filter(gig => 
       gig.venue.city?.toLowerCase().includes(cityLower)
     );
+  }
+  
+  // Source filter (exact match)
+  if (filters.source) {
+    filtered = filtered.filter(gig => gig.source === filters.source);
   }
   
   // Tags filter (case-insensitive includes)

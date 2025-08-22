@@ -208,18 +208,17 @@ export function SearchPage({ city }: SearchPageProps = {}) {
     }];
   }, [gigs]);
   
-  // Only show skeleton on initial page load when there's no data at all
-  // Never show skeleton during search/filter operations when data already exists
+  // Show loading state during initial page load or when actively loading with no data
   const hasData = gigs && gigs.length > 0;
-  const isInitialLoading = useInfiniteScrollMode ? 
-    (Boolean(loading) && !hasData && !hasMounted) : 
-    (Boolean(loading) && !hasMounted);
+  const isInitialLoad = !hasMounted;
+  const isActivelyLoading = Boolean(loading);
   
-  // Never show skeleton if we already have data or if the page has mounted
-  // This prevents skeleton from showing during search operations
-  const isLoading = isInitialLoading && !hasData && !hasMounted;
+  // Show loading when:
+  // 1. Initial page load (not mounted yet) OR
+  // 2. Actively loading data and no existing data
+  const isLoading = isInitialLoad || (isActivelyLoading && !hasData);
   
-  console.log('RENDER: gigs.length =', gigs.length, 'loading =', loading, 'hasData =', hasData, 'isInitialLoading =', isInitialLoading, 'hasMounted =', hasMounted, 'infiniteMode =', useInfiniteScrollMode);
+  console.log('RENDER: gigs.length =', gigs.length, 'loading =', loading, 'hasData =', hasData, 'isLoading =', isLoading, 'hasMounted =', hasMounted, 'infiniteMode =', useInfiniteScrollMode);
 
 
   return (
