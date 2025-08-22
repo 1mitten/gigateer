@@ -978,7 +978,8 @@ export class ConfigDrivenScraper {
       'thekla-bristol-date': (val, params) => this.parseTheklaBristolDate(val),
       'fleece-bristol-datetime': (val, params) => this.parseFleeceBristolDateTime(val, params),
       'rough-trade-datetime': (val, params) => this.parseRoughTradeDateTime(val, params),
-      'louisiana-bristol-datetime': (val, params) => this.parseLouisianaBristolDateTime(val, params)
+      'louisiana-bristol-datetime': (val, params) => this.parseLouisianaBristolDateTime(val, params),
+      'electric-bristol-datetime': (val, params) => this.parseElectricBristolDateTime(val, params)
     };
     
     const transformer = transformRegistry[transform];
@@ -1443,6 +1444,44 @@ export class ConfigDrivenScraper {
       
     } catch (error) {
       scraperLogger.error(`Error parsing Louisiana date "${dateStr}":`, error);
+      return new Date().toISOString();
+    }
+  }
+
+  /**
+   * Parse Electric Bristol date format (e.g., "27th August 2025")
+   */
+  private parseElectricBristolDateTime(dateStr: string, params?: Record<string, any>): string {
+    try {
+      if (!dateStr || dateStr.trim() === '') {
+        scraperLogger.warn('Empty date string for Electric Bristol');
+        return new Date().toISOString();
+      }
+
+      const trimmed = dateStr.trim();
+      
+      // Convert dates like "27th August 2025" to "27 August 2025" by removing ordinals
+      const cleanedDate = trimmed
+        .replace(/(\d+)(st|nd|rd|th)\s+/g, '$1 ')
+        .trim();
+      
+      scraperLogger.debug(`Electric Bristol: "${dateStr}" -> "${cleanedDate}"`);
+      
+      // Parse with cleaned date
+      const result = DateTimeParser.parseDate(cleanedDate, params?.fallbackTime || '7:00pm', {
+        format: 'bristol-standard',
+        defaultHour: 19 // Default to 7:00 PM
+      });
+      
+      if (result.success) {
+        return result.date.toISOString();
+      } else {
+        scraperLogger.warn(`Could not parse Electric Bristol date: "${dateStr}" (cleaned: "${cleanedDate}"), using today`);
+        return new Date().toISOString();
+      }
+      
+    } catch (error) {
+      scraperLogger.error(`Error parsing Electric Bristol date "${dateStr}":`, error);
       return new Date().toISOString();
     }
   }

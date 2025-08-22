@@ -92,7 +92,7 @@ export function GigsGroupedList({
         {useInfiniteScrollMode ? (
           <GigsListInfinite
             gigs={allEvents}
-            loading={false}
+            loading={loading}
             variant="list"
             showCount={false}
             hasMore={hasNextPage}
@@ -103,7 +103,7 @@ export function GigsGroupedList({
         ) : (
           <GigsList
             gigs={allEvents}
-            loading={false}
+            loading={loading}
             variant="list"
             showCount={false}
             emptyMessage={emptyMessage}

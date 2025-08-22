@@ -22,10 +22,16 @@
     "ingest:source": "pnpm --filter ingestor run ingest:source",
     "validate": "pnpm --filter ingestor run validate",
     "merge": "pnpm --filter ingestor run merge",
-    "daemon": "pnpm --filter ingestor run daemon"
+    "daemon": "pnpm --filter ingestor run daemon",
+    "import:scraper-configs": "tsx scripts/import-scraper-configs.ts"
   },
   "devDependencies": {
+    "@types/glob": "^9.0.0",
+    "@types/mongodb": "^4.0.7",
     "@types/node": "^20.0.0",
+    "glob": "^11.0.3",
+    "mongodb": "^6.18.0",
+    "tsx": "^4.7.0",
     "turbo": "^1.13.0",
     "typescript": "^5.4.0"
   },

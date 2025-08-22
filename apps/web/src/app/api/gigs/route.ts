@@ -62,6 +62,7 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
         }
         if (validatedQuery.venue) filters.venue = validatedQuery.venue;
         if (validatedQuery.q) filters.search = validatedQuery.q;
+        if (validatedQuery.source) filters.source = validatedQuery.source;
         // For "All dates", show events from today onwards (not past events)
         // Only show past events if explicitly filtered by date range
         filters.showPastEvents = false;
@@ -108,6 +109,7 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
           dateTo: validatedQuery.dateTo,
           venue: validatedQuery.venue,
           q: validatedQuery.q,
+          source: validatedQuery.source,
           // For "All dates", show events from today onwards (not past events)
           // Only show past events if explicitly filtered by date range
           showPastEvents: false
@@ -154,6 +156,7 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
         dateTo: validatedQuery.dateTo,
         venue: validatedQuery.venue,
         q: validatedQuery.q,
+        source: validatedQuery.source,
         // For "All dates", show events from today onwards (not past events)
         // Only show past events if explicitly filtered by date range
         showPastEvents: false
@@ -198,7 +201,8 @@ async function handleGigsRequest(request: NextRequest): Promise<Response> {
           tags: validatedQuery.tags,
           dateFrom: validatedQuery.dateFrom,
           dateTo: validatedQuery.dateTo,
-          venue: validatedQuery.venue
+          venue: validatedQuery.venue,
+          source: validatedQuery.source
         },
         sort: {
           sortBy: validatedQuery.sortBy,

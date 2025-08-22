@@ -1,0 +1,119 @@
+{
+  "site": {
+    "name": "Electric Bristol",
+    "baseUrl": "https://electricbristol.com",
+    "source": "bristol-electric",
+    "description": "Premier live music venue in Bristol featuring major touring acts",
+    "maintainer": "gigateer-team",
+    "lastUpdated": "2025-08-22"
+  },
+
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "headless": true,
+    "timeout": 60000
+  },
+
+  "rateLimit": {
+    "delayBetweenRequests": 3000,
+    "maxConcurrent": 1,
+    "respectRobotsTxt": true
+  },
+
+  "workflow": [
+    {
+      "type": "navigate",
+      "url": "https://electricbristol.com/events/?_event_filter_whatson=live-events"
+    },
+    {
+      "type": "wait",
+      "timeout": 5000
+    },
+    {
+      "type": "click",
+      "selector": ".fl-button:has-text('Load More')",
+      "optional": true
+    },
+    {
+      "type": "wait",
+      "timeout": 2000
+    },
+    {
+      "type": "extract",
+      "containerSelector": ".fl-post-grid-post",
+      "fields": {
+        "title": {
+          "selector": "h3 a",
+          "attribute": "text",
+          "required": false,
+          "transform": "trim"
+        },
+        "dateText": {
+          "selector": "h3 + h4",
+          "attribute": "text",
+          "required": false,
+          "transform": "electric-bristol-datetime"
+        },
+        "eventUrl": {
+          "selector": "h3 a",
+          "attribute": "href",
+          "required": false,
+          "transform": "url"
+        },
+        "ticketsUrl": {
+          "selector": "a[href*='ticket']",
+          "attribute": "href",
+          "required": false,
+          "transform": "url"
+        },
+        "image": {
+          "selector": "img",
+          "attribute": "src",
+          "required": false,
+          "transform": "url"
+        }
+      }
+    }
+  ],
+
+  "mapping": {
+    "id": {
+      "strategy": "generated",
+      "fields": ["title", "dateText"]
+    },
+    "title": "title",
+    "artist": "title",
+    "venue": {
+      "name": "Electric Bristol",
+      "address": "40 Feeder Road",
+      "city": "Bristol",
+      "country": "UK"
+    },
+    "date": {
+      "start": "dateText",
+      "timezone": "Europe/London"
+    },
+    "description": "description",
+    "urls": {
+      "event": "eventUrl",
+      "tickets": "ticketsUrl"
+    },
+    "images": "image"
+  },
+
+  "validation": {
+    "required": [],
+    "minEventsExpected": 5,
+    "maxEventsExpected": 200
+  },
+
+  "debug": {
+    "screenshots": true,
+    "saveHtml": true,
+    "logLevel": "debug"
+  }
+}

@@ -37,7 +37,7 @@ export const ExtractConfigSchema = z.object({
     attribute: z.string().optional(), // 'text', 'href', 'src', or custom attribute
     multiple: z.boolean().default(false),
     required: z.boolean().default(true),
-    transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime']).optional(),
+    transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime', 'electric-bristol-datetime']).optional(),
     fallback: z.string().optional(),
     transformParams: z.record(z.any()).optional(), // For regex patterns, etc.
     followUp: z.object({
@@ -45,7 +45,7 @@ export const ExtractConfigSchema = z.object({
       fields: z.record(z.object({
         selector: z.string(),
         attribute: z.string().optional(),
-        transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime']).optional(),
+        transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime', 'electric-bristol-datetime']).optional(),
         transformParams: z.record(z.any()).optional()
       }))
     }).optional() // Follow-up extraction from linked pages
@@ -56,7 +56,7 @@ export const ExtractConfigSchema = z.object({
     fields: z.record(z.object({
       selector: z.string(),
       attribute: z.string().optional(),
-      transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime']).optional(),
+      transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime', 'electric-bristol-datetime']).optional(),
       transformParams: z.record(z.any()).optional()
     }))
   }).optional()
@@ -122,7 +122,7 @@ export const ScraperConfigSchema = z.object({
         z.string(),
         z.object({
           field: z.string(),
-          transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime']).optional(),
+          transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime', 'electric-bristol-datetime']).optional(),
           transformParams: z.record(z.any()).optional()
         })
       ]),
@@ -130,7 +130,7 @@ export const ScraperConfigSchema = z.object({
         z.string(),
         z.object({
           field: z.string(),
-          transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime']).optional(),
+          transform: z.enum(['trim', 'lowercase', 'uppercase', 'date', 'slug', 'url', 'time-range-start', 'time-range-end', 'extract-text', 'regex', 'bristol-exchange-datetime', 'parse-date-group', 'exchange-venue-name', 'lanes-bristol-date', 'croft-bristol-date', 'thekla-bristol-date', 'fleece-bristol-datetime', 'strange-brew-datetime', 'rough-trade-datetime', 'rough-trade-city-mapper', 'louisiana-bristol-datetime', 'electric-bristol-datetime']).optional(),
           transformParams: z.record(z.any()).optional()
         })
       ]).optional(),

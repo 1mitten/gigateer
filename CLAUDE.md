@@ -31,6 +31,9 @@ pnpm ingest:source <name>         # Run specific scraper
 node packages/dedupe/dist/cli.js generate  # Create catalog.json
 pnpm validate                     # Check data integrity
 
+# Configuration Management
+pnpm import:scraper-configs       # Import scraper configs to MongoDB
+
 # Testing & Quality
 pnpm test                         # Run all tests
 pnpm lint                         # Lint all code
@@ -135,14 +138,17 @@ gigateer/
 ### Quick Scraper Creation
 ```bash
 # 1. Create JSON config in services/ingestor/data/scraper-configs/
-cp bristol-exchange.json my-venue.json
+cp bristol-electric.json my-venue.json    # Latest example with Load More pagination
 
 # 2. Edit configuration (URL, selectors, mappings)
 
 # 3. Test immediately  
 pnpm ingest:source my-venue
 
-# 4. Debug if needed (enable screenshots in config)
+# 4. Import to MongoDB
+pnpm import:scraper-configs
+
+# 5. Debug if needed (enable screenshots in config)
 ```
 
 ### 🎭 Playwright MCP Integration for Scraper Development
@@ -182,6 +188,29 @@ pnpm ingest:source venue-name
 - **Configuration-driven (.json) + Playwright**: Modern, visual development with live testing ⚡
 - **Traditional (.ts)**: Legacy approach for complex custom logic
 
+## 🗄️ Configuration Management
+
+### Scraper Config Import to MongoDB
+**New Feature (Aug 2025)**: Automatic import of all scraper configurations to MongoDB with smart upsert functionality.
+
+```bash
+# Import all scraper configs to MongoDB collection 'config_scraper'
+pnpm import:scraper-configs
+```
+
+**Features:**
+- **Auto-discovery**: Finds all JSON configs in multiple locations
+- **Smart upserts**: Uses SHA-256 hash to detect changes, prevents duplicates
+- **Unique constraints**: `sourceId` field ensures no duplicate scrapers
+- **Change tracking**: Preserves import timestamps, tracks updates
+- **Error handling**: Graceful handling of missing fields and connection issues
+
+**Use cases:**
+- CI/CD integration for config deployment
+- Configuration backup and versioning
+- Centralized scraper management
+- Production configuration synchronization
+
 ## 📊 MongoDB Setup
 
 ### Quick Start
@@ -208,12 +237,13 @@ pnpm test --coverage             # With coverage report
 **New Feature (Aug 2025)**: Comprehensive health check system for monitoring scraper reliability.
 
 #### Health Check System Features
-- **Automated Testing**: Individual tests for all 7 Bristol scrapers
+- **Automated Testing**: Individual tests for all 8 Bristol scrapers (including bristol-electric)
 - **Health Classification**: Healthy (≥2 records), Degraded (≥1 record), Failed (0 records)
 - **Performance Monitoring**: Response time tracking and timeout detection
 - **UI-Ready API**: RESTful endpoints for dashboard integration
 - **Error Categorization**: Network errors, timeouts, parsing failures
 - **Sample Data Preview**: Shows actual scraped event titles and venue info
+- **Configuration Management**: MongoDB integration for scraper config storage
 
 #### Running Health Checks
 ```bash
@@ -294,6 +324,10 @@ pnpm --filter dedupe test         # 130 tests - Deduplication logic
 pnpm --filter scraper test        # 80 tests - Scraping utilities
 pnpm --filter ingestor test       # 32 tests - Data ingestion (may skip external deps)
 pnpm --filter web test           # React component tests
+
+# Current scrapers in production (as of Aug 2025)
+# 8 active Bristol venue scrapers: bristol-electric, bristol-exchange, bristol-fleece,
+# bristol-louisiana, bristol-strange-brew, bristol-the-croft, bristol-the-lanes, bristol-thekla
 ```
 
 ## 🚨 Common Issues & Solutions
@@ -316,10 +350,13 @@ pnpm --filter web test           # React component tests
 - **Hydration issues**: Use client-only components with `dynamic`
 - **Performance**: Memoize expensive calculations, prevent re-renders
 
-### Data Loading
+### Data Loading & UI Issues
 - **Initial loading issues**: Check SSR vs client-side rendering
 - **API timeout**: Increase timeout values, add retry logic
 - **Infinite scroll**: Verify React Query configuration
+- **"No gigs listed" during loading**: Fixed in GigsGroupedList.tsx - ensure loading prop is passed correctly
+- **Date filtering**: "All Dates" now shows today + future events only (excludes yesterday and earlier)
+- **Empty states**: Only show when `!loading` to prevent flash messages during search/filter operations
 
 ## 📝 Project-Specific Patterns
 
@@ -397,19 +434,66 @@ pnpm --filter web dev
 - **No events found**: Website may have changed - use Playwright MCP to inspect live page
 - **Permission errors**: Remove problematic scrapers like bandsintown-rss-scraper.ts
 
-## 🎯 Success Metrics
+## 🎯 Recent Achievements & Success Metrics
+
+### Recent Major Updates (Aug 2025)
+- ✅ **Bristol Electric Scraper**: New venue added with Load More pagination handling
+- ✅ **MongoDB Config Import**: Automated scraper configuration management
+- ✅ **UI Loading States**: Fixed "no gigs listed" flash during search operations
+- ✅ **Date Filtering**: Improved "All Dates" logic to exclude past events properly
+- ✅ **Image Hotlinking**: Removed gig image displays to prevent hotlinking issues
 
 ### Development Velocity
 - New scrapers: JSON config only (minutes, not hours)
 - Component development: Reuse existing patterns
 - Bug fixes: Comprehensive tests prevent regressions
+- Configuration management: Automated MongoDB import/sync
 
 ### Code Quality
 - No duplicated logic across codebase
 - Consistent patterns and naming conventions
 - High test coverage (70%+ overall, 80%+ new code)
 - Clean, readable, maintainable code
+- Robust error handling and loading states
 
 ---
 
-**💡 Quick Reference**: This file contains the essentials. For detailed implementation guides, see `/docs/user-guides/`.
+## 📚 Complete Documentation Reference
+
+**💡 This file contains the essentials.** For detailed guides, see:
+
+### 🚀 Getting Started
+- [`/docs/user-guides/DEVELOPMENT.md`](./docs/user-guides/DEVELOPMENT.md) - Complete development setup and workflow
+- [`/docs/user-guides/ADDING_SCRAPERS.md`](./docs/user-guides/ADDING_SCRAPERS.md) - **JSON configuration approach, MongoDB management, Playwright integration**
+- [`/docs/user-guides/DEPLOYMENT.md`](./docs/user-guides/DEPLOYMENT.md) - Production deployment guide
+
+### 🏗️ Architecture & Design
+- [`/docs/architecture/SYSTEM_DESIGN.md`](./docs/architecture/SYSTEM_DESIGN.md) - Overall system architecture
+- [`/docs/architecture/CONFIGURATION_DRIVEN_PLUGINS.md`](./docs/architecture/CONFIGURATION_DRIVEN_PLUGINS.md) - JSON config system design
+- [`/docs/decisions/`](./docs/decisions/) - Architectural Decision Records (ADRs)
+
+### 📖 Implementation Guides
+- [`/docs/user-guides/SCRAPER_TRANSFORMATIONS.md`](./docs/user-guides/SCRAPER_TRANSFORMATIONS.md) - Advanced data transformation patterns
+- [`/docs/user-guides/SCRAPER_HEALTH_MONITORING.md`](./docs/user-guides/SCRAPER_HEALTH_MONITORING.md) - Health check system
+- [`/docs/user-guides/PLUGIN_MIGRATION_GUIDE.md`](./docs/user-guides/PLUGIN_MIGRATION_GUIDE.md) - TypeScript to JSON migration
+- [`/scripts/README-scraper-config-import.md`](./scripts/README-scraper-config-import.md) - **MongoDB import script documentation**
+
+### 🔌 API & Integration
+- [`/docs/api/ENDPOINTS.md`](./docs/api/ENDPOINTS.md) - REST API documentation
+- [`/docs/user-guides/API_USAGE.md`](./docs/user-guides/API_USAGE.md) - API usage examples
+
+### 📋 Case Studies & Examples
+- [`/docs/case-studies/EXCHANGE_BRISTOL_MIGRATION.md`](./docs/case-studies/EXCHANGE_BRISTOL_MIGRATION.md) - TypeScript to JSON migration example
+- [`/docs/BRISTOL_SCRAPERS_IMPLEMENTATION.md`](./docs/BRISTOL_SCRAPERS_IMPLEMENTATION.md) - Bristol venues implementation
+- [`/docs/BRISTOL_SCRAPERS_SUCCESS_SUMMARY.md`](./docs/BRISTOL_SCRAPERS_SUCCESS_SUMMARY.md) - Success metrics and achievements
+
+### 📄 Project Information
+- [`/docs/APP_PROPOSAL.md`](./docs/APP_PROPOSAL.md) - Original project requirements and scope
+
+### 🆘 Always Check Documentation First
+Before implementing features or making changes:
+1. **Read CLAUDE.md** (this file) for quick reference
+2. **Check relevant user guides** for detailed implementation steps
+3. **Review architecture docs** for system design context
+4. **Look at case studies** for real-world examples
+5. **Use agents** with specific documentation context when needed

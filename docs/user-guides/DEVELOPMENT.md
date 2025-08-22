@@ -37,6 +37,7 @@ This guide covers everything you need to know to develop and contribute to Gigat
 
 - **VS Code**: With TypeScript and ESLint extensions
 - **Chrome/Edge**: For debugging PWA features
+- **MongoDB**: For scraper configuration management and data storage
 - **Docker**: For containerized development (future enhancement)
 
 ## Development Setup
@@ -141,6 +142,8 @@ gigateer/
 - **Shared Types**: `packages/contracts/src/`
 - **Ingestor CLI**: `services/ingestor/src/cli.ts`
 - **Scraper Plugins**: `services/ingestor/src/plugins/`
+- **Scraper Configs**: `services/ingestor/data/scraper-configs/`
+- **Scripts**: `scripts/` (includes MongoDB import tools)
 
 ## Development Workflow
 
@@ -498,6 +501,57 @@ echo $INGESTOR_MODE
 
 # Test production settings locally
 NODE_ENV=production INGESTOR_MODE=production pnpm dev
+```
+
+## Configuration Management
+
+### MongoDB Scraper Configuration Import
+
+**New Feature (Aug 2025)**: Manage scraper configurations in MongoDB.
+
+```bash
+# Import all scraper configurations to MongoDB
+pnpm import:scraper-configs
+```
+
+**What it does:**
+- Discovers all `.json` config files in multiple locations
+- Imports to MongoDB collection `config_scraper`  
+- Uses smart upserts with SHA-256 hash change detection
+- Prevents duplicates with unique `sourceId` constraints
+- Tracks import/update timestamps
+
+**Environment Variables:**
+```bash
+MONGODB_CONNECTION_STRING=mongodb://localhost:27017  # Default
+MONGODB_DATABASE_NAME=gigateer                      # Default
+```
+
+**View imported configurations:**
+```bash
+mongosh gigateer --eval "db.config_scraper.find({}, {sourceId: 1, 'site.name': 1})"
+```
+
+### Available Scripts Reference
+
+```bash
+# Core development
+pnpm dev                          # Start all development servers
+pnpm build                        # Build all packages
+pnpm test                         # Run all tests
+
+# Data ingestion
+pnpm ingest:all                   # Run all scrapers
+pnpm ingest:source <name>         # Run specific scraper
+pnpm validate                     # Validate scraped data
+
+# Configuration management (NEW)
+pnpm import:scraper-configs       # Import scraper configs to MongoDB
+
+# Individual package development
+pnpm --filter web dev             # Web app only
+pnpm --filter ingestor test       # Ingestor tests only
+pnpm --filter contracts build     # Build contracts only
 ```
 
 ## Getting Help
